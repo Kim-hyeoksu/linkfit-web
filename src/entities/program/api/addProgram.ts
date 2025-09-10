@@ -1,15 +1,18 @@
 import { Program } from "@/entities/program/model/types";
 
-export const getPrograms = async (): Promise<Program[]> => {
+export const addProgram = async (
+  program: Omit<Program, "id">
+): Promise<Program> => {
   const res = await fetch("/api/programs", {
-    method: "GET",
+    method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
+    body: JSON.stringify(program),
   });
 
   if (!res.ok) {
-    throw new Error(`프로그램 조회 실패: ${res.status}`);
+    throw new Error(`프로그램 추가 실패: ${res.status}`);
   }
 
   return res.json();

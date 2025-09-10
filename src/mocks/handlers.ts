@@ -1,6 +1,21 @@
 // src/mocks/handlers.ts
 import { http, HttpResponse } from "msw";
+import { Program } from "@/entities/program/model/types";
 
+const mockPrograms: Program[] = [
+  {
+    id: 1,
+    title: "초급자용 프로그램",
+    description: "처음 운동하는 사람들을 위한 프로그램입니다.",
+    level: "beginner",
+  },
+  {
+    id: 2,
+    title: "중급자용 프로그램",
+    description: "운동을 꾸준히 해온 사람들을 위한 프로그램입니다.",
+    level: "intermediate",
+  },
+];
 export const handlers = [
   http.get("/api/exercises/:routineId", ({ params }) => {
     return HttpResponse.json([
@@ -55,6 +70,26 @@ export const handlers = [
           { id: 503, weight: 120, reps: 12 },
         ],
       },
+      http.get("/api/programs", () => {
+        return HttpResponse.json(mockPrograms, { status: 200 });
+      }),
+
+      // GET 운동 프로그램 조회
+      http.get("/api/programs", () => {
+        return HttpResponse.json(mockPrograms, { status: 200 });
+      }),
+
+      // POST 운동 프로그램 생성
+      http.post("/api/programs", async ({ request }) => {
+        const body = (await request.json()) as Omit<Program, "id">;
+        const newProgram: Program = {
+          ...body,
+          id: mockPrograms.length + 1,
+        };
+        mockPrograms.push(newProgram);
+
+        return HttpResponse.json(newProgram, { status: 201 });
+      }),
     ]);
   }),
 ];
