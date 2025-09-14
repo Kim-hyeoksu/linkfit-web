@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { useAddProgram } from "../model/useAddProgram";
-import { Button } from "@/shared/ui/Button";
 
 export const AddProgramForm = ({ onAdded }: { onAdded: () => void }) => {
   const [title, setTitle] = useState("");
@@ -46,9 +45,9 @@ export const AddProgramForm = ({ onAdded }: { onAdded: () => void }) => {
         <option value="advanced">Advanced</option>
       </select>
 
-      <Button type="submit" disabled={loading}>
+      <button type="submit" disabled={loading}>
         {loading ? "추가 중..." : "추가하기"}
-      </Button>
+      </button>
     </form>
   );
 };
