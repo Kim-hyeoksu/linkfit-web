@@ -74,16 +74,258 @@ export const handlers = [
       },
     ]);
   }),
-  http.get("/api/programs", () => {
-    return HttpResponse.json(mockPrograms, { status: 200 });
-  }),
 
   // GET 운동 프로그램 조회
   http.get("/api/programs", () => {
     return HttpResponse.json(mockPrograms, { status: 200 });
   }),
+  http.get("*/api/programs/:programId", () => {
+    const programs = [
+      {
+        id: "1",
+        name: "5주 근력 프로그램",
+        weeks: [
+          {
+            week: 1,
+            days: [
+              {
+                dayNumber: 1,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+              {
+                dayNumber: 2,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+              {
+                dayNumber: 3,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+              {
+                dayNumber: 4,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+              {
+                dayNumber: 5,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+              {
+                dayNumber: 6,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+            ],
+          },
+          {
+            week: 2,
+            days: [
+              {
+                dayNumber: 1,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+              {
+                dayNumber: 2,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+              {
+                dayNumber: 3,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+              {
+                dayNumber: 4,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+              {
+                dayNumber: 5,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+              {
+                dayNumber: 6,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+            ],
+          },
+          {
+            week: 3,
+            days: [
+              {
+                dayNumber: 1,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+              {
+                dayNumber: 2,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+              {
+                dayNumber: 3,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+              {
+                dayNumber: 4,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+              {
+                dayNumber: 5,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+              {
+                dayNumber: 6,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+            ],
+          },
+          {
+            week: 4,
+            days: [
+              {
+                dayNumber: 1,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+              {
+                dayNumber: 2,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+              {
+                dayNumber: 3,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+              {
+                dayNumber: 4,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+              {
+                dayNumber: 5,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+              {
+                dayNumber: 6,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+            ],
+          },
+          {
+            week: 5,
+            days: [
+              {
+                dayNumber: 1,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+              {
+                dayNumber: 2,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+              {
+                dayNumber: 3,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+              {
+                dayNumber: 4,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+              {
+                dayNumber: 5,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+              {
+                dayNumber: 6,
+                exercisesCount: 3,
+                totalVolumeKg: 25670,
+                completed: true,
+                representativeExercise: "데드리프트",
+              },
+            ],
+          },
+        ],
+      },
+    ];
 
-  // POST 운동 프로그램 생성
+    return HttpResponse.json(programs, { status: 200 });
+  }), // POST 운동 프로그램 생성
   http.post("/api/programs", async ({ request }) => {
     const body = (await request.json()) as Omit<Program, "id">;
     const newProgram: Program = {

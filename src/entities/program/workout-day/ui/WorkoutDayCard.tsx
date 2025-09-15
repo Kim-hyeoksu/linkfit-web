@@ -1,14 +1,19 @@
-import { Program } from "../model/types";
+import { WorkoutDay } from "../model/types";
 import Image from "next/image";
 import Link from "next/link";
-export default function ProgramCard({ id, title, period, dayNumber }: Program) {
+export default function WorkoutDayCard({
+  dayNumber,
+  exercisesCount,
+  totalVolumeKg,
+  id,
+}: WorkoutDay) {
   return (
     <div className="relative p-3 border border-[#e5e5e5] rounded-lg bg-white shadow">
       <div className="flex items-center mb-2">
         <p className="text-sm text-gray-600 mr-2">{dayNumber}일차</p>
-        <h2 className="">{title}</h2>
+        <h2 className="">{exercisesCount}</h2>
       </div>
-      <p className="text-sm text-gray-600">{period}</p>
+      <p className="text-sm text-gray-600">{totalVolumeKg}</p>
       <Link
         href={`/workout/programs/${id}`}
         className="absolute right-3 top-1/2 -translate-y-1/2"

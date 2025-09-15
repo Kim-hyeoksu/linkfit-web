@@ -1,6 +1,3 @@
-// ProgramList.tsx
-"use client";
-
 import { Program } from "@/entities/program/model/types";
 import ProgramCard from "@/entities/program/ui/ProgramCard";
 import Link from "next/link";

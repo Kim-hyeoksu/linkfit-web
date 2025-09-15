@@ -3,11 +3,12 @@
 // 1. 필요한 모듈들을 불러옵니다.
 // Metadata: Next.js에서 SEO와 웹 접근성 등을 위한 메타데이터를 정의할 때 사용합니다.
 import type { Metadata } from "next";
-// 전역 CSS 파일을 불러옵니다. 여기에 Tailwind CSS 등의 기본 스타일이 포함됩니다.
+import { initMsw } from "@/mocks/initMsw";
 import "./globals.css";
 import MswProvider from "@/components/common/MswProvider";
-
-// 2. 이 웹사이트의 전반적인 메타데이터를 정의합니다.
+if (process.env.NEXT_PUBLIC_API_MOCKING === "enabled") {
+  await initMsw();
+}
 // 브라우저 탭에 표시되는 제목, 검색 엔진에 노출되는 설명 등을 설정할 수 있어요.
 export const metadata: Metadata = {
   title: "김혁수님의 멋진 웹 서비스", // 웹사이트의 기본 제목입니다.
@@ -15,7 +16,6 @@ export const metadata: Metadata = {
   // Next.js 13+ App Router에서는 viewport meta tag (width=device-width, initial-scale=1.0)가 기본으로 포함되므로 따로 작성하지 않아도 괜찮아요!
 };
 
-// 3. RootLayout 컴포넌트를 정의합니다.
 // 이 컴포넌트는 애플리케이션의 모든 페이지를 감싸는 최상위 레이아웃입니다.
 // `children` prop을 통해 실제 페이지 내용이 여기에 렌더링됩니다.
 export default function RootLayout({

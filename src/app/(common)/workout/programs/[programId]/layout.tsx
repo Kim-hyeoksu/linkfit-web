@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import "./../globals.css";
 
 import BottomNavBar from "@/components/common/BottomNavBar";
 import Header from "@/components/common/header";
@@ -12,7 +11,7 @@ export const metadata: Metadata = {
   // <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 };
 
-export default function RootLayout({
+export default function ProgramDetailLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
