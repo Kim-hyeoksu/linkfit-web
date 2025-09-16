@@ -10,7 +10,7 @@ export default function ProgramCard({ id, title, period, dayNumber }: Program) {
       </div>
       <p className="text-sm text-gray-600">{period}</p>
       <Link
-        href={`/workout/programs/${id}`}
+        href={`/workout/programs/${id}/1`}
         className="absolute right-3 top-1/2 -translate-y-1/2"
       >
         <Image

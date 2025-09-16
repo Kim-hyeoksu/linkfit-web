@@ -20,7 +20,7 @@ export interface Exercise {
   restSeconds: number;
   sets: ExerciseSet[];
 }
-export default function RoutinePage() {
+export default function WorkoutDayPage() {
   const { routineId } = useParams();
   const TIMER_HEIGHT = 375;
   const [loading, setLoading] = useState(true);

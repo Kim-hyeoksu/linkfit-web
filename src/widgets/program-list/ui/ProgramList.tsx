@@ -4,16 +4,12 @@ import Link from "next/link";
 
 interface ProgramListProps {
   programs: Program[];
-  loading: boolean;
+  // loading: boolean;
   title: "운동 프로그램" | "나의 운동";
 }
 
-export default function ProgramList({
-  programs,
-  loading,
-  title,
-}: ProgramListProps) {
-  if (loading) return <div>로딩중...</div>;
+export default function ProgramList({ programs, title }: ProgramListProps) {
+  // if (loading) return <div>로딩중...</div>;
 
   const linkHref =
     title === "운동 프로그램"

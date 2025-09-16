@@ -1,17 +1,18 @@
-// MswProvider.tsx
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { initMsw } from "@/mocks/initMsw";
 
 export default function MswProvider({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
-  const [ready, setReady] = useState(false);
+}) {
   useEffect(() => {
-    initMsw().then(() => setReady(true));
+    if (process.env.NEXT_PUBLIC_API_MOCKING === "enabled") {
+      initMsw(); // ✅ 딱 한 번만 실행
+      console.log("난 클라이언트");
+    }
   }, []);
-  if (!ready) return null;
+
   return <>{children}</>;
 }

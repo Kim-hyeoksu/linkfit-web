@@ -1,7 +1,9 @@
 import { Program } from "@/entities/program/model/types";
+import { API_BASE_URL } from "@/shared/api/baseUrl";
 
 export const getPrograms = async (): Promise<Program[]> => {
-  const res = await fetch("/api/programs", {
+  console.log(`${API_BASE_URL}/api/programs`);
+  const res = await fetch(`${API_BASE_URL}/api/programs`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

@@ -1,34 +1,23 @@
 // ProgramsPage.tsx
-"use client";
+// "use client";
 
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
 import { getPrograms } from "@/entities/program/api/getPrograms";
-import { Program } from "@/entities/program/model/types";
 import ProgramList from "@/widgets/program-list/ui/ProgramList";
 import Image from "next/image";
 import Link from "next/link";
+import { initMsw } from "@/mocks/initMsw";
 
-export default function ProgramsPage() {
-  const [programs, setPrograms] = useState<Program[]>([]);
-  const [loading, setLoading] = useState(true);
-  const fetchPrograms = async () => {
-    setLoading(true);
-    const data = await getPrograms();
-    setPrograms(data);
-    setLoading(false);
-  };
-  useEffect(() => {
-    fetchPrograms();
-  }, []);
+export default async function ProgramsPage() {
+  if (process.env.NEXT_PUBLIC_API_MOCKING === "enabled") {
+    await initMsw(); // SSR에서 모킹 활성화
+  }
 
+  const programs = await getPrograms();
   return (
     <div className=" flex flex-col gap-2 bg-[#F7F8F9]">
-      <ProgramList
-        programs={programs}
-        loading={loading}
-        title={"운동 프로그램"}
-      />
-      <ProgramList programs={programs} loading={loading} title={"나의 운동"} />
+      <ProgramList programs={programs} title={"운동 프로그램"} />
+      <ProgramList programs={programs} title={"나의 운동"} />
       <div className="bg-white flex justify-center p-5">
         <Link
           href={"/workout/programs/add"}

@@ -6,9 +6,9 @@ import type { Metadata } from "next";
 import { initMsw } from "@/mocks/initMsw";
 import "./globals.css";
 import MswProvider from "@/components/common/MswProvider";
-if (process.env.NEXT_PUBLIC_API_MOCKING === "enabled") {
-  await initMsw();
-}
+// if (process.env.NEXT_PUBLIC_API_MOCKING === "enabled") {
+//   await initMsw();
+// }
 // 브라우저 탭에 표시되는 제목, 검색 엔진에 노출되는 설명 등을 설정할 수 있어요.
 export const metadata: Metadata = {
   title: "김혁수님의 멋진 웹 서비스", // 웹사이트의 기본 제목입니다.
