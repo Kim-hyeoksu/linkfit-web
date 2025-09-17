@@ -6,6 +6,7 @@ export default function WorkoutDayCard({
   exercisesCount,
   totalVolumeKg,
   id,
+  programId,
 }: WorkoutDay) {
   return (
     <div className="relative p-3 border border-[#e5e5e5] rounded-lg bg-white shadow">
@@ -15,7 +16,7 @@ export default function WorkoutDayCard({
       </div>
       <p className="text-sm text-gray-600">{totalVolumeKg}</p>
       <Link
-        href={`/workout/programs/${id}`}
+        href={`/workout/programs/${programId}/1/${id}`}
         className="absolute right-3 top-1/2 -translate-y-1/2"
       >
         <Image

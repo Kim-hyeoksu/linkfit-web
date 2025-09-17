@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 
 import axios from "axios";
-import Exercise from "@/components/common/Exercise";
+import Exercise from "@/entities/exercise/ui/Exercise";
 import Timer from "@/components/common/Timer";
 
 // 한 세트 정보 타입
