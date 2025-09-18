@@ -54,7 +54,11 @@ export default async function WorkoutProgramWeekPage({ params }: Props) {
       </div>
 
       {/* 주차별 운동일차 리스트 */}
-      <WorkoutDayList program={workoutdays} weekNumber={Number(weekNumber)} />
+      <WorkoutDayList
+        program={workoutdays}
+        programId={Number(programId)}
+        weekNumber={Number(weekNumber)}
+      />
     </div>
   );
 }

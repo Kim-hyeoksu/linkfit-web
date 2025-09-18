@@ -60,10 +60,15 @@ import { WorkoutProgram } from "@/entities/program/workout-day/model/types";
 
 interface Props {
   program: WorkoutProgram;
+  programId: number;
   weekNumber: number; // 서버에서 주차를 선택
 }
 
-export default function WorkoutDayList({ program, weekNumber }: Props) {
+export default function WorkoutDayList({
+  program,
+  programId,
+  weekNumber,
+}: Props) {
   const currentWeek = program.weeks.find((w) => w.week === weekNumber);
 
   return (
@@ -71,7 +76,12 @@ export default function WorkoutDayList({ program, weekNumber }: Props) {
       <h3 className="mb-4 font-bold">{weekNumber}주차</h3>
       <div className="flex flex-col gap-3">
         {currentWeek?.days.map((day) => (
-          <WorkoutDayCard key={day.id} {...day} />
+          <WorkoutDayCard
+            key={day.id}
+            {...day}
+            programId={programId}
+            weekNumber={weekNumber}
+          />
         ))}
       </div>
     </div>

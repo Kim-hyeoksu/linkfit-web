@@ -7,7 +7,8 @@ export default function WorkoutDayCard({
   totalVolumeKg,
   id,
   programId,
-}: WorkoutDay) {
+  weekNumber,
+}: WorkoutDay & { programId: number; weekNumber: number }) {
   return (
     <div className="relative p-3 border border-[#e5e5e5] rounded-lg bg-white shadow">
       <div className="flex items-center mb-2">
@@ -16,7 +17,7 @@ export default function WorkoutDayCard({
       </div>
       <p className="text-sm text-gray-600">{totalVolumeKg}</p>
       <Link
-        href={`/workout/programs/${programId}/1/${id}`}
+        href={`/workout/programs/${programId}/${weekNumber}/${id}`}
         className="absolute right-3 top-1/2 -translate-y-1/2"
       >
         <Image
