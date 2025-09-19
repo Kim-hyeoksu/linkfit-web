@@ -22,7 +22,7 @@ interface ExerciseProps {
     values: { weight: number; reps: number }
   ) => void;
 }
-const Excercise = ({
+const ExcerciseCard = ({
   id,
   name,
   sets,
@@ -226,4 +226,4 @@ const Excercise = ({
   );
 };
 
-export default Excercise;
+export default ExcerciseCard;

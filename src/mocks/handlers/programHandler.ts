@@ -3,7 +3,7 @@ import { http, HttpResponse } from "msw";
 import { Program } from "@/entities/program/model/types";
 import { mockPrograms, mockWorkout, mockWorkoutDay } from "../data/programs";
 export const programHandlers = [
-  http.get("/api/exercises/:routineId", ({ params }) => {
+  http.get("*/api/exercises/:routineId", ({ params }) => {
     return HttpResponse.json(mockWorkout);
   }),
 

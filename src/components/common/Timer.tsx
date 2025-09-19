@@ -23,7 +23,6 @@ export const Timer = ({
   showType?: "bar" | "full";
   onShowTypeChange?: (type: "bar" | "full") => void;
 }) => {
-  console.log(restSeconds);
   const isFirstRender = useRef(true);
 
   const [remainingMs, setRemainingMs] = useState(5000); // 밀리초
