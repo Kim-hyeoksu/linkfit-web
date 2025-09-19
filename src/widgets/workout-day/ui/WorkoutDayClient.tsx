@@ -4,13 +4,15 @@ import React, { useState, useEffect, useRef } from "react";
 import ExerciseCard from "@/entities/exercise/ui/ExerciseCard";
 import Timer from "@/components/common/Timer";
 import { Exercise } from "@/entities/exercise/model/types";
-
+import Header from "@/components/common/header";
 export default function WorkoutDayClient({
-  exercises,
+  initialExercises,
 }: {
-  exercises: Exercise[];
+  initialExercises: Exercise[];
 }) {
   const TIMER_HEIGHT = 375;
+  const [exercises, setExercises] = useState<Exercise[]>(initialExercises);
+
   const [currentExerciseId, setCurrentExerciseId] = useState<number | null>(
     null
   );
@@ -115,6 +117,7 @@ export default function WorkoutDayClient({
 
   return (
     <div>
+      <Header />
       <div
         ref={wrapperRef}
         className="overflow-y-auto"

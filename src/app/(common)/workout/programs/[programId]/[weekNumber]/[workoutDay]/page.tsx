@@ -17,7 +17,6 @@ export default async function WorkoutDayPage({ params }: WorkoutDayPageProps) {
     await initMsw();
   }
 
-  console.log("params", params);
   const exercises = await getExercise(params.workoutDay);
-  return <WorkoutDayClient exercises={exercises} />;
+  return <WorkoutDayClient initialExercises={exercises} />;
 }
