@@ -18,7 +18,6 @@ export default function ProgramsLayout({
 }>) {
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
       {/* 메인 콘텐츠 영역 */}
       {/*
             flex-grow: 남은 공간 채우기

@@ -1,26 +1,7 @@
-// import WorkoutDayList from "@/widgets/program-list/workout-day-liat/ui/WorkoutDayList";
-// import { getWorkoutDays } from "@/entities/program/workout-day/api/getWorkoutDays";
-// import { initMsw } from "@/mocks/initMsw";
-// export default async function WorkoutProgramDetailPage({
-//   params,
-// }: {
-//   params: Promise<{ programId: number }>;
-// }) {
-//   if (process.env.NEXT_PUBLIC_API_MOCKING === "enabled") {
-//     await initMsw(); // SSR에서 모킹 활성화
-//   }
-//   const { programId } = await params;
-//   const workoutdays = await getWorkoutDays(programId);
-//   console.log("workoutdays", workoutdays);
-//   return (
-//     <div>
-//       <WorkoutDayList workoutdays={workoutdays} programId={programId} />
-//     </div>
-//   );
-// }
 import WorkoutDayList from "@/widgets/program-list/workout-day-liat/ui/WorkoutDayList";
 import { getWorkoutDays } from "@/entities/program/workout-day/api/getWorkoutDays";
 import { initMsw } from "@/mocks/initMsw";
+import Header from "@/components/common/header";
 import Link from "next/link";
 interface Props {
   params: { programId: string; weekNumber: string };
@@ -37,6 +18,11 @@ export default async function WorkoutProgramWeekPage({ params }: Props) {
   return (
     <div>
       {/* 주차별 링크 버튼 */}
+      <Header
+        title={workoutdays.name}
+        showBackButton={true}
+        backUrl="/workout/programs"
+      />
       <div className="flex gap-2 mb-4">
         {workoutdays.weeks.map((w) => (
           <Link

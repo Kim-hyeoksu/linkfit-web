@@ -72,7 +72,7 @@ const Header = ({
           </button>
         )}{" "}
         <p className="h-full flex items-center font-bold">{title}</p>
-        {showRightButton && (
+        {showRightButton ? (
           <button
             onClick={handleRight}
             className="-ml-2 rounded-full hover:bg-gray-100 transition-colors" // 클릭 영역을 넓히고 호버 효과를 추가합니다.
@@ -86,6 +86,8 @@ const Header = ({
               height={24}
             />
           </button>
+        ) : (
+          <div></div>
         )}
       </nav>
     </header>
