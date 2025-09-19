@@ -6,9 +6,9 @@ interface HeaderProps {
   showBackButton?: boolean; // 뒤로가기 버튼을 보일지 여부를 결정합니다. (기본값: true)
   backUrl?: string; // 뒤로가기 버튼 클릭 시 특정 경로로 이동하고 싶을 때 사용합니다. (지정하지 않으면 browser history.back() 동작)
   onBackClick?: () => void; // 뒤로가기 버튼 클릭 시 실행될 사용자 정의 함수입니다.
-  showRightButton?: boolean;
   rightButtonIconUrl?: string;
   onRightClick?: () => void;
+  children: React.ReactNode;
   className?: string; // 헤더 전체에 적용될 추가 Tailwind CSS 클래스입니다.
 }
 
@@ -17,9 +17,9 @@ const Header = ({
   showBackButton = true,
   backUrl,
   onBackClick,
-  showRightButton,
   rightButtonIconUrl,
   onRightClick,
+  children,
   className = "",
 }: HeaderProps) => {
   const router = useRouter();
@@ -72,19 +72,13 @@ const Header = ({
           </button>
         )}{" "}
         <p className="h-full flex items-center font-bold">{title}</p>
-        {showRightButton ? (
+        {children ? (
           <button
             onClick={handleRight}
             className="-ml-2 rounded-full hover:bg-gray-100 transition-colors" // 클릭 영역을 넓히고 호버 효과를 추가합니다.
             aria-label="뒤로가기" // 웹 접근성을 위해 스크린 리더가 읽을 텍스트를 제공합니다.
           >
-            {/* 뒤로가기 아이콘 (SVG) */}
-            <Image
-              alt="go-calendar"
-              src={`/images/common/icon/${rightButtonIconUrl}.svg`}
-              width={24}
-              height={24}
-            />
+            {children}
           </button>
         ) : (
           <div></div>

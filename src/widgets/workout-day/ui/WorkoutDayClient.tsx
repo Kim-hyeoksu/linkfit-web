@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import ExerciseCard from "@/entities/exercise/ui/ExerciseCard";
 import Timer from "@/components/common/Timer";
 import { Exercise } from "@/entities/exercise/model/types";
-import Header from "@/components/common/header";
+import Header from "@/components/common/Header";
 export default function WorkoutDayClient({
   initialExercises,
 }: {
@@ -117,7 +117,13 @@ export default function WorkoutDayClient({
 
   return (
     <div>
-      <Header />
+      <Header
+        showBackButton={true}
+        onRightClick={() => setStartTrigger((t) => t + 1)}
+        rightButtonIconUrl={"calendar"}
+      >
+        <div>운동 시작</div>
+      </Header>
       <div
         ref={wrapperRef}
         className="overflow-y-auto"
