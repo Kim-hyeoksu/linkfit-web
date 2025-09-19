@@ -7,7 +7,7 @@ import ProgramList from "@/widgets/program-list/ui/ProgramList";
 import Image from "next/image";
 import Link from "next/link";
 import { initMsw } from "@/mocks/initMsw";
-
+import Header from "@/components/common/header";
 export default async function ProgramsPage() {
   if (process.env.NEXT_PUBLIC_API_MOCKING === "enabled") {
     await initMsw(); // SSR에서 모킹 활성화
@@ -16,8 +16,16 @@ export default async function ProgramsPage() {
   const programs = await getPrograms();
   return (
     <div className=" flex flex-col gap-2 bg-[#F7F8F9]">
-      <ProgramList programs={programs} title={"운동 프로그램"} />
-      <ProgramList programs={programs} title={"나의 운동"} />
+      <Header
+        title="운동"
+        showBackButton={false}
+        showRightButton={true}
+        rightButtonIconUrl={"calendar"}
+      />
+      <div>
+        <ProgramList programs={programs} title={"운동 프로그램"} />
+        <ProgramList programs={programs} title={"나의 운동"} />
+      </div>
       <div className="bg-white flex justify-center p-5">
         <Link
           href={"/workout/programs/add"}

@@ -32,7 +32,7 @@ const navItems: NavItem[] = [
   },
   {
     name: "운동",
-    href: "/workout", // 예시 경로: 실제 운동 관련 페이지 경로로 변경해주세요.
+    href: "/workout/programs", // 예시 경로: 실제 운동 관련 페이지 경로로 변경해주세요.
     icon: (isActive) => (
       <Image
         src={
