@@ -13,10 +13,11 @@ interface ExerciseProps {
   name: string;
   sets: SetItem[];
   completedSetIds: Set<number>;
-  isSelected?: boolean;
+  isCurrent?: boolean;
+  currentExerciseSetId: number | string;
   onClickExercise: (id: number) => void;
   addSets: (id: number) => void;
-  onClickSetCheckBtn: (setId: number) => void;
+  onClickSetCheckBtn: (exerciseId: number, setId: number) => void;
   onUpdateSet: (
     setId: number,
     values: { weight: number; reps: number }
@@ -27,7 +28,8 @@ const ExcerciseCard = ({
   name,
   sets,
   completedSetIds,
-  isSelected,
+  isCurrent,
+  currentExerciseSetId,
   onClickExercise,
   addSets,
   onClickSetCheckBtn,
@@ -85,7 +87,7 @@ const ExcerciseCard = ({
   ) => {
     e.stopPropagation();
     onClickExercise(exerciseId);
-    onClickSetCheckBtn(setId);
+    onClickSetCheckBtn(exerciseId, setId);
   };
 
   return (
@@ -136,7 +138,11 @@ const ExcerciseCard = ({
               <div
                 onClick={() => handleEditStart(set, null)}
                 key={set?.id}
-                className="flex items-center px-2.5 justify-between h-[45px] border border-[#d9d9d9] rounded-[8px]"
+                className={`flex items-center px-2.5 justify-between h-[45px] border rounded-[8px] ${
+                  currentExerciseSetId === set.id
+                    ? "border-black"
+                    : "border-[#d9d9d9]"
+                }`}
               >
                 {/* 체크박스 */}
                 <div style={{ flex: 1 }}>

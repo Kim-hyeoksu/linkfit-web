@@ -25,8 +25,8 @@ export const Timer = ({
 }) => {
   const isFirstRender = useRef(true);
 
-  const [remainingMs, setRemainingMs] = useState(5000); // 밀리초
-  const [totalMs, setTotalMs] = useState(5000); // 총 시간
+  const [remainingMs, setRemainingMs] = useState(restSeconds * 1000); // 밀리초
+  const [totalMs, setTotalMs] = useState(restSeconds * 1000); // 총 시간
   const [isRunning, setIsRunning] = useState(false);
   const [internalShowType, setInternalShowType] = useState<"full" | "bar">(
     showType
@@ -182,13 +182,22 @@ export const Timer = ({
           <div className="text-lg font-bold h-[42px] w-[93px] bg-[#0ea5e9] text-white rounded-lg flex items-center justify-center">
             {formatTime(remainingMs)}
           </div>
-          <button
+          {startTrigger === 0 && (
+            <button
+              onClick={nextExercise}
+              className="flex items-center justify-center rounded-lg h-[42px] bg-[#0ea5e9] text-white "
+              style={{ flex: 1 }}
+            >
+              세트 완료
+            </button>
+          )}
+          {/* <button
             onClick={nextExercise}
             className="flex items-center justify-center rounded-lg h-[42px] border border-[#d9d9d9]"
             style={{ flex: 1 }}
           >
             다음 운동
-          </button>
+          </button> */}
         </div>
       ) : (
         <div className="flex flex-col w-full px-5 h-[375px] min-h-[375px] justify-between items-center fixed bottom-0 bg-white left-0 right-0 pt-5 z-50 border-t border-[#d9d9d9]">

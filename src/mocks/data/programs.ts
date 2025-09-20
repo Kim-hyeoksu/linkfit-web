@@ -21,7 +21,7 @@ export const mockWorkout = [
   {
     id: 1,
     name: "스쿼트",
-    restSeconds: 60,
+    restSeconds: 90,
     sets: [
       { id: 101, weight: 120, reps: 12 },
       { id: 102, weight: 120, reps: 12 },

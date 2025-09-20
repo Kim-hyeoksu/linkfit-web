@@ -13,9 +13,12 @@ export default function WorkoutDayClient({
   const TIMER_HEIGHT = 375;
   const [exercises, setExercises] = useState<Exercise[]>(initialExercises);
 
-  const [currentExerciseId, setCurrentExerciseId] = useState<number | null>(
-    null
+  const [currentExerciseId, setCurrentExerciseId] = useState<number | string>(
+    exercises[0].id
   );
+  const [currentExerciseSetId, setCurrentExerciseSetId] = useState<
+    number | string
+  >(exercises[0].sets[0].id);
   const [completedSetIds, setCompletedSetIds] = useState<Set<number>>(
     new Set()
   );
@@ -34,7 +37,7 @@ export default function WorkoutDayClient({
         wrapperRef.current &&
         !wrapperRef.current.contains(event.target as Node)
       ) {
-        setCurrentExerciseId(null);
+        setCurrentExerciseId(0);
       }
     };
 
@@ -42,7 +45,7 @@ export default function WorkoutDayClient({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const toggleSetCompletion = (setId: number) => {
+  const toggleSetCompletion = (exerciseId: number, setId: number) => {
     setCompletedSetIds((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(setId)) {
@@ -53,6 +56,8 @@ export default function WorkoutDayClient({
       setStartTrigger((t) => t + 1);
       return newSet;
     });
+    // setCurrentExerciseId(exerciseId);
+    handleNextSet(exerciseId);
   };
 
   const handleExerciseClick = (id: number) => {
@@ -67,11 +72,36 @@ export default function WorkoutDayClient({
       }
     }, 50);
   };
-
-  const nextExercise = () => {
-    const currentIndex = exercises.findIndex(
-      (item) => item.id === currentExerciseId
+  // 다음 세트로 이동
+  const handleNextSet = (exerciseId: number) => {
+    console.log("currentExerciseSetId", currentExerciseSetId);
+    const exercise = exercises.find((ex) => ex.id === exerciseId);
+    if (!exercise) return;
+    const currentSetIndex = exercise.sets.findIndex(
+      (set) => set.id === currentExerciseSetId
     );
+    // 다음 세트로 이동, 마지막이면 null로 초기화
+    const nextSet = exercise.sets[currentSetIndex + 1];
+    console.log("nextSet", nextSet);
+    // 다음 세트가 없다면 다음 종목의 첫 세트로 이동
+    if (!nextSet) {
+      console.log("다음 세트 없다");
+      const currentExerciseIndex = exercises.findIndex(
+        (item) => item.id === exerciseId
+      );
+      const nextExerciseFirstSet = exercises[currentExerciseIndex + 1];
+      setCurrentExerciseSetId(
+        nextExerciseFirstSet ? nextExerciseFirstSet.sets[0].id : -1
+      );
+      console.log("nextExerciseFirstSet.id", nextExerciseFirstSet.sets[0].id);
+      nextExercise(exerciseId);
+    } else {
+      setCurrentExerciseSetId(nextSet ? nextSet.id : 0);
+    }
+  };
+
+  const nextExercise = (exerciseId: number) => {
+    const currentIndex = exercises.findIndex((item) => item.id === exerciseId);
     if (currentIndex !== -1 && currentIndex + 1 < exercises.length) {
       const nextExerciseId = exercises[currentIndex + 1].id;
       handleExerciseClick(nextExerciseId);
@@ -122,6 +152,7 @@ export default function WorkoutDayClient({
         onRightClick={() => setStartTrigger((t) => t + 1)}
         rightButtonIconUrl={"calendar"}
       >
+        {currentExerciseId}/{currentExerciseSetId}
         <div>운동 시작</div>
       </Header>
       <div
@@ -145,7 +176,8 @@ export default function WorkoutDayClient({
               <ExerciseCard
                 {...exercise}
                 completedSetIds={completedSetIds}
-                isSelected={exercise.id === currentExerciseId}
+                isCurrent={exercise.id === currentExerciseId}
+                currentExerciseSetId={currentExerciseSetId}
                 onClickExercise={handleExerciseClick}
                 onClickSetCheckBtn={toggleSetCompletion}
                 addSets={addSets}
