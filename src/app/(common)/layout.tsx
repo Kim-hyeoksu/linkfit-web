@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 
 import BottomNavBar from "@/components/common/BottomNavBar";
-import Header from "@/components/common/Header";
 
 // 전역 메타데이터 정의
 export const metadata: Metadata = {

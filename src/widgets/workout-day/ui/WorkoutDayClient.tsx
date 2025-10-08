@@ -5,6 +5,7 @@ import ExerciseCard from "@/entities/exercise/ui/ExerciseCard";
 import Timer from "@/components/common/Timer";
 import { Exercise } from "@/entities/exercise/model/types";
 import Header from "@/components/common/Header";
+import { formatTime } from "@/shared/utils/formatTime";
 export default function WorkoutDayClient({
   initialExercises,
 }: {
@@ -28,6 +29,8 @@ export default function WorkoutDayClient({
   const [showType, setShowType] = useState<"bar" | "full">("bar");
   const [startTrigger, setStartTrigger] = useState(0);
 
+  const [totalExerciseMs, setTotalExerciseMs] = useState(0);
+
   // 데이터 로딩
 
   // 영역 밖 클릭 시 선택 해제
@@ -45,6 +48,14 @@ export default function WorkoutDayClient({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const startExerciseTimer = () => {
+    setInterval(() => {
+      setTotalExerciseMs((prev) => {
+        console.log("1초 증가", prev + 1000);
+        return prev + 1000;
+      });
+    }, 1000);
+  };
   const toggleSetCompletion = (exerciseId: number, setId: number) => {
     setCompletedSetIds((prev) => {
       const newSet = new Set(prev);
@@ -150,10 +161,14 @@ export default function WorkoutDayClient({
       <Header
         showBackButton={true}
         onRightClick={() => setStartTrigger((t) => t + 1)}
-        rightButtonIconUrl={"calendar"}
+        title={formatTime(totalExerciseMs)}
       >
-        {currentExerciseId}/{currentExerciseSetId}
-        <div>운동 시작</div>
+        <button
+          onClick={startExerciseTimer}
+          className="bg-main text-white w-[124px] h-[32px] rounded-lg"
+        >
+          운동 시작
+        </button>
       </Header>
       <div
         ref={wrapperRef}

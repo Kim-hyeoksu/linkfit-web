@@ -1,8 +1,9 @@
 "use client";
 import Image from "next/image";
 import { useRouter } from "next/navigation"; // Next.js 13+ App Router의 useRouter 훅
+import { useEffect } from "react";
 interface HeaderProps {
-  title?: string; // 헤더에 표시될 제목입니다. (필수)
+  title?: string | number; // 헤더에 표시될 제목입니다. (필수)
   showBackButton?: boolean; // 뒤로가기 버튼을 보일지 여부를 결정합니다. (기본값: true)
   backUrl?: string; // 뒤로가기 버튼 클릭 시 특정 경로로 이동하고 싶을 때 사용합니다. (지정하지 않으면 browser history.back() 동작)
   onBackClick?: () => void; // 뒤로가기 버튼 클릭 시 실행될 사용자 정의 함수입니다.
@@ -45,6 +46,7 @@ const Header = ({
       router.push(rightButtonIconUrl); // 단순 이동
     }
   };
+  useEffect(() => {}, [title]);
   return (
     <header className="bg-white p-2 fixed top-0 left-0 right-0 z-50  h-[56px] px-5">
       <nav className="h-full mx-auto flex justify-between items-center">
