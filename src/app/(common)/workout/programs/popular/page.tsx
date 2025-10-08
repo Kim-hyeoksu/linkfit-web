@@ -1,11 +1,10 @@
 import { getPrograms } from "@/entities/program/api/getPrograms";
-import ProgramList from "@/widgets/program-list/ui/ProgramList";
 import ProgramCard from "@/entities/program/ui/ProgramCard";
 import Image from "next/image";
 import Link from "next/link";
 import { initMsw } from "@/mocks/initMsw";
 import Header from "@/components/common/Header";
-export default async function ProgramsPage() {
+export default async function PopularProgramsPage() {
   if (process.env.NEXT_PUBLIC_API_MOCKING === "enabled") {
     await initMsw(); // SSR에서 모킹 활성화
   }

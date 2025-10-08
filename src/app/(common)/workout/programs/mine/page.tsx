@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { initMsw } from "@/mocks/initMsw";
 import Header from "@/components/common/Header";
-export default async function ProgramsPage() {
+export default async function MyProgramsPage() {
   if (process.env.NEXT_PUBLIC_API_MOCKING === "enabled") {
     await initMsw(); // SSR에서 모킹 활성화
   }
