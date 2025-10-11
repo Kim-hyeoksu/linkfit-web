@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-
+import { Exercise } from "../model/types";
 interface SetItem {
   id: number;
   weight: number;
@@ -22,6 +22,7 @@ interface ExerciseProps {
     setId: number,
     values: { weight: number; reps: number }
   ) => void;
+  setExercises: React.Dispatch<React.SetStateAction<Exercise[]>>;
 }
 const ExcerciseCard = ({
   id,
@@ -34,8 +35,10 @@ const ExcerciseCard = ({
   addSets,
   onClickSetCheckBtn,
   onUpdateSet,
+  setExercises,
 }: ExerciseProps) => {
   const [rotated, setRotated] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [tempWeight, setTempWeight] = useState("");
   const [tempReps, setTempReps] = useState("");
   const [editingSetId, setEditingSetId] = useState<number | null>(null);
@@ -47,6 +50,9 @@ const ExcerciseCard = ({
   const weightInputRef = useRef<HTMLInputElement | null>(null);
   const repsInputRef = useRef<HTMLInputElement | null>(null);
 
+  const handleToggleEdit = () => {
+    setIsEditing((prev) => !prev);
+  };
   const handleEditStart = (set: SetItem, field: "weight" | "reps" | null) => {
     setEditingSetId(set.id);
     setTempWeight(String(set.weight));
@@ -116,7 +122,7 @@ const ExcerciseCard = ({
           </div>
         </div>
         <div>
-          <button>
+          <button onClick={handleToggleEdit}>
             <Image
               src="/images/common/icon/edit-contained.svg"
               width={24}
@@ -132,11 +138,9 @@ const ExcerciseCard = ({
         <div className="text-sm  flex flex-col gap-[8px]">
           {sets.map((set, index) => {
             const isCompleted = completedSetIds.has(set.id);
-            const isEditing = editingSetId === set.id;
 
             return (
               <div
-                onClick={() => handleEditStart(set, null)}
                 key={set?.id}
                 className={`flex items-center px-2.5 justify-between h-[45px] border rounded-[8px] ${
                   currentExerciseSetId === set.id
@@ -172,8 +176,24 @@ const ExcerciseCard = ({
                       ref={weightInputRef}
                       className="w-[25px] border border-gray-300 text-center"
                       type="number"
-                      value={tempWeight}
-                      onChange={(e) => setTempWeight(e.target.value)}
+                      value={set.weight}
+                      onChange={(e) =>
+                        setExercises((prev) => {
+                          return prev.map((exercise) => {
+                            if (exercise.id === id) {
+                              return {
+                                ...exercise,
+                                sets: exercise.sets.map((s) =>
+                                  s.id === set.id
+                                    ? { ...s, weight: Number(e.target.value) }
+                                    : s
+                                ),
+                              };
+                            }
+                            return exercise;
+                          });
+                        })
+                      }
                       onBlur={handleEditEnd}
                       onKeyDown={(e) => e.key === "Enter" && handleEditEnd()}
                     />
@@ -200,8 +220,24 @@ const ExcerciseCard = ({
                       ref={repsInputRef}
                       className="w-[25px] border border-gray-300 text-center"
                       type="number"
-                      value={tempReps}
-                      onChange={(e) => setTempReps(e.target.value)}
+                      value={set.reps}
+                      onChange={(e) =>
+                        setExercises((prev) => {
+                          return prev.map((exercise) => {
+                            if (exercise.id === id) {
+                              return {
+                                ...exercise,
+                                sets: exercise.sets.map((s) =>
+                                  s.id === set.id
+                                    ? { ...s, reps: Number(e.target.value) }
+                                    : s
+                                ),
+                              };
+                            }
+                            return exercise;
+                          });
+                        })
+                      }
                       onBlur={handleEditEnd}
                       onKeyDown={(e) => e.key === "Enter" && handleEditEnd()}
                     />

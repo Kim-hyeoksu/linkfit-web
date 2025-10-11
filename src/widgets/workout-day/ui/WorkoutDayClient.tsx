@@ -197,6 +197,7 @@ export default function WorkoutDayClient({
                 onClickSetCheckBtn={toggleSetCompletion}
                 addSets={addSets}
                 onUpdateSet={handleUpdateSet}
+                setExercises={setExercises}
               />
             </div>
           ))}
