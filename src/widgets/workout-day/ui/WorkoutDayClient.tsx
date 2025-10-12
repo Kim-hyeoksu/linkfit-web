@@ -239,7 +239,7 @@ export default function WorkoutDayClient({
       <Header showBackButton={true} title={formatTime(totalExerciseMs)}>
         {totalExerciseMs > 0 ? (
           <button
-            onClick={startExerciseTimer}
+            onClick={handleSave}
             className="bg-light-gray text-dark-gray w-[124px] h-[32px] rounded-lg"
           >
             운동 종료
