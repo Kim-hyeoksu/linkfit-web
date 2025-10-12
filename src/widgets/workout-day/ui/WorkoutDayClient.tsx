@@ -36,8 +36,8 @@ export default function WorkoutDayClient({
   const [startTrigger, setStartTrigger] = useState(0);
 
   const [totalExerciseMs, setTotalExerciseMs] = useState(0);
-  const [pendingExerciseId, setPendingExerciseId] = useState<number | null>(
-    null
+  const [pendingExerciseId, setPendingExerciseId] = useState<number | string>(
+    -1
   );
   // 데이터 로딩
 
@@ -84,7 +84,10 @@ export default function WorkoutDayClient({
   //   // setCurrentExerciseId(exerciseId);
   // };
 
-  const toggleSetCompletion = (exerciseId: number, setId: number) => {
+  const toggleSetCompletion = (
+    exerciseId: number | string,
+    setId: number | string
+  ) => {
     setExercises((prevExercises) =>
       prevExercises.map((exercise) => {
         if (exercise.id !== exerciseId) return exercise;
@@ -98,14 +101,18 @@ export default function WorkoutDayClient({
       })
     );
     setPendingExerciseId(exerciseId); // ✅ 다음 세트 계산 예약
+    setCurrentExerciseId(exerciseId);
     setCurrentExerciseSetId(setId);
+    if (startTrigger === 0) {
+      startExerciseTimer();
+    }
     setStartTrigger((t) => t + 1);
   };
   useEffect(() => {
-    if (pendingExerciseId !== null) {
+    if (pendingExerciseId !== -1) {
       handleNextSet(pendingExerciseId);
       // handleExerciseClick(pendingExerciseId);
-      setPendingExerciseId(null);
+      setPendingExerciseId(-1);
     }
   }, [exercises]);
   const handleExerciseClick = (id: number) => {
@@ -144,7 +151,7 @@ export default function WorkoutDayClient({
   //     setCurrentExerciseSetId(nextSet ? nextSet.id : 0);
   //   }
   // };
-  const handleNextSet = (exerciseId: number) => {
+  const handleNextSet = (exerciseId: number | string) => {
     const exercise = exercises.find((ex) => ex.id === exerciseId);
     if (!exercise) return;
     // 아직 완료되지 않은 세트를 찾음
@@ -229,17 +236,22 @@ export default function WorkoutDayClient({
 
   return (
     <div>
-      <Header
-        showBackButton={true}
-        onRightClick={startExerciseTimer}
-        title={formatTime(totalExerciseMs)}
-      >
-        <button
-          // onClick={startExerciseTimer}
-          className="bg-main text-white w-[124px] h-[32px] rounded-lg"
-        >
-          운동 시작
-        </button>
+      <Header showBackButton={true} title={formatTime(totalExerciseMs)}>
+        {totalExerciseMs > 0 ? (
+          <button
+            onClick={startExerciseTimer}
+            className="bg-light-gray text-dark-gray w-[124px] h-[32px] rounded-lg"
+          >
+            운동 종료
+          </button>
+        ) : (
+          <button
+            onClick={startExerciseTimer}
+            className="bg-main text-white w-[124px] h-[32px] rounded-lg"
+          >
+            운동 시작
+          </button>
+        )}
       </Header>
       <div
         ref={wrapperRef}
@@ -250,7 +262,7 @@ export default function WorkoutDayClient({
           }px)`,
         }}
       >
-        {exercises[0].id}/{currentExerciseId}/{currentExerciseSetId}
+        {currentExerciseId}/{currentExerciseSetId}
         <div className="flex flex-col gap-[10px] bg-[#F7F8F9]">
           {exercises?.map((exercise) => (
             <div
@@ -283,6 +295,7 @@ export default function WorkoutDayClient({
           showType={showType}
           onShowTypeChange={(newType) => setShowType(newType)}
           onCompleteSet={toggleSetCompletion}
+          currentExerciseId={currentExerciseId}
           currentExerciseSetId={currentExerciseSetId}
         />
       </div>

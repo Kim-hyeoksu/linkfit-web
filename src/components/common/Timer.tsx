@@ -17,6 +17,7 @@ export const Timer = ({
   showType = "bar",
   onShowTypeChange,
   onCompleteSet,
+  currentExerciseId,
   currentExerciseSetId,
 }: {
   startTrigger: number;
@@ -24,7 +25,8 @@ export const Timer = ({
   nextExercise: (exerciseId: number) => void;
   showType?: "bar" | "full";
   onShowTypeChange?: (type: "bar" | "full") => void;
-  onCompleteSet: (exerciseId: number, setId: number) => void;
+  onCompleteSet: (exerciseId: number | string, setId: number | string) => void;
+  currentExerciseId: number | string;
   currentExerciseSetId: number | string;
 }) => {
   const isFirstRender = useRef(true);
@@ -182,31 +184,42 @@ export const Timer = ({
     >
       {internalShowType === "bar" ? (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#d9d9d9] flex h-[72px] pt-2 justify-between px-5 z-50 gap-[20px] pb-5">
-          <div className="text-lg font-bold h-[42px] w-[93px] bg-[#0ea5e9] text-white rounded-lg flex items-center justify-center">
-            {/* {formatTime(remainingMs)} */}
-            <Image
-              src="/images/common/icon/access_alarm_24px.svg"
-              width={24}
-              height={24}
-              alt="휴식"
-            />
+          <div
+            className={`text-lg font-bold h-[42px] w-[93px] rounded-lg flex items-center justify-center transition-colors duration-300 ${
+              isRunning
+                ? "bg-main text-white"
+                : "bg-white text-main border border-[#d9d9d9]"
+            }`}
+          >
+            {isRunning ? (
+              formatTime(remainingMs)
+            ) : (
+              <Image
+                src="/images/common/icon/access_alarm_24px.svg"
+                width={24}
+                height={24}
+                alt="휴식"
+              />
+            )}
           </div>
-          {startTrigger === 0 && (
+          {isRunning ? (
             <button
-              onClick={() => onCompleteSet()}
-              className="flex items-center justify-center rounded-lg h-[42px] bg-[#0ea5e9] text-white "
+              className="flex items-center justify-center rounded-lg h-[42px] border border-[#d9d9d9]"
+              style={{ flex: 1 }}
+            >
+              다음 운동
+            </button>
+          ) : (
+            <button
+              onClick={() =>
+                onCompleteSet(currentExerciseId, currentExerciseSetId)
+              }
+              className="flex items-center justify-center rounded-lg h-[42px] bg-main text-white "
               style={{ flex: 1 }}
             >
               세트 완료
             </button>
           )}
-          {/* <button
-            onClick={nextExercise}
-            className="flex items-center justify-center rounded-lg h-[42px] border border-[#d9d9d9]"
-            style={{ flex: 1 }}
-          >
-            다음 운동
-          </button> */}
         </div>
       ) : (
         <div className="flex flex-col w-full px-5 h-[375px] min-h-[375px] justify-between items-center fixed bottom-0 bg-white left-0 right-0 pt-5 z-50 border-t border-[#d9d9d9]">

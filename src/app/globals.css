@@ -2,6 +2,8 @@
 
 @theme {
   --color-main: #0ea5e9;
+  --color-light-gray: #d9d9d9;
+  --color-dark-gray: #3a3a3a;
 }
 
 /* 기본적으로 모바일 (작은 화면) 기준 */
