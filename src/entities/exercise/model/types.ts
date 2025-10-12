@@ -2,6 +2,7 @@ export interface ExerciseSet {
   id: number;
   weight: number;
   reps: number;
+  isComplete?: boolean;
 }
 
 // 운동 정보 타입

@@ -16,12 +16,16 @@ export const Timer = ({
   nextExercise,
   showType = "bar",
   onShowTypeChange,
+  onCompleteSet,
+  currentExerciseSetId,
 }: {
   startTrigger: number;
-  restSeconds: number | undefined;
-  nextExercise: () => void;
+  restSeconds: number;
+  nextExercise: (exerciseId: number) => void;
   showType?: "bar" | "full";
   onShowTypeChange?: (type: "bar" | "full") => void;
+  onCompleteSet: (exerciseId: number, setId: number) => void;
+  currentExerciseSetId: number | string;
 }) => {
   const isFirstRender = useRef(true);
 
@@ -45,7 +49,6 @@ export const Timer = ({
     const totalInputMs = restSeconds * 1000;
     if (totalInputMs <= 0) {
       alert("휴식 시간은 0초보다 길게 설정해주세요!");
-      console.log("test");
       return;
     }
 
@@ -180,11 +183,17 @@ export const Timer = ({
       {internalShowType === "bar" ? (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#d9d9d9] flex h-[72px] pt-2 justify-between px-5 z-50 gap-[20px] pb-5">
           <div className="text-lg font-bold h-[42px] w-[93px] bg-[#0ea5e9] text-white rounded-lg flex items-center justify-center">
-            {formatTime(remainingMs)}
+            {/* {formatTime(remainingMs)} */}
+            <Image
+              src="/images/common/icon/access_alarm_24px.svg"
+              width={24}
+              height={24}
+              alt="휴식"
+            />
           </div>
           {startTrigger === 0 && (
             <button
-              onClick={nextExercise}
+              onClick={() => onCompleteSet()}
               className="flex items-center justify-center rounded-lg h-[42px] bg-[#0ea5e9] text-white "
               style={{ flex: 1 }}
             >

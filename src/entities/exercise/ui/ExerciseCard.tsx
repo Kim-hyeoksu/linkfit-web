@@ -1,18 +1,12 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { Exercise } from "../model/types";
-interface SetItem {
-  id: number;
-  weight: number;
-  reps: number;
-}
+import { Exercise, ExerciseSet } from "../model/types";
 
 interface ExerciseProps {
   id: number;
   name: string;
-  sets: SetItem[];
-  completedSetIds: Set<number>;
+  sets: ExerciseSet[];
   isCurrent?: boolean;
   currentExerciseSetId: number | string;
   onClickExercise: (id: number) => void;
@@ -28,7 +22,6 @@ const ExcerciseCard = ({
   id,
   name,
   sets,
-  completedSetIds,
   isCurrent,
   currentExerciseSetId,
   onClickExercise,
@@ -92,7 +85,6 @@ const ExcerciseCard = ({
     setId: number
   ) => {
     e.stopPropagation();
-    onClickExercise(exerciseId);
     onClickSetCheckBtn(exerciseId, setId);
   };
 
@@ -137,8 +129,6 @@ const ExcerciseCard = ({
       {!rotated && (
         <div className="text-sm  flex flex-col gap-[8px]">
           {sets.map((set, index) => {
-            const isCompleted = completedSetIds.has(set.id);
-
             return (
               <div
                 key={set?.id}
@@ -154,7 +144,7 @@ const ExcerciseCard = ({
                     onClick={(e) => toggleChecked(e, index, id, set.id)}
                     className="w-5 h-5 flex items-center justify-center rounded-full border border-gray-400"
                   >
-                    {isCompleted && (
+                    {set.isComplete && (
                       <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />
                     )}
                   </div>
