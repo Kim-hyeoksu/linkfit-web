@@ -6,7 +6,7 @@
 // import Exercise from "@/entities/exercise/ui/ExerciseCard";
 // import Timer from "@/components/common/Timer";
 import WorkoutDayClient from "@/widgets/workout-day/ui/WorkoutDayClient";
-import { getExercise } from "@/entities/exercise/api/getExercise";
+import { getExercise } from "@/entities/exercise";
 import { initMsw } from "@/mocks/initMsw";
 
 interface WorkoutDayPageProps {

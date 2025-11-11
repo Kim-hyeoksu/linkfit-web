@@ -1,7 +1,7 @@
-import { Program } from "../model/types";
+import { Program } from "../";
 import Image from "next/image";
 import Link from "next/link";
-export default function ProgramCard({ id, title, period, dayNumber }: Program) {
+export const ProgramCard = ({ id, title, period, dayNumber }: Program) => {
   return (
     <div className="relative p-3 border border-[#e5e5e5] rounded-lg bg-white shadow">
       <div className="flex items-center mb-2">
@@ -22,4 +22,4 @@ export default function ProgramCard({ id, title, period, dayNumber }: Program) {
       </Link>
     </div>
   );
-}
+};

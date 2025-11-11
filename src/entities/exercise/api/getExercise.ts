@@ -1,4 +1,4 @@
-import { Exercise } from "@/entities/exercise/model/types";
+import { Exercise } from "@/entities/exercise";
 import { API_BASE_URL } from "@/shared/api/baseUrl";
 
 export const getExercise = async (

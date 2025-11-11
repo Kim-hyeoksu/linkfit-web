@@ -55,8 +55,8 @@
 //   );
 // }
 // app/workout/programs/[programId]/WorkoutDayListServer.tsx
-import WorkoutDayCard from "@/entities/program/workout-day/ui/WorkoutDayCard";
-import { WorkoutProgram } from "@/entities/program/workout-day/model/types";
+import { WorkoutDayCard } from "@/entities/program/workout-day";
+import { WorkoutProgram } from "@/entities/program/workout-day";
 
 interface Props {
   program: WorkoutProgram;

@@ -1,4 +1,4 @@
-import { Program } from "@/entities/program/model/types";
+import { Program } from "@/entities/program";
 import { API_BASE_URL } from "@/shared/api/baseUrl";
 
 export const getPrograms = async (): Promise<Program[]> => {

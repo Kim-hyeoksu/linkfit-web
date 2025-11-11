@@ -1,6 +1,6 @@
 // src/mocks/handlers.ts
 import { http, HttpResponse } from "msw";
-import { Program } from "@/entities/program/model/types";
+import { Program } from "@/entities/program";
 import { mockPrograms, mockWorkout, mockWorkoutDay } from "../data/programs";
 export const programHandlers = [
   http.get("*/api/exercises/:routineId", ({ params }) => {

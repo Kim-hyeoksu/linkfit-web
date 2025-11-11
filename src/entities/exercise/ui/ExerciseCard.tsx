@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { Exercise, ExerciseSet } from "../model/types";
+import { Exercise, ExerciseSet } from "../";
 
 interface ExerciseProps {
   id: number;
@@ -18,7 +18,7 @@ interface ExerciseProps {
   ) => void;
   setExercises: React.Dispatch<React.SetStateAction<Exercise[]>>;
 }
-const ExcerciseCard = ({
+export const ExerciseCard = ({
   id,
   name,
   sets,
@@ -257,5 +257,3 @@ const ExcerciseCard = ({
     </div>
   );
 };
-
-export default ExcerciseCard;

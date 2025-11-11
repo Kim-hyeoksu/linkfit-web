@@ -1,5 +1,5 @@
-import { getPrograms } from "@/entities/program/api/getPrograms";
-import ProgramCard from "@/entities/program/ui/ProgramCard";
+import { getPrograms } from "@/entities/program";
+import { ProgramCard } from "@/entities/program";
 import Image from "next/image";
 import Link from "next/link";
 import { initMsw } from "@/mocks/initMsw";

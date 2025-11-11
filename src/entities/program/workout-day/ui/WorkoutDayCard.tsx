@@ -1,14 +1,14 @@
-import { WorkoutDay } from "../model/types";
+import { WorkoutDay } from "../";
 import Image from "next/image";
 import Link from "next/link";
-export default function WorkoutDayCard({
+export const WorkoutDayCard = ({
   dayNumber,
   exercisesCount,
   totalVolumeKg,
   id,
   programId,
   weekNumber,
-}: WorkoutDay & { programId: number; weekNumber: number }) {
+}: WorkoutDay & { programId: number; weekNumber: number }) => {
   return (
     <div className="relative p-3 border border-[#e5e5e5] rounded-lg bg-white shadow">
       <div className="flex items-center mb-2">
@@ -29,4 +29,4 @@ export default function WorkoutDayCard({
       </Link>
     </div>
   );
-}
+};

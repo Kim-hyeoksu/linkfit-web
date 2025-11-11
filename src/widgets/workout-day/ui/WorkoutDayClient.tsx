@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import ExerciseCard from "@/entities/exercise/ui/ExerciseCard";
+import { ExerciseCard } from "@/entities/exercise";
 import Timer from "@/components/common/Timer";
-import { Exercise } from "@/entities/exercise/model/types";
+import { Exercise } from "@/entities/exercise";
 import Header from "@/components/common/Header";
 import { formatTime } from "@/shared/utils/formatTime";
 export default function WorkoutDayClient({

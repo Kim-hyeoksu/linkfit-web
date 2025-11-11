@@ -1,5 +1,5 @@
-import { Program } from "@/entities/program/model/types";
-import ProgramCard from "@/entities/program/ui/ProgramCard";
+import { Program } from "@/entities/program";
+import { ProgramCard } from "@/entities/program";
 import Link from "next/link";
 
 interface ProgramListProps {

@@ -1,5 +1,5 @@
 import WorkoutDayList from "@/widgets/program-list/workout-day-liat/ui/WorkoutDayList";
-import { getWorkoutDays } from "@/entities/program/workout-day/api/getWorkoutDays";
+import { getWorkoutDays } from "@/entities/program/workout-day";
 import { initMsw } from "@/mocks/initMsw";
 import Header from "@/components/common/Header";
 import Link from "next/link";

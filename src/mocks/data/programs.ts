@@ -1,4 +1,4 @@
-import { Program } from "@/entities/program/model/types";
+import { Program } from "@/entities/program";
 
 export const mockPrograms: Program[] = [
   {

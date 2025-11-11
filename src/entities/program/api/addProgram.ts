@@ -1,4 +1,4 @@
-import { Program } from "@/entities/program/model/types";
+import { Program } from "@/entities/program";
 
 export const addProgram = async (
   program: Omit<Program, "id">
