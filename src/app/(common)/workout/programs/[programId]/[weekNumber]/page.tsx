@@ -1,6 +1,6 @@
 import { getWorkoutDays } from "@/entities/program/workout-day";
 import { initMsw } from "@/mocks/initMsw";
-import Header from "@/components/common/Header";
+import { Header } from "@/shared";
 import Link from "next/link";
 import { WorkoutDayList } from "@/entities/program/workout-day";
 interface Props {

@@ -13,7 +13,7 @@ interface ModalProps {
   hideCloseButton?: boolean; // 닫기 버튼 숨기기 여부 (기본값: false)
 }
 
-const Modal: React.FC<ModalProps> = ({
+export const Modal: React.FC<ModalProps> = ({
   isOpen,
   onClose,
   title,
@@ -133,5 +133,3 @@ const Modal: React.FC<ModalProps> = ({
     </>
   );
 };
-
-export default Modal;

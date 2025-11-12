@@ -1,4 +1,4 @@
-import Timer from "@/components/common/Timer";
+import { Timer } from "@/entities/exercise";
 
 export default function Home() {
   return (

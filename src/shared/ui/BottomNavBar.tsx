@@ -96,7 +96,7 @@ const navItems: NavItem[] = [
   },
 ];
 
-const BottomNavBar: React.FC = () => {
+export const BottomNavBar: React.FC = () => {
   const pathname = usePathname(); // 현재 URL 경로를 가져옵니다.
 
   return (
@@ -140,5 +140,3 @@ const BottomNavBar: React.FC = () => {
     </nav>
   );
 };
-
-export default BottomNavBar;

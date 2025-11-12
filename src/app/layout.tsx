@@ -5,7 +5,7 @@
 import type { Metadata } from "next";
 import { initMsw } from "@/mocks/initMsw";
 import "./globals.css";
-import MswProvider from "@/components/common/MswProvider";
+import { MswProvider } from "@/shared";
 // if (process.env.NEXT_PUBLIC_API_MOCKING === "enabled") {
 //   await initMsw();
 // }

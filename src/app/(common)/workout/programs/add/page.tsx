@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import Header from "@/components/common/Header";
+import { Header } from "@/shared";
 import { useState } from "react";
 const ProgramAddPage = () => {
   const [workoutFrequencyPerWeek, setWorkoutFrequencyPerWeek] = useState([]);

@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import { useRouter } from "next/navigation"; // Next.js 13+ App Router의 useRouter 훅
 import { useEffect } from "react";
 interface HeaderProps {
@@ -13,7 +12,7 @@ interface HeaderProps {
   className?: string; // 헤더 전체에 적용될 추가 Tailwind CSS 클래스입니다.
 }
 
-const Header = ({
+export const Header = ({
   title,
   showBackButton = true,
   backUrl,
@@ -89,5 +88,3 @@ const Header = ({
     </header>
   );
 };
-
-export default Header;

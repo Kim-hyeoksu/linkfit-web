@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { ExerciseCard } from "@/entities/exercise";
-import Timer from "@/components/common/Timer";
+import { Timer } from "@/entities/exercise";
 import { Exercise } from "@/entities/exercise";
-import Header from "@/components/common/Header";
-import { formatTime } from "@/shared/utils/formatTime";
+import { Header } from "@/shared";
+import { formatTime } from "@/shared";
 export default function WorkoutDayClient({
   initialExercises,
 }: {
