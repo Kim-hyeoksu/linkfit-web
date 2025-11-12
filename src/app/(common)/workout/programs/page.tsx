@@ -3,7 +3,7 @@
 
 // import { useEffect, useState } from "react";
 import { getPrograms } from "@/entities/program";
-import ProgramList from "@/widgets/program-list/ui/ProgramList";
+import { ProgramList } from "@/entities/program";
 import Image from "next/image";
 import Link from "next/link";
 import { initMsw } from "@/mocks/initMsw";

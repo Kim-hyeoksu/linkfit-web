@@ -64,11 +64,7 @@ interface Props {
   weekNumber: number; // 서버에서 주차를 선택
 }
 
-export default function WorkoutDayList({
-  program,
-  programId,
-  weekNumber,
-}: Props) {
+export const WorkoutDayList = ({ program, programId, weekNumber }: Props) => {
   const currentWeek = program.weeks.find((w) => w.week === weekNumber);
 
   return (
@@ -86,4 +82,4 @@ export default function WorkoutDayList({
       </div>
     </div>
   );
-}
+};

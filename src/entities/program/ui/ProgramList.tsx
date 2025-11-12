@@ -8,7 +8,7 @@ interface ProgramListProps {
   title: "운동 프로그램" | "나의 운동";
 }
 
-export default function ProgramList({ programs, title }: ProgramListProps) {
+export const ProgramList = ({ programs, title }: ProgramListProps) => {
   // if (loading) return <div>로딩중...</div>;
 
   const linkHref =
@@ -31,4 +31,4 @@ export default function ProgramList({ programs, title }: ProgramListProps) {
       </div>
     </div>
   );
-}
+};
