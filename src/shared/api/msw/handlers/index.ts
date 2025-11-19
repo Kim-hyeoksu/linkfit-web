@@ -1,3 +1,3 @@
 import { programHandlers } from "./programHandler";
-
-export const handlers = [...programHandlers];
+import { oauthHandlers } from "@/features/auth";
+export const handlers = [...programHandlers, ...oauthHandlers];
