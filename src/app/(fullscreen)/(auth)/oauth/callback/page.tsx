@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
-
+import { useRouter } from "next/navigation";
 export default function OAuthCallbackPage() {
+  const router = useRouter();
   useEffect(() => {
     const url = new URL(window.location.href);
     const code = url.searchParams.get("code");
@@ -26,6 +27,7 @@ export default function OAuthCallbackPage() {
         }
 
         const data = await res.json();
+        router.replace("/"); // 토큰 교환 후 메인 페이지로 리다이렉트
         console.log("OAuth Token Received:", data);
       } catch (error) {
         console.error("OAuth callback error:", error);
