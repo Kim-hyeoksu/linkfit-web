@@ -3,7 +3,7 @@
 // 1. 필요한 모듈들을 불러옵니다.
 // Metadata: Next.js에서 SEO와 웹 접근성 등을 위한 메타데이터를 정의할 때 사용합니다.
 import type { Metadata } from "next";
-import { initMsw } from "@/mocks/initMsw";
+import { initMsw } from "@/shared/api/msw/initMsw";
 import "./globals.css";
 import { MswProvider } from "@/shared";
 // if (process.env.NEXT_PUBLIC_API_MOCKING === "enabled") {

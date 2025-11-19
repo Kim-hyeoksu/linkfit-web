@@ -6,7 +6,7 @@ import { getPrograms } from "@/entities/program";
 import { ProgramList } from "@/entities/program";
 import Image from "next/image";
 import Link from "next/link";
-import { initMsw } from "@/mocks/initMsw";
+import { initMsw } from "@/shared/api/msw/initMsw";
 import { Header } from "@/shared";
 export default async function ProgramsPage() {
   if (process.env.NEXT_PUBLIC_API_MOCKING === "enabled") {

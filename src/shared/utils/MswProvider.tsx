@@ -1,6 +1,6 @@
 "use client";
 import { useEffect } from "react";
-import { initMsw } from "@/mocks/initMsw";
+import { initMsw } from "@/shared/api/msw/initMsw";
 
 export const MswProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {

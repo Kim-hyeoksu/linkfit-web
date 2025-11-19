@@ -7,7 +7,7 @@
 // import Timer from "@/components/common/Timer";
 import WorkoutDayClient from "@/widgets/workout-day/ui/WorkoutDayClient";
 import { getExercise } from "@/entities/exercise";
-import { initMsw } from "@/mocks/initMsw";
+import { initMsw } from "@/shared/api/msw/initMsw";
 
 interface WorkoutDayPageProps {
   params: { programId: string; weekNumber: string; workoutDay: string };

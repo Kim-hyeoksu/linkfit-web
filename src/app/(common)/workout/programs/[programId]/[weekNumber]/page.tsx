@@ -1,5 +1,5 @@
 import { getWorkoutDays } from "@/entities/program/workout-day";
-import { initMsw } from "@/mocks/initMsw";
+import { initMsw } from "@/shared/api/msw/initMsw";
 import { Header } from "@/shared";
 import Link from "next/link";
 import { WorkoutDayList } from "@/entities/program/workout-day";
