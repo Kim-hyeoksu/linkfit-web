@@ -2,8 +2,7 @@
 // "use client";
 
 // import { useEffect, useState } from "react";
-import { getPrograms } from "@/entities/program";
-import { ProgramList } from "@/entities/program";
+import { getPrograms, ProgramList } from "@/entities/program";
 import Image from "next/image";
 import Link from "next/link";
 import { initMsw } from "@/shared/api/msw/initMsw";

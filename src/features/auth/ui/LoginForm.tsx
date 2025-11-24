@@ -2,21 +2,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { loginGoogle } from "../";
 export const LoginForm = () => {
   const router = useRouter();
+
   const handleGoogleLogin = async () => {
     try {
-      // 1) MSW 모킹 엔드포인트 호출
-      const response = await fetch("/api/auth/login/google", {
-        method: "POST",
-      });
-
-      if (!response.ok) throw new Error("로그인 실패");
-
-      const { callbackUrl } = await response.json();
-
-      // 2) 가상의 콜백 URL로 내부 라우팅
-      router.push(callbackUrl); // 여기서 oauth/callback?code=valid-auth-code-123 로 이동
+      const callbackUrl = await loginGoogle();
+      router.push(callbackUrl);
     } catch (error) {
       console.error("Google 로그인 중 오류 발생:", error);
     }
