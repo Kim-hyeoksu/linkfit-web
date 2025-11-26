@@ -16,6 +16,12 @@ export default function OAuthCallbackPage() {
       try {
         const data = await getOauthToken(code); // API 호출
         sessionStorage.setItem("accessToken", data.accessToken);
+        window.ReactNativeWebView?.postMessage(
+          JSON.stringify({
+            type: "OAuthSuccess",
+            accessToken: "FAKE_ACCESS_TOKEN_123",
+          })
+        );
         // 토큰 요청 후 다른 페이지로 리다이렉트
         router.replace("/workout/programs");
       } catch (error) {
