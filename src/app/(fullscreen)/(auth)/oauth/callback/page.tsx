@@ -23,7 +23,8 @@ export default function OAuthCallbackPage() {
           })
         );
         // 토큰 요청 후 다른 페이지로 리다이렉트
-        router.replace("/workout/programs");
+        router.replace("/diet");
+        // router.replace("/workout/programs");
       } catch (error) {
         console.error("Failed to fetch access token:", error);
         // 에러 페이지로 리다이렉트할 수 있음
