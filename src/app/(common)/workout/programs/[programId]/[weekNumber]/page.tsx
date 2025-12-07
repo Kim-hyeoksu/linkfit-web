@@ -1,8 +1,8 @@
-import { getWorkoutDays } from "@/entities/program/workout-day";
+import { getWorkoutDays } from "@/entities/plan";
 import { initMsw } from "@/shared/api/msw/initMsw";
 import { Header } from "@/shared";
 import Link from "next/link";
-import { WorkoutDayList } from "@/entities/program/workout-day";
+import { WorkoutDayList } from "@/entities/plan";
 interface Props {
   params: { programId: string; weekNumber: string };
 }

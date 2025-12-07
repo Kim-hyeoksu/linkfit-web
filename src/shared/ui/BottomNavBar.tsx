@@ -80,7 +80,7 @@ const navItems: NavItem[] = [
   },
   {
     name: "마이페이지",
-    href: "/settings/profile", // 예시 경로: 실제 마이페이지 경로로 변경해주세요.
+    href: "/login", // 예시 경로: 실제 마이페이지 경로로 변경해주세요.
     icon: (isActive) => (
       <Image
         src={

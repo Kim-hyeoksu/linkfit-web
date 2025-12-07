@@ -1,12 +1,17 @@
 import { Program } from "../";
 import Image from "next/image";
 import Link from "next/link";
-export const ProgramCard = ({ id, title, period, dayNumber }: Program) => {
+export const ProgramCard = ({
+  id,
+  programName,
+  period,
+  dayNumber,
+}: Program) => {
   return (
     <div className="relative p-3 border border-[#e5e5e5] rounded-lg bg-white shadow">
       <div className="flex items-center mb-2">
         <p className="text-sm text-gray-600 mr-2">{dayNumber}일차</p>
-        <h2 className="">{title}</h2>
+        <h2 className="">{programName}</h2>
       </div>
       <p className="text-sm text-gray-600">{period}</p>
       <Link

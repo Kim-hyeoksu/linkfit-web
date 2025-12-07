@@ -4,8 +4,8 @@
 // import {
 //   WorkoutProgram,
 //   WorkoutDay,
-// } from "@/entities/program/workout-day/model/types";
-// import WorkoutDayCard from "@/entities/program/workout-day/ui/WorkoutDayCard";
+// } from "@/entities/plan/model/types";
+// import WorkoutDayCard from "@/entities/plan/ui/WorkoutDayCard";
 
 // interface WorkoutDayListProps {
 //   workoutdays: WorkoutProgram; // ✅ 단일 프로그램 객체
@@ -55,8 +55,8 @@
 //   );
 // }
 // app/workout/programs/[programId]/WorkoutDayListServer.tsx
-import { WorkoutDayCard } from "@/entities/program/workout-day";
-import { WorkoutProgram } from "@/entities/program/workout-day";
+import { WorkoutDayCard } from "@/entities/plan";
+import { WorkoutProgram } from "@/entities/plan";
 
 interface Props {
   program: WorkoutProgram;

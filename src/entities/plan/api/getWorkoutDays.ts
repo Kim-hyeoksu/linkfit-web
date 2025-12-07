@@ -1,4 +1,4 @@
-import { WorkoutDay } from "@/entities/program/workout-day";
+import { WorkoutDay } from "@/entities/plan";
 import { API_BASE_URL } from "@/shared/api/baseUrl";
 // export const getWorkoutDays = async (id: number): Promise<WorkoutDay[]> => {
 //   console.log(`${API_BASE_URL}/api/programs/${id}`);
