@@ -13,11 +13,20 @@ export default function DietPage() {
   }
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
-      const { type, uri } = JSON.parse(event.data);
+      // 1) RN WebView 환경인지 체크
+      const isWebView = !!(window as any).ReactNativeWebView;
+      if (!isWebView) return; // ← 웹 환경에서는 무시
 
-      if (type === "image-selected") {
-        console.log("uri", uri);
-        setImageUri(uri);
+      try {
+        // 2) 안전한 JSON 파싱
+        const data = JSON.parse(event.data);
+
+        if (data.type === "image-selected") {
+          setImageUri(data.uri);
+        }
+      } catch (err) {
+        // 웹 환경 / 포맷 무효일 때 에러 방지
+        console.warn("Invalid WebView message:", event.data);
       }
     };
 
