@@ -1,7 +1,7 @@
-import { WorkoutDay } from "../";
+import { WorkoutDay } from "..";
 import Image from "next/image";
 import Link from "next/link";
-export const WorkoutDayCard = ({
+export const PlanCard = ({
   dayNumber,
   exercisesCount,
   totalVolumeKg,

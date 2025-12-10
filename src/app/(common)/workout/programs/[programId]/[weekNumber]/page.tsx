@@ -1,8 +1,7 @@
-import { getWorkoutDays } from "@/entities/plan";
+import { getPlans, WorkoutDayList } from "@/entities/plan";
 import { initMsw } from "@/shared/api/msw/initMsw";
 import { Header } from "@/shared";
 import Link from "next/link";
-import { WorkoutDayList } from "@/entities/plan";
 interface Props {
   params: { programId: string; weekNumber: string };
 }
@@ -13,7 +12,7 @@ export default async function WorkoutProgramWeekPage({ params }: Props) {
   }
 
   const { programId, weekNumber } = params;
-  const workoutdays = await getWorkoutDays(Number(programId));
+  const workoutdays = await getPlans(Number(programId));
 
   return (
     <div>

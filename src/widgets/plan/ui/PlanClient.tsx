@@ -6,7 +6,7 @@ import { Timer } from "@/entities/exercise";
 import { Exercise } from "@/entities/exercise";
 import { Header } from "@/shared";
 import { formatTime } from "@/shared";
-export default function WorkoutDayClient({
+export default function PlanClient({
   initialExercises,
 }: {
   initialExercises: Exercise[];

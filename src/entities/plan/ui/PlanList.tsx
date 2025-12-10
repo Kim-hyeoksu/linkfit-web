@@ -55,7 +55,7 @@
 //   );
 // }
 // app/workout/programs/[programId]/WorkoutDayListServer.tsx
-import { WorkoutDayCard } from "@/entities/plan";
+import { PlanCard } from "../ui/PlanCard";
 import { WorkoutProgram } from "@/entities/plan";
 
 interface Props {
@@ -64,7 +64,7 @@ interface Props {
   weekNumber: number; // 서버에서 주차를 선택
 }
 
-export const WorkoutDayList = ({ program, programId, weekNumber }: Props) => {
+export const PlanList = ({ program, programId, weekNumber }: Props) => {
   const currentWeek = program.weeks.find((w) => w.week === weekNumber);
 
   return (
@@ -72,7 +72,7 @@ export const WorkoutDayList = ({ program, programId, weekNumber }: Props) => {
       <h3 className="mb-4 font-bold">{weekNumber}주차</h3>
       <div className="flex flex-col gap-3">
         {currentWeek?.days.map((day) => (
-          <WorkoutDayCard
+          <PlanCard
             key={day.id}
             {...day}
             programId={programId}
