@@ -65,16 +65,16 @@ interface Props {
 }
 
 export const PlanList = ({ program, programId, weekNumber }: Props) => {
-  const currentWeek = program.weeks.find((w) => w.week === weekNumber);
+  const currentWeekPlans = program.filter((w) => w.weekNumber === weekNumber);
 
   return (
     <div className="p-5 bg-white">
       <h3 className="mb-4 font-bold">{weekNumber}주차</h3>
       <div className="flex flex-col gap-3">
-        {currentWeek?.days.map((day) => (
+        {currentWeekPlans.map((plan) => (
           <PlanCard
-            key={day.id}
-            {...day}
+            key={plan.id}
+            {...plan}
             programId={programId}
             weekNumber={weekNumber}
           />

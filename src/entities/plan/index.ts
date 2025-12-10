@@ -1,4 +1,4 @@
 export { getPlans } from "./api/getPlans";
 export * from "./model/types";
-export { WorkoutDayCard } from "./ui/WorkoutDayCard";
-export { WorkoutDayList } from "./ui/WorkoutDayList";
+export { PlanCard } from "./ui/PlanCard";
+export { PlanList } from "./ui/PlanList";

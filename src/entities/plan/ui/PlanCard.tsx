@@ -2,7 +2,7 @@ import { WorkoutDay } from "..";
 import Image from "next/image";
 import Link from "next/link";
 export const PlanCard = ({
-  dayNumber,
+  dayOrder,
   exercisesCount,
   totalVolumeKg,
   id,
@@ -12,7 +12,7 @@ export const PlanCard = ({
   return (
     <div className="relative p-3 border border-[#e5e5e5] rounded-lg bg-white shadow">
       <div className="flex items-center mb-2">
-        <p className="text-sm text-gray-600 mr-2">{dayNumber}일차</p>
+        <p className="text-sm text-gray-600 mr-2">{dayOrder}일차</p>
         <h2 className="">{exercisesCount}</h2>
       </div>
       <p className="text-sm text-gray-600">{totalVolumeKg}</p>

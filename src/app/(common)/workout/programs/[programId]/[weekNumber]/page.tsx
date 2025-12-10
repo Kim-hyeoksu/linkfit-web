@@ -1,4 +1,4 @@
-import { getPlans, WorkoutDayList } from "@/entities/plan";
+import { getPlans, PlanList } from "@/entities/plan";
 import { initMsw } from "@/shared/api/msw/initMsw";
 import { Header } from "@/shared";
 import Link from "next/link";
@@ -12,35 +12,37 @@ export default async function WorkoutProgramWeekPage({ params }: Props) {
   }
 
   const { programId, weekNumber } = params;
-  const workoutdays = await getPlans(Number(programId));
-
+  const planData = await getPlans(Number(programId));
   return (
     <div>
       {/* 주차별 링크 버튼 */}
       <Header
-        title={workoutdays.name}
+        title={planData.programName}
         showBackButton={true}
         backUrl="/workout/programs"
       />
       <div className="flex gap-2 mb-4">
-        {workoutdays.weeks.map((w) => (
-          <Link
-            key={w.week}
-            href={`/workout/programs/${programId}/${w.week}`}
-            className={`px-3 py-1 rounded-lg border text-sm ${
-              w.week === Number(weekNumber)
-                ? "bg-blue-500 text-white border-blue-500"
-                : "bg-gray-100 text-gray-700 border-gray-300"
-            }`}
-          >
-            {w.week}주차
-          </Link>
-        ))}
+        {Array.from({ length: planData.maxWeekNumber }, (_, index) => {
+          const week = index + 1;
+          return (
+            <Link
+              key={week}
+              href={`/workout/programs/${programId}/${week}`}
+              className={`px-3 py-1 rounded-lg border text-sm ${
+                week === Number(weekNumber)
+                  ? "bg-blue-500 text-white border-blue-500"
+                  : "bg-gray-100 text-gray-700 border-gray-300"
+              }`}
+            >
+              {week}주차
+            </Link>
+          );
+        })}
       </div>
 
       {/* 주차별 운동일차 리스트 */}
-      <WorkoutDayList
-        program={workoutdays}
+      <PlanList
+        program={planData.plans}
         programId={Number(programId)}
         weekNumber={Number(weekNumber)}
       />
