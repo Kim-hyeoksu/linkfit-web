@@ -9,6 +9,7 @@ export const getPrograms = async () => {
     },
   });
   const data = await res.json();
+
   console.log("Response status:", data);
   if (!res.ok) {
     throw new Error(`프로그램 조회 실패: ${res.status}`);

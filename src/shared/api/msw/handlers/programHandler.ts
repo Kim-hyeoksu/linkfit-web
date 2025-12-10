@@ -8,7 +8,7 @@ export const programHandlers = [
   }),
 
   // GET 운동 프로그램 조회
-  http.get("*/api/programs", () => {
+  http.get("*/api/programs/popular", () => {
     return HttpResponse.json(mockPrograms, { status: 200 });
   }),
   http.get("*/api/programs/:programId", () => {

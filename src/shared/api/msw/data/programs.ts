@@ -1,21 +1,48 @@
 import { Program } from "@/entities/program";
 
-export const mockPrograms: Program[] = [
-  {
-    id: 1,
-    title: "초급자용 프로그램",
-    period: "5주(30일)",
-    level: "beginner",
-    dayNumber: 2,
+export const mockPrograms = {
+  content: [
+    {
+      id: 1,
+      title: "초급자용 프로그램",
+      period: "5주(30일)",
+      level: "beginner",
+      dayNumber: 2,
+    },
+    {
+      id: 2,
+      title: "중급자용 프로그램",
+      period: "5주(30일)",
+      level: "intermediate",
+      dayNumber: 3,
+    },
+  ],
+  pageable: {
+    sort: {
+      empty: true,
+      sorted: false,
+      unsorted: true,
+    },
+    offset: 0,
+    pageNumber: 0,
+    pageSize: 10,
+    paged: true,
+    unpaged: false,
   },
-  {
-    id: 2,
-    title: "중급자용 프로그램",
-    period: "5주(30일)",
-    level: "intermediate",
-    dayNumber: 3,
+  totalPages: 1,
+  totalElements: 2,
+  last: true,
+  size: 10,
+  number: 0,
+  sort: {
+    empty: true,
+    sorted: false,
+    unsorted: true,
   },
-];
+  numberOfElements: 2,
+  first: true,
+  empty: false,
+};
 
 export const mockWorkout = [
   {
