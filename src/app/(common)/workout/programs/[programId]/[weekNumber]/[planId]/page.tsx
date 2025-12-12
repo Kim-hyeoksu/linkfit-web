@@ -18,5 +18,5 @@ export default async function PlanPage({ params }: PlanPageProps) {
   }
 
   const planDetail = await getPlanDetail(params.planId);
-  return <PlanClient initialExercises={planDetail} />;
+  return <PlanClient initialPlanDetail={planDetail} />;
 }

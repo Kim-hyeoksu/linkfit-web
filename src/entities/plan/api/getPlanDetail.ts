@@ -1,6 +1,11 @@
 import { API_BASE_URL } from "@/shared/api/baseUrl";
 
 export const getPlanDetail = async (planId: string) => {
+  console.log(
+    "🚀 [getPlanDetail] 요청 URL:",
+    `${API_BASE_URL}/api/plans/${planId}`
+  );
+
   const res = await fetch(`${API_BASE_URL}/api/plans/${planId}`, {
     method: "GET",
     headers: {

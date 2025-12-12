@@ -157,30 +157,32 @@ export const Timer = ({
   };
 
   useEffect(() => {
+    if (internalShowType !== "full") return;
+
     const handleClickOutside = (event: MouseEvent) => {
-      // wrapperRef 영역 안이면 클릭 무시
-      // contains 메소드는 Node || null 타입을 받지만 event.target의 타입은 EventTarget
-      // 따라서 Node로 타입 단언
-      if (
-        wrapperRef.current &&
-        !wrapperRef.current.contains(event.target as Node)
-      ) {
-        changeShowType("bar"); // 선택 초기화 → Timer 숨김
-      }
+      if (!wrapperRef.current) return;
+      // 타이머 영역 안에서의 클릭은 무시
+      if (wrapperRef.current.contains(event.target as Node)) return;
+
+      changeShowType("bar"); // 영역 밖 클릭 시만 닫기
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [internalShowType]);
+
+  const handleWrapperClick = () => {
+    if (internalShowType === "bar") {
+      changeShowType("full");
+    }
+  };
 
   return (
     <div
       ref={wrapperRef}
-      onClick={() =>
-        changeShowType(internalShowType === "bar" ? "full" : "bar")
-      }
+      onClick={handleWrapperClick}
     >
       {internalShowType === "bar" ? (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#d9d9d9] flex h-[72px] pt-2 justify-between px-5 z-50 gap-[20px] pb-5">

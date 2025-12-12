@@ -1,26 +1,42 @@
 "use client";
+
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { Exercise, ExerciseSet } from "../";
+import { ExerciseSet } from "../";
+
+type ClientSet = ExerciseSet & { localId?: string | number; isComplete?: boolean };
+type ClientExercise = {
+  localId?: string | number;
+  exerciseId?: string | number;
+  id?: string | number;
+  name?: string;
+  exerciseName?: string;
+  sets?: ClientSet[];
+  defaultReps?: number;
+  defaultWeight?: number;
+  restSeconds?: number;
+};
 
 interface ExerciseProps {
-  id: number;
-  name: string;
-  sets: ExerciseSet[];
+  exercise: ClientExercise;
+  sets: ClientSet[];
   isCurrent?: boolean;
   currentExerciseSetId: number | string;
-  onClickExercise: (id: number) => void;
-  addSets: (id: number) => void;
-  onClickSetCheckBtn: (exerciseId: number, setId: number) => void;
+  onClickExercise: (exerciseLocalId: number | string) => void;
+  addSets: (exerciseLocalId: number | string) => void;
+  onClickSetCheckBtn: (
+    exerciseLocalId: number | string,
+    setLocalId: number | string
+  ) => void;
   onUpdateSet: (
-    setId: number,
+    exerciseLocalId: number | string,
+    setLocalId: number | string,
     values: { weight: number; reps: number }
   ) => void;
-  setExercises: React.Dispatch<React.SetStateAction<Exercise[]>>;
 }
+
 export const ExerciseCard = ({
-  id,
-  name,
+  exercise,
   sets,
   isCurrent,
   currentExerciseSetId,
@@ -28,15 +44,18 @@ export const ExerciseCard = ({
   addSets,
   onClickSetCheckBtn,
   onUpdateSet,
-  setExercises,
 }: ExerciseProps) => {
+  const exerciseId = exercise.localId ?? exercise.exerciseId ?? exercise.id ?? "";
+  const exerciseName =
+    exercise.name ?? exercise.exerciseName ?? (exercise as any)?.title ?? "운동";
+
   const [rotated, setRotated] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [tempWeight, setTempWeight] = useState("");
   const [tempReps, setTempReps] = useState("");
-  const [editingSetId, setEditingSetId] = useState<number | null>(null);
+  const [editingSetId, setEditingSetId] = useState<number | string | null>(null);
   const [editingTarget, setEditingTarget] = useState<{
-    setId: number | null;
+    setId: number | string | null;
     field: "weight" | "reps" | null;
   }>({ setId: null, field: null });
 
@@ -46,17 +65,19 @@ export const ExerciseCard = ({
   const handleToggleEdit = () => {
     setIsEditing((prev) => !prev);
   };
-  const handleEditStart = (set: SetItem, field: "weight" | "reps" | null) => {
-    setEditingSetId(set.id);
+
+  const handleEditStart = (
+    set: ClientSet,
+    field: "weight" | "reps" | null
+  ) => {
+    const targetId = set.localId ?? set.id ?? null;
+    setEditingSetId(targetId);
     setTempWeight(String(set.weight));
     setTempReps(String(set.reps));
-    setEditingTarget({ setId: set.id, field });
-
-    console.log("set", set, editingSetId);
+    setEditingTarget({ setId: targetId, field });
   };
 
   useEffect(() => {
-    console.log("editingTarget", editingTarget);
     if (editingTarget.setId !== null) {
       if (editingTarget.field === "weight" || editingTarget.field === null) {
         weightInputRef.current?.focus();
@@ -67,8 +88,8 @@ export const ExerciseCard = ({
   }, [editingTarget]);
 
   const handleEditEnd = () => {
-    if (editingSetId) {
-      onUpdateSet(editingSetId, {
+    if (editingSetId !== null) {
+      onUpdateSet(exerciseId, editingSetId, {
         weight: Number(tempWeight),
         reps: Number(tempReps),
       });
@@ -81,15 +102,15 @@ export const ExerciseCard = ({
   const toggleChecked = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
     index: number,
-    exerciseId: number,
-    setId: number
+    exerciseLocalId: number | string,
+    setId: number | string
   ) => {
     e.stopPropagation();
-    onClickSetCheckBtn(exerciseId, setId);
+    onClickSetCheckBtn(exerciseLocalId, setId);
   };
 
   return (
-    <div onClick={() => onClickExercise(id)} className="py-5 px-5">
+    <div onClick={() => onClickExercise(exerciseId)} className="py-5 px-5">
       <div className="flex items-center h-[48px] mb-3 ">
         <div className="w-[40px]">
           <button
@@ -109,7 +130,7 @@ export const ExerciseCard = ({
         <div className="flex gap-[8px]" style={{ flex: 1 }}>
           <div className="w-[48px] h-[48px] bg-black"></div>
           <div>
-            <h1>{name}</h1>
+            <h1>{exerciseName}</h1>
             <div>{sets?.length}세트</div>
           </div>
         </div>
@@ -129,11 +150,12 @@ export const ExerciseCard = ({
       {!rotated && (
         <div className="text-sm  flex flex-col gap-[8px]">
           {sets.map((set, index) => {
+            const setKey = set.localId ?? set.id ?? index;
             return (
               <div
-                key={set?.id}
+                key={setKey}
                 className={`flex items-center px-2.5 justify-between h-[45px] border rounded-[8px] ${
-                  currentExerciseSetId === set.id
+                  currentExerciseSetId === setKey
                     ? "border-black"
                     : "border-[#d9d9d9]"
                 }`}
@@ -141,7 +163,9 @@ export const ExerciseCard = ({
                 {/* 체크박스 */}
                 <div style={{ flex: 1 }}>
                   <div
-                    onClick={(e) => toggleChecked(e, index, id, set.id)}
+                    onClick={(e) =>
+                      toggleChecked(e, index, exerciseId, setKey)
+                    }
                     className="w-5 h-5 flex items-center justify-center rounded-full border border-gray-400"
                   >
                     {set.isComplete && (
@@ -166,24 +190,10 @@ export const ExerciseCard = ({
                       ref={weightInputRef}
                       className="w-[25px] border border-gray-300 text-center"
                       type="number"
-                      value={set.weight}
-                      onChange={(e) =>
-                        setExercises((prev) => {
-                          return prev.map((exercise) => {
-                            if (exercise.id === id) {
-                              return {
-                                ...exercise,
-                                sets: exercise.sets.map((s) =>
-                                  s.id === set.id
-                                    ? { ...s, weight: Number(e.target.value) }
-                                    : s
-                                ),
-                              };
-                            }
-                            return exercise;
-                          });
-                        })
+                      value={
+                        editingSetId === setKey ? tempWeight : String(set.weight)
                       }
+                      onChange={(e) => setTempWeight(e.target.value)}
                       onBlur={handleEditEnd}
                       onKeyDown={(e) => e.key === "Enter" && handleEditEnd()}
                     />
@@ -210,24 +220,10 @@ export const ExerciseCard = ({
                       ref={repsInputRef}
                       className="w-[25px] border border-gray-300 text-center"
                       type="number"
-                      value={set.reps}
-                      onChange={(e) =>
-                        setExercises((prev) => {
-                          return prev.map((exercise) => {
-                            if (exercise.id === id) {
-                              return {
-                                ...exercise,
-                                sets: exercise.sets.map((s) =>
-                                  s.id === set.id
-                                    ? { ...s, reps: Number(e.target.value) }
-                                    : s
-                                ),
-                              };
-                            }
-                            return exercise;
-                          });
-                        })
+                      value={
+                        editingSetId === setKey ? tempReps : String(set.reps)
                       }
+                      onChange={(e) => setTempReps(e.target.value)}
                       onBlur={handleEditEnd}
                       onKeyDown={(e) => e.key === "Enter" && handleEditEnd()}
                     />
@@ -248,7 +244,7 @@ export const ExerciseCard = ({
           운동 메모
         </button>
         <button
-          onClick={() => addSets(id)}
+          onClick={() => addSets(exerciseId)}
           className="w-[207px] border border-[#d9d9d9] rounded-[8px]"
         >
           세트 추가하기

@@ -74,13 +74,13 @@ export const Header = ({
         )}{" "}
         <p className="h-full flex items-center font-bold">{title}</p>
         {children ? (
-          <button
+          <div
             onClick={handleRight}
             className="-ml-2 rounded-full hover:bg-gray-100 transition-colors" // 클릭 영역을 넓히고 호버 효과를 추가합니다.
             aria-label="뒤로가기" // 웹 접근성을 위해 스크린 리더가 읽을 텍스트를 제공합니다.
           >
             {children}
-          </button>
+          </div>
         ) : (
           <div></div>
         )}

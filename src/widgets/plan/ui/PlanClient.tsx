@@ -3,33 +3,62 @@
 import React, { useState, useEffect, useRef } from "react";
 import { ExerciseCard } from "@/entities/exercise";
 import { Timer } from "@/entities/exercise";
-import { Exercise } from "@/entities/exercise";
 import { Header } from "@/shared";
 import { formatTime } from "@/shared";
 export default function PlanClient({
-  initialExercises,
+  initialPlanDetail,
 }: {
-  initialExercises: Exercise[];
+  initialPlanDetail: any;
 }) {
   const TIMER_HEIGHT = 375;
-  const [exercises, setExercises] = useState<Exercise[]>(
-    initialExercises.map((ex) => ({
-      ...ex,
-      sets: ex.sets.map((s) => ({ ...s, isComplete: s.isComplete ?? false })),
-    }))
-  );
-  console.log("exercises", exercises);
+
+  console.log("initialPlanDetail~~~~~~~~~~~~~", initialPlanDetail);
+  const initialExercisesData = Array.isArray(initialPlanDetail?.exercises)
+    ? initialPlanDetail.exercises
+    : Array.isArray(initialPlanDetail)
+      ? initialPlanDetail
+      : [];
+
+  const buildInitialExercises = () => {
+    return initialExercisesData.map((ex, exIndex) => {
+      const exerciseKey = ex.exerciseId ?? ex.id ?? exIndex;
+      const exerciseLocalId = ex.localId ?? `ex-${exerciseKey}`;
+
+      return {
+        ...ex,
+        exerciseId: exerciseKey,
+        localId: exerciseLocalId,
+        sets: (ex.sets ?? []).map((set, setIndex) => {
+          const setKey = set.id ?? setIndex;
+          const setLocalId = set.localId ?? `set-${exerciseKey}-${setKey}`;
+
+          return {
+            ...set,
+            id: set.id ?? null,
+            localId: setLocalId,
+            isComplete: set.isComplete ?? false,
+            exerciseId: exerciseKey,
+          };
+        }),
+      };
+    });
+  };
+
+  const initialExercisesState = buildInitialExercises();
+  const [exercises, setExercises] = useState(initialExercisesState);
+
+  const generateLocalId = () =>
+    `local-${Math.random().toString(36).substring(2, 9)}`;
+
+  console.log("exercises~~~~~~~~~~~~~", exercises);
   const [currentExerciseId, setCurrentExerciseId] = useState<number | string>(
-    initialExercises[0].id
+    initialExercisesState[0]?.localId ?? -1
   );
-  console.log(
-    "currentExerciseId seconds",
-    exercises?.find((item) => item.id === currentExerciseId)?.restSeconds || 60
-  );
+
   const [currentExerciseSetId, setCurrentExerciseSetId] = useState<
     number | string
-  >(exercises[0].sets[0].id);
-  const exerciseRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+  >(initialExercisesState[0]?.sets?.[0]?.localId ?? -1);
+  const exerciseRefs = useRef<Map<number | string, HTMLDivElement>>(new Map());
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   const [showType, setShowType] = useState<"bar" | "full">("bar");
@@ -88,14 +117,16 @@ export default function PlanClient({
     exerciseId: number | string,
     setId: number | string
   ) => {
-    setExercises((prevExercises) =>
-      prevExercises.map((exercise) => {
-        if (exercise.id !== exerciseId) return exercise;
+    setExercises((prev) =>
+      prev.map((exercise) => {
+        if (exercise.localId !== exerciseId) return exercise;
 
         return {
           ...exercise,
           sets: exercise.sets.map((set) =>
-            set.id === setId ? { ...set, isComplete: !set.isComplete } : set
+            set.localId === setId || set.id === setId
+              ? { ...set, isComplete: !set.isComplete }
+              : set
           ),
         };
       })
@@ -114,8 +145,9 @@ export default function PlanClient({
       // handleExerciseClick(pendingExerciseId);
       setPendingExerciseId(-1);
     }
-  }, [exercises]);
-  const handleExerciseClick = (id: number) => {
+  }, [exercises, pendingExerciseId]);
+  const handleExerciseClick = (id: number | string) => {
+    console.log("handleExerciseClick", id);
     if (startTrigger === 0) return;
     setCurrentExerciseId(id);
     setTimeout(() => {
@@ -152,7 +184,7 @@ export default function PlanClient({
   //   }
   // };
   const handleNextSet = (exerciseId: number | string) => {
-    const exercise = exercises.find((ex) => ex.id === exerciseId);
+    const exercise = exercises.find((ex) => ex.localId === exerciseId);
     if (!exercise) return;
     // 아직 완료되지 않은 세트를 찾음
     const nextIncompleteSet = exercise.sets.find((set) => !set.isComplete);
@@ -160,11 +192,11 @@ export default function PlanClient({
 
     if (nextIncompleteSet) {
       // 완료되지 않은 세트가 있으면 거기로 이동
-      setCurrentExerciseSetId(nextIncompleteSet.id);
+      setCurrentExerciseSetId(nextIncompleteSet.localId);
     } else {
       // 현재 운동의 모든 세트를 완료한 경우 다음 운동으로 이동
       const currentExerciseIndex = exercises.findIndex(
-        (item) => item.id === exerciseId
+        (item) => item.localId === exerciseId
       );
       const nextExercise = exercises[currentExerciseIndex + 1];
 
@@ -175,13 +207,13 @@ export default function PlanClient({
 
         // 다음 운동의 첫 미완료 세트로 이동
         if (nextExerciseFirstIncompleteSet) {
-          setCurrentExerciseSetId(nextExerciseFirstIncompleteSet.id);
+          setCurrentExerciseSetId(nextExerciseFirstIncompleteSet.localId);
         } else {
           // 다음 운동의 세트가 모두 완료된 경우 -1로 설정
           setCurrentExerciseSetId(-1);
         }
 
-        handleExerciseClick(nextExercise.id);
+        handleExerciseClick(nextExercise.localId);
       } else {
         // 모든 운동이 끝난 경우
         setCurrentExerciseSetId(-1);
@@ -189,36 +221,59 @@ export default function PlanClient({
     }
   };
 
-  const nextExercise = (exerciseId: number) => {
-    const currentIndex = exercises.findIndex((item) => item.id === exerciseId);
+  const nextExercise = (exerciseId: number | string) => {
+    const currentIndex = exercises.findIndex(
+      (item) => item.localId === exerciseId
+    );
     if (currentIndex !== -1 && currentIndex + 1 < exercises.length) {
-      const nextExerciseId = exercises[currentIndex + 1].id;
+      const nextExerciseId = exercises[currentIndex + 1].localId;
       handleExerciseClick(nextExerciseId);
     }
   };
 
-  const addSets = (id: number) => {
-    setExercises((prevExercises) =>
-      prevExercises.map((exercise) => {
-        if (exercise.id !== id) return exercise;
-        const lastSet = exercise.sets[exercise.sets.length - 1];
-        const newSet = { ...lastSet, id: lastSet.id + 1 };
-        return { ...exercise, sets: [...exercise.sets, newSet] };
+  const addSets = (exerciseLocalId: number | string) => {
+    const localId = generateLocalId();
+
+    setExercises((prev) =>
+      prev.map((exercise) => {
+        if (exercise.localId !== exerciseLocalId) return exercise;
+
+        return {
+          ...exercise,
+          sets: [
+            ...exercise.sets,
+            {
+              id: null, // 아직 서버에 저장되지 않음
+              localId,
+              reps: exercise.defaultReps ?? 0,
+              weight: exercise.defaultWeight ?? 0,
+              isComplete: false,
+              exerciseId: exercise.exerciseId ?? exercise.id ?? exerciseLocalId,
+            },
+          ],
+        };
       })
     );
   };
 
   const handleUpdateSet = (
-    setId: number,
+    exerciseLocalId: number | string,
+    setLocalId: number | string,
     values: { weight: number; reps: number }
   ) => {
     setExercises((prev) =>
-      prev.map((exercise) => ({
-        ...exercise,
-        sets: exercise.sets.map((set) =>
-          set.id === setId ? { ...set, ...values } : set
-        ),
-      }))
+      prev.map((exercise) => {
+        if (exercise.localId !== exerciseLocalId) return exercise;
+
+        return {
+          ...exercise,
+          sets: exercise.sets.map((set) =>
+            set.localId === setLocalId || set.id === setLocalId
+              ? { ...set, ...values }
+              : set
+          ),
+        };
+      })
     );
   };
 
@@ -262,34 +317,40 @@ export default function PlanClient({
           }px)`,
         }}
       >
-        {currentExerciseId}/{currentExerciseSetId}
+        currentExerciseId:{currentExerciseId}/currentExerciseSetId:{" "}
+        {currentExerciseSetId}
         <div className="flex flex-col gap-[10px] bg-[#F7F8F9]">
-          {exercises?.map((exercise) => (
-            <div
-              key={exercise.id}
-              className="bg-white"
-              ref={(el) => {
-                if (el) exerciseRefs.current.set(exercise.id, el);
-              }}
-            >
-              <ExerciseCard
-                {...exercise}
-                isCurrent={exercise.id === currentExerciseId}
-                currentExerciseSetId={currentExerciseSetId}
-                onClickExercise={handleExerciseClick}
-                onClickSetCheckBtn={toggleSetCompletion}
-                addSets={addSets}
-                onUpdateSet={handleUpdateSet}
-                setExercises={setExercises}
-              />
-            </div>
-          ))}
+          {exercises.map((exercise) => {
+            const exerciseSets = exercise.sets ?? [];
+
+            return (
+              <div
+                key={exercise?.localId}
+                className="bg-white"
+                ref={(el) => {
+                  if (el) exerciseRefs.current.set(exercise.localId, el);
+                }}
+              >
+                <ExerciseCard
+                  exercise={exercise}
+                  sets={exerciseSets}
+                  isCurrent={exercise.localId === currentExerciseId}
+                  currentExerciseSetId={currentExerciseSetId}
+                  onClickExercise={handleExerciseClick}
+                  onClickSetCheckBtn={toggleSetCompletion}
+                  addSets={addSets}
+                  onUpdateSet={handleUpdateSet}
+                />
+              </div>
+            );
+          })}
         </div>
         <Timer
           startTrigger={startTrigger}
           restSeconds={
-            exercises?.find((item) => item.id === currentExerciseId)
-              ?.restSeconds || 60
+            exercises.find(
+              (exercise) => exercise.localId === currentExerciseId
+            )?.restSeconds || 60
           }
           nextExercise={nextExercise}
           showType={showType}
