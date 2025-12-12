@@ -277,6 +277,24 @@ export default function PlanClient({
     );
   };
 
+  const handleDeleteSet = (
+    exerciseLocalId: number | string,
+    setLocalId: number | string
+  ) => {
+    setExercises((prev) =>
+      prev.map((exercise) => {
+        if (exercise.localId !== exerciseLocalId) return exercise;
+
+        return {
+          ...exercise,
+          sets: exercise.sets.filter(
+            (set) => set.localId !== setLocalId && set.id !== setLocalId
+          ),
+        };
+      })
+    );
+  };
+
   const handleSave = async () => {
     const completedSets = exercises.flatMap((exercise) =>
       exercise.sets.filter((set) => set.isComplete)
@@ -340,6 +358,7 @@ export default function PlanClient({
                   onClickSetCheckBtn={toggleSetCompletion}
                   addSets={addSets}
                   onUpdateSet={handleUpdateSet}
+                  onDeleteSet={handleDeleteSet}
                 />
               </div>
             );

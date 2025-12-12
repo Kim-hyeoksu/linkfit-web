@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { ExerciseSet } from "../";
 
@@ -33,6 +33,10 @@ interface ExerciseProps {
     setLocalId: number | string,
     values: { weight: number; reps: number }
   ) => void;
+  onDeleteSet: (
+    exerciseLocalId: number | string,
+    setLocalId: number | string
+  ) => void;
 }
 
 export const ExerciseCard = ({
@@ -44,6 +48,7 @@ export const ExerciseCard = ({
   addSets,
   onClickSetCheckBtn,
   onUpdateSet,
+  onDeleteSet,
 }: ExerciseProps) => {
   const exerciseId = exercise.localId ?? exercise.exerciseId ?? exercise.id ?? "";
   const exerciseName =
@@ -54,13 +59,6 @@ export const ExerciseCard = ({
   const [tempWeight, setTempWeight] = useState("");
   const [tempReps, setTempReps] = useState("");
   const [editingSetId, setEditingSetId] = useState<number | string | null>(null);
-  const [editingTarget, setEditingTarget] = useState<{
-    setId: number | string | null;
-    field: "weight" | "reps" | null;
-  }>({ setId: null, field: null });
-
-  const weightInputRef = useRef<HTMLInputElement | null>(null);
-  const repsInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleToggleEdit = () => {
     setIsEditing((prev) => !prev);
@@ -74,18 +72,7 @@ export const ExerciseCard = ({
     setEditingSetId(targetId);
     setTempWeight(String(set.weight));
     setTempReps(String(set.reps));
-    setEditingTarget({ setId: targetId, field });
   };
-
-  useEffect(() => {
-    if (editingTarget.setId !== null) {
-      if (editingTarget.field === "weight" || editingTarget.field === null) {
-        weightInputRef.current?.focus();
-      } else if (editingTarget.field === "reps") {
-        repsInputRef.current?.focus();
-      }
-    }
-  }, [editingTarget]);
 
   const handleEditEnd = () => {
     if (editingSetId !== null) {
@@ -179,15 +166,12 @@ export const ExerciseCard = ({
                   className="flex"
                   style={{ flex: 1 }}
                   onClick={(e) => {
-                    if (!isEditing) {
-                      e.stopPropagation();
-                      handleEditStart(set, "weight");
-                    }
+                    e.stopPropagation();
+                    handleEditStart(set, "weight");
                   }}
                 >
                   {isEditing ? (
                     <input
-                      ref={weightInputRef}
                       className="w-[25px] border border-gray-300 text-center"
                       type="number"
                       value={
@@ -209,15 +193,12 @@ export const ExerciseCard = ({
                   className="flex"
                   style={{ flex: 1 }}
                   onClick={(e) => {
-                    if (!isEditing) {
-                      e.stopPropagation();
-                      handleEditStart(set, "reps");
-                    }
+                    e.stopPropagation();
+                    handleEditStart(set, "reps");
                   }}
                 >
                   {isEditing ? (
                     <input
-                      ref={repsInputRef}
                       className="w-[25px] border border-gray-300 text-center"
                       type="number"
                       value={
@@ -234,6 +215,17 @@ export const ExerciseCard = ({
                   )}
                   &nbsp;회
                 </div>
+                {isEditing && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteSet(exerciseId, setKey);
+                    }}
+                    className="ml-2 text-xs text-red-500"
+                  >
+                    삭제
+                  </button>
+                )}
               </div>
             );
           })}
