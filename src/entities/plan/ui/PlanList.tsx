@@ -65,7 +65,9 @@ interface Props {
 }
 
 export const PlanList = ({ program, programId, weekNumber }: Props) => {
-  const currentWeekPlans = program.filter((w) => w.weekNumber === weekNumber);
+  const currentWeekPlans = program
+    .filter((w) => w.weekNumber === weekNumber)
+    .sort((a, b) => a.dayOrder - b.dayOrder);
 
   return (
     <div className="p-5 bg-white">
