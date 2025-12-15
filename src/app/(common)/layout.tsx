@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import "./../globals.css";
 
-import BottomNavBar from "@/components/common/BottomNavBar";
-import Header from "@/components/common/header";
+import { BottomNavBar } from "@/shared";
 
 // 전역 메타데이터 정의
 export const metadata: Metadata = {
@@ -12,14 +10,13 @@ export const metadata: Metadata = {
   // <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 };
 
-export default function RootLayout({
+export default function ProgramsLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
       {/* 메인 콘텐츠 영역 */}
       {/*
             flex-grow: 남은 공간 채우기

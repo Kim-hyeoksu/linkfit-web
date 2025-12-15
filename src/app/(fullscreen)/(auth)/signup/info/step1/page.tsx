@@ -1,5 +1,5 @@
 "use client";
-import Header from "@/components/common/header";
+import { Header } from "@/shared";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 export default function SignupInfoPage() {
