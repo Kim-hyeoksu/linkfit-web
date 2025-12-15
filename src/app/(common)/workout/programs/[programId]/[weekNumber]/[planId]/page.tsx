@@ -7,6 +7,7 @@
 // import Timer from "@/components/common/Timer";
 import PlanClient from "@/widgets/plan/ui/PlanClient";
 import { getPlanDetail } from "@/entities/plan";
+import type { PlanResponse } from "@/entities/plan";
 import { initMsw } from "@/shared/api/msw/initMsw";
 
 interface PlanPageProps {
@@ -17,6 +18,6 @@ export default async function PlanPage({ params }: PlanPageProps) {
     await initMsw();
   }
 
-  const planDetail = await getPlanDetail(params.planId);
+  const planDetail: PlanResponse = await getPlanDetail(params.planId);
   return <PlanClient initialPlanDetail={planDetail} />;
 }

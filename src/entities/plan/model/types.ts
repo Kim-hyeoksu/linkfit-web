@@ -1,22 +1,38 @@
-// 각 일차 정보
-export type WorkoutDay = {
-  id: string;
-  dayNumber: number; // 몇 번째 날인지
-  exercisesCount: number; // 운동 종목 개수
-  totalVolumeKg: number; // 총 볼륨
-  completed: boolean; // 완료 여부
-  representativeExercise: string; // 대표 운동 이름
-};
+export interface PlanResponse {
+  id: number;
+  userId: number;
+  programId: number | null;
+  programName: string;
+  dayOrder: number | null;
+  weekNumber: number | null;
+  weekDay: number | null;
+  title: string;
+  createdAt: string; // ISO
+  exerciseCount: number;
+  totalVolume: number;
+  exercises?: PlanExerciseItem[] | null; // 단건 조회 시 채워짐
+}
+export interface PlanExerciseItem {
+  exerciseId: number;
+  exerciseName: string;
+  defaultSets: number | null;
+  defaultReps: number | null;
+  defaultWeight: number | null;
+  defaultRestSeconds: number | null;
+  orderIndex: number;
+  sets: PlanExerciseSetItem[]; // 세트별 타깃 값
+}
 
-// 주차 정보
-export type WorkoutWeek = {
-  week: number;
-  days: WorkoutDay[];
-};
-
-// 프로그램 정보
-export type WorkoutProgram = {
-  id: string; // 프로그램 id
-  name: string; // 프로그램 이름
-  weeks: WorkoutWeek[];
-};
+export interface PlanExerciseSetItem {
+  id: number | null; // 템플릿 세트면 null일 수도 있음
+  setOrder: number;
+  reps: number | null;
+  weight: number | null;
+  restSeconds: number | null;
+}
+export interface PlanListResponse {
+  programId: number;
+  programName: string | null;
+  maxWeekNumber: number | null;
+  plans: PlanResponse[];
+}

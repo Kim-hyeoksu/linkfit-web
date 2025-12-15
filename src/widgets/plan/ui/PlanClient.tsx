@@ -1,14 +1,20 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import type { PlanResponse, PlanExerciseSetItem } from "@/entities/plan";
 import { ExerciseCard } from "@/entities/exercise";
 import { Timer } from "@/entities/exercise";
 import { Header } from "@/shared";
 import { formatTime } from "@/shared";
+
+interface LocalPlanExerciseSetItem extends PlanExerciseSetItem {
+  localId?: string | number;
+  isComplete?: boolean;
+}
 export default function PlanClient({
   initialPlanDetail,
 }: {
-  initialPlanDetail: any;
+  initialPlanDetail: PlanResponse;
 }) {
   const TIMER_HEIGHT = 375;
 
@@ -16,8 +22,8 @@ export default function PlanClient({
   const initialExercisesData = Array.isArray(initialPlanDetail?.exercises)
     ? initialPlanDetail.exercises
     : Array.isArray(initialPlanDetail)
-      ? initialPlanDetail
-      : [];
+    ? initialPlanDetail
+    : [];
 
   const buildInitialExercises = () => {
     return initialExercisesData.map((ex, exIndex) => {
@@ -28,18 +34,20 @@ export default function PlanClient({
         ...ex,
         exerciseId: exerciseKey,
         localId: exerciseLocalId,
-        sets: (ex.sets ?? []).map((set, setIndex) => {
-          const setKey = set.id ?? setIndex;
-          const setLocalId = set.localId ?? `set-${exerciseKey}-${setKey}`;
+        sets: (ex.sets ?? []).map(
+          (set: LocalPlanExerciseSetItem, setIndex: number) => {
+            const setKey = set.id ?? setIndex;
+            const setLocalId = set.localId ?? `set-${exerciseKey}-${setKey}`;
 
-          return {
-            ...set,
-            id: set.id ?? null,
-            localId: setLocalId,
-            isComplete: set.isComplete ?? false,
-            exerciseId: exerciseKey,
-          };
-        }),
+            return {
+              ...set,
+              id: set.id ?? null,
+              localId: setLocalId,
+              isComplete: set.isComplete ?? false,
+              exerciseId: exerciseKey,
+            };
+          }
+        ),
       };
     });
   };
@@ -123,7 +131,7 @@ export default function PlanClient({
 
         return {
           ...exercise,
-          sets: exercise.sets.map((set) =>
+          sets: exercise.sets.map((set: LocalPlanExerciseSetItem) =>
             set.localId === setId || set.id === setId
               ? { ...set, isComplete: !set.isComplete }
               : set
@@ -187,7 +195,9 @@ export default function PlanClient({
     const exercise = exercises.find((ex) => ex.localId === exerciseId);
     if (!exercise) return;
     // 아직 완료되지 않은 세트를 찾음
-    const nextIncompleteSet = exercise.sets.find((set) => !set.isComplete);
+    const nextIncompleteSet = exercise.sets.find(
+      (set: LocalPlanExerciseSetItem) => !set.isComplete
+    );
     console.log("nextIncompleteSet", nextIncompleteSet);
 
     if (nextIncompleteSet) {
@@ -267,7 +277,7 @@ export default function PlanClient({
 
         return {
           ...exercise,
-          sets: exercise.sets.map((set) =>
+          sets: exercise.sets.map((set: LocalPlanExerciseSetItem) =>
             set.localId === setLocalId || set.id === setLocalId
               ? { ...set, ...values }
               : set
@@ -288,7 +298,8 @@ export default function PlanClient({
         return {
           ...exercise,
           sets: exercise.sets.filter(
-            (set) => set.localId !== setLocalId && set.id !== setLocalId
+            (set: LocalPlanExerciseSetItem) =>
+              set.localId !== setLocalId && set.id !== setLocalId
           ),
         };
       })
@@ -297,7 +308,7 @@ export default function PlanClient({
 
   const handleSave = async () => {
     const completedSets = exercises.flatMap((exercise) =>
-      exercise.sets.filter((set) => set.isComplete)
+      exercise.sets.filter((set: LocalPlanExerciseSetItem) => set.isComplete)
     );
     await fetch("/api/save-sets", {
       method: "POST",
@@ -367,9 +378,8 @@ export default function PlanClient({
         <Timer
           startTrigger={startTrigger}
           restSeconds={
-            exercises.find(
-              (exercise) => exercise.localId === currentExerciseId
-            )?.restSeconds || 60
+            exercises.find((exercise) => exercise.localId === currentExerciseId)
+              ?.restSeconds || 60
           }
           nextExercise={nextExercise}
           showType={showType}
