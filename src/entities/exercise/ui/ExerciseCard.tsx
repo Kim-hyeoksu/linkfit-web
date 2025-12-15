@@ -147,18 +147,30 @@ export const ExerciseCard = ({
                     : "border-[#d9d9d9]"
                 }`}
               >
-                {/* 체크박스 */}
+                {/* 체크박스 or 삭제 */}
                 <div style={{ flex: 1 }}>
-                  <div
-                    onClick={(e) =>
-                      toggleChecked(e, index, exerciseId, setKey)
-                    }
-                    className="w-5 h-5 flex items-center justify-center rounded-full border border-gray-400"
-                  >
-                    {set.isComplete && (
-                      <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />
-                    )}
-                  </div>
+                  {isEditing ? (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteSet(exerciseId, setKey);
+                      }}
+                      className="w-5 h-5 flex items-center justify-center rounded-full border border-red-300 text-red-500 text-xs font-bold"
+                    >
+                      X
+                    </button>
+                  ) : (
+                    <div
+                      onClick={(e) =>
+                        toggleChecked(e, index, exerciseId, setKey)
+                      }
+                      className="w-5 h-5 flex items-center justify-center rounded-full border border-gray-400"
+                    >
+                      {set.isComplete && (
+                        <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />
+                      )}
+                    </div>
+                  )}
                 </div>
                 <div style={{ flex: 1 }}>{index + 1}세트</div>
                 {/* 무게 */}
@@ -215,17 +227,6 @@ export const ExerciseCard = ({
                   )}
                   &nbsp;회
                 </div>
-                {isEditing && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDeleteSet(exerciseId, setKey);
-                    }}
-                    className="ml-2 text-xs text-red-500"
-                  >
-                    삭제
-                  </button>
-                )}
               </div>
             );
           })}
