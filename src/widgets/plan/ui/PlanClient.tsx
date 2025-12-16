@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import type { PlanResponse, PlanExerciseSetItem } from "@/entities/plan";
+import type { StartSessionRequest } from "@/entities/session";
+import { startSession } from "@/features/session-control/api/startSession";
 import { ExerciseCard } from "@/entities/exercise";
 import { Timer } from "@/entities/exercise";
 import { Header } from "@/shared";
@@ -18,7 +20,6 @@ export default function PlanClient({
 }) {
   const TIMER_HEIGHT = 375;
 
-  console.log("initialPlanDetail~~~~~~~~~~~~~", initialPlanDetail);
   const initialExercisesData = Array.isArray(initialPlanDetail?.exercises)
     ? initialPlanDetail.exercises
     : Array.isArray(initialPlanDetail)
@@ -58,7 +59,6 @@ export default function PlanClient({
   const generateLocalId = () =>
     `local-${Math.random().toString(36).substring(2, 9)}`;
 
-  console.log("exercises~~~~~~~~~~~~~", exercises);
   const [currentExerciseId, setCurrentExerciseId] = useState<number | string>(
     initialExercisesState[0]?.localId ?? -1
   );
@@ -76,6 +76,9 @@ export default function PlanClient({
   const [pendingExerciseId, setPendingExerciseId] = useState<number | string>(
     -1
   );
+  const [sessionId, setSessionId] = useState<number | null>(null);
+  const [isSessionStarted, setIsSessionStarted] = useState(false);
+
   // 데이터 로딩
 
   // 영역 밖 클릭 시 선택 해제
@@ -92,6 +95,26 @@ export default function PlanClient({
   //   document.addEventListener("mousedown", handleClickOutside);
   //   return () => document.removeEventListener("mousedown", handleClickOutside);
   // }, []);
+  const handleStartWorkout = async () => {
+    if (isSessionStarted) return; // 🔒 중복 호출 방지
+
+    try {
+      const body: StartSessionRequest = {
+        planId: initialPlanDetail.id,
+        userId: 1,
+        sessionDate: new Date().toISOString(),
+        memo: "",
+      };
+
+      const session = await startSession(body);
+
+      setSessionId(session.id); // 서버에서 내려준 sessionId
+      setIsSessionStarted(true);
+    } catch (e) {
+      console.error("세션 시작 실패", e);
+      alert("운동 시작에 실패했습니다.");
+    }
+  };
 
   const startExerciseTimer = () => {
     setInterval(() => {
@@ -330,7 +353,7 @@ export default function PlanClient({
           </button>
         ) : (
           <button
-            onClick={startExerciseTimer}
+            onClick={handleStartWorkout}
             className="bg-main text-white w-[124px] h-[32px] rounded-lg"
           >
             운동 시작
@@ -347,7 +370,7 @@ export default function PlanClient({
         }}
       >
         currentExerciseId:{currentExerciseId}/currentExerciseSetId:{" "}
-        {currentExerciseSetId}
+        {currentExerciseSetId}/startTrigger:{startTrigger}
         <div className="flex flex-col gap-[10px] bg-[#F7F8F9]">
           {exercises.map((exercise) => {
             const exerciseSets = exercise.sets ?? [];
