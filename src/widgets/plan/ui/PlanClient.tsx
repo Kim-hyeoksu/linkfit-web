@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import type { PlanResponse, PlanExerciseSetItem } from "@/entities/plan";
 import type { StartSessionRequest } from "@/entities/session";
-import { startSession, getActiveSession } from "@/features/session-control";
+import { startSession } from "@/features/session-control";
 import { ExerciseCard } from "@/entities/exercise";
 import { Timer } from "@/entities/exercise";
 import { Header } from "@/shared";
@@ -30,32 +30,46 @@ export default function PlanClient({
     return initialExercisesData.map((ex, exIndex) => {
       const exerciseKey = ex.exerciseId ?? ex.id ?? exIndex;
       const exerciseLocalId = ex.localId ?? `ex-${exerciseKey}`;
+      const rawSets = ex.sets ?? [];
 
       return {
         ...ex,
         exerciseId: exerciseKey,
         localId: exerciseLocalId,
-        sets: (ex.sets ?? []).map(
-          (set: LocalPlanExerciseSetItem, setIndex: number) => {
-            const setKey = set.id ?? setIndex;
-            const setLocalId = set.localId ?? `set-${exerciseKey}-${setKey}`;
+        sets: rawSets.map((set: LocalPlanExerciseSetItem, setIndex: number) => {
+          const setKey = set.id ?? setIndex;
+          const setLocalId = set.localId ?? `set-${exerciseKey}-${setKey}`;
+          const reps =
+            set.reps ?? (set as any).actualReps ?? (set as any).targetReps ?? 0;
+          const weight =
+            set.weight ??
+            (set as any).actualWeight ??
+            (set as any).targetWeight ??
+            0;
+          const restSeconds =
+            set.restSeconds ??
+            (set as any).actualRestSeconds ??
+            (set as any).targetRestSeconds ??
+            0;
 
-            return {
-              ...set,
-              id: set.id ?? null,
-              localId: setLocalId,
-              isComplete: set.isComplete ?? false,
-              exerciseId: exerciseKey,
-            };
-          }
-        ),
+          return {
+            ...set,
+            id: set.id ?? null,
+            localId: setLocalId,
+            reps,
+            weight,
+            restSeconds,
+            isComplete: set.isComplete ?? false,
+            exerciseId: exerciseKey,
+          };
+        }),
       };
     });
   };
 
   const initialExercisesState = buildInitialExercises();
   const [exercises, setExercises] = useState(initialExercisesState);
-
+  console.log("exercises", exercises);
   const generateLocalId = () =>
     `local-${Math.random().toString(36).substring(2, 9)}`;
 
