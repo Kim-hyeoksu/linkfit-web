@@ -68,6 +68,7 @@ export default function PlanClient({
   >(initialExercisesState[0]?.sets?.[0]?.localId ?? -1);
   const exerciseRefs = useRef<Map<number | string, HTMLDivElement>>(new Map());
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const [showType, setShowType] = useState<"bar" | "full">("bar");
   const [startTrigger, setStartTrigger] = useState(0);
@@ -95,6 +96,25 @@ export default function PlanClient({
   //   document.addEventListener("mousedown", handleClickOutside);
   //   return () => document.removeEventListener("mousedown", handleClickOutside);
   // }, []);
+
+  // 활성 세션으로 진입한 경우 startedAt 기준 경과 시간 복구
+  useEffect(() => {
+    const startedAt = (initialPlanDetail as any)?.startedAt;
+    if (!startedAt) return;
+
+    const startedMs = new Date(startedAt).getTime();
+    const nowMs = Date.now();
+    const elapsed = Math.max(nowMs - startedMs, 0);
+
+    setTotalExerciseMs(elapsed);
+    setIsSessionStarted(true);
+    setSessionId((initialPlanDetail as any)?.id ?? null);
+    if (startTrigger === 0) {
+      startExerciseTimer();
+      setStartTrigger(1);
+    }
+  }, [initialPlanDetail, startTrigger]);
+
   const handleStartWorkout = async () => {
     if (isSessionStarted) return; // 🔒 중복 호출 방지
 
@@ -118,7 +138,9 @@ export default function PlanClient({
   };
 
   const startExerciseTimer = () => {
-    setInterval(() => {
+    if (timerRef.current) return; // 이미 동작 중이면 중복 시작 방지
+
+    timerRef.current = setInterval(() => {
       setTotalExerciseMs((prev) => {
         return prev + 1000;
       });
@@ -171,6 +193,16 @@ export default function PlanClient({
     }
     setStartTrigger((t) => t + 1);
   };
+
+  // 언마운트 시 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, []);
   useEffect(() => {
     if (pendingExerciseId !== -1) {
       handleNextSet(pendingExerciseId);
