@@ -13,3 +13,16 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// 응답 인터셉터: 에러를 표준화해 status/body를 포함
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error?.response?.status;
+    const body = error?.response?.data;
+    const err: any = new Error(`API Error: ${status ?? "unknown"}`);
+    err.status = status;
+    err.body = body;
+    return Promise.reject(err);
+  }
+);
