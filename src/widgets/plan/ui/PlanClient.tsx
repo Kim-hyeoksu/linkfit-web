@@ -106,26 +106,8 @@ export default function PlanClient({
         memo: "",
       };
 
-      let session;
-      try {
-        session = await getActiveSession({
-          planId: initialPlanDetail.id,
-          userId: 1,
-        });
-        console.log("active session", session);
-      } catch (err: any) {
-        if (
-          err?.status === 404 ||
-          err?.message?.includes("404") ||
-          err?.toString?.().includes("404")
-        ) {
-          // 활성 세션이 없으면 신규 생성
-          session = await startSession(body);
-          console.log("created session", session);
-        } else {
-          throw err;
-        }
-      }
+      const session = await startSession(body);
+      startExerciseTimer();
 
       setSessionId(session.id); // 서버에서 내려준 sessionId
       setIsSessionStarted(true);
