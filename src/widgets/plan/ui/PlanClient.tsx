@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import type { PlanResponse, PlanExerciseSetItem } from "@/entities/plan";
 import type { StartSessionRequest } from "@/entities/session";
-import { startSession } from "@/features/session-control/api/startSession";
+import { startSession, getActiveSession } from "@/features/session-control";
 import { ExerciseCard } from "@/entities/exercise";
 import { Timer } from "@/entities/exercise";
 import { Header } from "@/shared";
@@ -106,7 +106,26 @@ export default function PlanClient({
         memo: "",
       };
 
-      const session = await startSession(body);
+      let session;
+      try {
+        session = await getActiveSession({
+          planId: initialPlanDetail.id,
+          userId: 1,
+        });
+        console.log("active session", session);
+      } catch (err: any) {
+        if (
+          err?.status === 404 ||
+          err?.message?.includes("404") ||
+          err?.toString?.().includes("404")
+        ) {
+          // 활성 세션이 없으면 신규 생성
+          session = await startSession(body);
+          console.log("created session", session);
+        } else {
+          throw err;
+        }
+      }
 
       setSessionId(session.id); // 서버에서 내려준 sessionId
       setIsSessionStarted(true);

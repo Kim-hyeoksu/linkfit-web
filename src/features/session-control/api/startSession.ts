@@ -9,11 +9,22 @@ export const startSession = async (body: StartSessionRequest) => {
     },
     body: JSON.stringify(body),
   });
-  const data = await res.json();
+  const parseResponse = async () => {
+    const text = await res.text();
+    try {
+      return JSON.parse(text);
+    } catch {
+      return text;
+    }
+  };
 
-  console.log("Response status:", data);
+  const data = await parseResponse();
+
   if (!res.ok) {
-    throw new Error(`프로그램 조회 실패: ${res.status}`);
+    const error: any = new Error(`세션 생성 실패: ${res.status}`);
+    error.status = res.status;
+    error.body = data;
+    throw error;
   }
 
   return data;
