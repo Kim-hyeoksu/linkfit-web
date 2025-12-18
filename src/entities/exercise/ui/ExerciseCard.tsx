@@ -4,7 +4,10 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { ExerciseSet } from "../";
 
-type ClientSet = ExerciseSet & { localId?: string | number; isComplete?: boolean };
+type ClientSet = ExerciseSet & {
+  localId?: string | number;
+  completedAt?: boolean;
+};
 type ClientExercise = {
   localId?: string | number;
   exerciseId?: string | number;
@@ -50,24 +53,27 @@ export const ExerciseCard = ({
   onUpdateSet,
   onDeleteSet,
 }: ExerciseProps) => {
-  const exerciseId = exercise.localId ?? exercise.exerciseId ?? exercise.id ?? "";
+  const exerciseId =
+    exercise.localId ?? exercise.exerciseId ?? exercise.id ?? "";
   const exerciseName =
-    exercise.name ?? exercise.exerciseName ?? (exercise as any)?.title ?? "운동";
+    exercise.name ??
+    exercise.exerciseName ??
+    (exercise as any)?.title ??
+    "운동";
 
   const [rotated, setRotated] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [tempWeight, setTempWeight] = useState("");
   const [tempReps, setTempReps] = useState("");
-  const [editingSetId, setEditingSetId] = useState<number | string | null>(null);
+  const [editingSetId, setEditingSetId] = useState<number | string | null>(
+    null
+  );
 
   const handleToggleEdit = () => {
     setIsEditing((prev) => !prev);
   };
 
-  const handleEditStart = (
-    set: ClientSet,
-    field: "weight" | "reps" | null
-  ) => {
+  const handleEditStart = (set: ClientSet, field: "weight" | "reps" | null) => {
     const targetId = set.localId ?? set.id ?? null;
     setEditingSetId(targetId);
     setTempWeight(String(set.weight));
@@ -90,10 +96,10 @@ export const ExerciseCard = ({
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
     index: number,
     exerciseLocalId: number | string,
-    setId: number | string
+    set
   ) => {
     e.stopPropagation();
-    onClickSetCheckBtn(exerciseLocalId, setId);
+    onClickSetCheckBtn(exerciseLocalId, set);
   };
 
   return (
@@ -161,12 +167,10 @@ export const ExerciseCard = ({
                     </button>
                   ) : (
                     <div
-                      onClick={(e) =>
-                        toggleChecked(e, index, exerciseId, setKey)
-                      }
+                      onClick={(e) => toggleChecked(e, index, exerciseId, set)}
                       className="w-5 h-5 flex items-center justify-center rounded-full border border-gray-400"
                     >
-                      {set.isComplete && (
+                      {set.completedAt && (
                         <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />
                       )}
                     </div>
@@ -187,7 +191,9 @@ export const ExerciseCard = ({
                       className="w-[25px] border border-gray-300 text-center"
                       type="number"
                       value={
-                        editingSetId === setKey ? tempWeight : String(set.weight)
+                        editingSetId === setKey
+                          ? tempWeight
+                          : String(set.weight)
                       }
                       onChange={(e) => setTempWeight(e.target.value)}
                       onBlur={handleEditEnd}

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import type { PlanResponse, PlanExerciseSetItem } from "@/entities/plan";
 import type { StartSessionRequest } from "@/entities/session";
-import { startSession } from "@/features/session-control";
+import { startSession, updateSessionSet } from "@/features/session-control";
 import { ExerciseCard } from "@/entities/exercise";
 import { Timer } from "@/entities/exercise";
 import { Header } from "@/shared";
@@ -39,18 +39,10 @@ export default function PlanClient({
         sets: rawSets.map((set: LocalPlanExerciseSetItem, setIndex: number) => {
           const setKey = set.id ?? setIndex;
           const setLocalId = set.localId ?? `set-${exerciseKey}-${setKey}`;
-          const reps =
-            set.reps ?? (set as any).actualReps ?? (set as any).targetReps ?? 0;
-          const weight =
-            set.weight ??
-            (set as any).actualWeight ??
-            (set as any).targetWeight ??
-            0;
+          const reps = set.reps ?? (set as any).targetReps ?? 0;
+          const weight = set.weight ?? (set as any).targetWeight ?? 0;
           const restSeconds =
-            set.restSeconds ??
-            (set as any).actualRestSeconds ??
-            (set as any).targetRestSeconds ??
-            0;
+            set.restSeconds ?? (set as any).targetRestSeconds ?? 0;
 
           return {
             ...set,
@@ -69,7 +61,6 @@ export default function PlanClient({
 
   const initialExercisesState = buildInitialExercises();
   const [exercises, setExercises] = useState(initialExercisesState);
-  console.log("exercises", exercises);
   const generateLocalId = () =>
     `local-${Math.random().toString(36).substring(2, 9)}`;
 
@@ -181,20 +172,24 @@ export default function PlanClient({
   //   // setCurrentExerciseId(exerciseId);
   // };
 
-  const toggleSetCompletion = (
-    exerciseId: number | string,
-    setId: number | string
-  ) => {
+  const toggleSetCompletion = async (exerciseId: number | string, set) => {
+    const body = {
+      reps: set.reps,
+      weight: set.weight,
+      rpe: set.rpe,
+      restSeconds: set.restSeconds,
+      status: set.status,
+      completedAt: new Date().toISOString(),
+    };
+    const response = await updateSessionSet(set.id, body);
     setExercises((prev) =>
       prev.map((exercise) => {
         if (exercise.localId !== exerciseId) return exercise;
 
         return {
           ...exercise,
-          sets: exercise.sets.map((set: LocalPlanExerciseSetItem) =>
-            set.localId === setId || set.id === setId
-              ? { ...set, isComplete: !set.isComplete }
-              : set
+          sets: exercise.sets.map((s: LocalPlanExerciseSetItem) =>
+            s.id === set.id ? response : s
           ),
         };
       })
