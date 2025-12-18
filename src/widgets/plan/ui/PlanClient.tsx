@@ -3,7 +3,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import type { PlanResponse, PlanExerciseSetItem } from "@/entities/plan";
 import type { StartSessionRequest } from "@/entities/session";
-import { startSession, updateSessionSet } from "@/features/session-control";
+import {
+  startSession,
+  updateSessionSet,
+  addSessionSet,
+} from "@/features/session-control";
 import { ExerciseCard } from "@/entities/exercise";
 import { Timer } from "@/entities/exercise";
 import { Header } from "@/shared";
@@ -173,27 +177,52 @@ export default function PlanClient({
   // };
 
   const toggleSetCompletion = async (exerciseId: number | string, set) => {
-    const body = {
-      reps: set.reps,
-      weight: set.weight,
-      rpe: set.rpe,
-      restSeconds: set.restSeconds,
-      status: set.status,
-      completedAt: new Date().toISOString(),
-    };
-    const response = await updateSessionSet(set.id, body);
-    setExercises((prev) =>
-      prev.map((exercise) => {
-        if (exercise.localId !== exerciseId) return exercise;
+    if (set.id) {
+      const body = {
+        reps: set.reps,
+        weight: set.weight,
+        rpe: set.rpe,
+        restSeconds: set.restSeconds,
+        status: set.status,
+        completedAt: new Date().toISOString(),
+      };
+      const response = await updateSessionSet(set.id, body);
+      setExercises((prev) =>
+        prev.map((exercise) => {
+          if (exercise.localId !== exerciseId) return exercise;
 
-        return {
-          ...exercise,
-          sets: exercise.sets.map((s: LocalPlanExerciseSetItem) =>
-            s.id === set.id ? response : s
-          ),
-        };
-      })
-    );
+          return {
+            ...exercise,
+            sets: exercise.sets.map((s: LocalPlanExerciseSetItem) =>
+              s.id === set.id ? response : s
+            ),
+          };
+        })
+      );
+    } else {
+      const body = {
+        sessionExerciseId: set.sessionExerciseId,
+        setOrder: set.setOrder,
+        reps: set.reps,
+        weight: set.weight,
+        restSeconds: set.restSeconds,
+      };
+      const response = await addSessionSet(body);
+      setExercises((prev) =>
+        prev.map((exercise) => {
+          if (exercise.localId !== exerciseId) return exercise;
+
+          return {
+            ...exercise,
+            sets: [
+              ...exercise.sets.slice(0, exercise.sets.length - 1),
+              response,
+            ],
+          };
+        })
+      );
+    }
+
     setPendingExerciseId(exerciseId); // ✅ 다음 세트 계산 예약
     setCurrentExerciseId(exerciseId);
     setCurrentExerciseSetId(setId);
@@ -306,7 +335,7 @@ export default function PlanClient({
     }
   };
 
-  const addSets = (exerciseLocalId: number | string) => {
+  const addSets = async (exerciseLocalId: number | string) => {
     const localId = generateLocalId();
 
     setExercises((prev) =>
@@ -320,10 +349,14 @@ export default function PlanClient({
             {
               id: null, // 아직 서버에 저장되지 않음
               localId,
-              reps: exercise.defaultReps ?? 0,
-              weight: exercise.defaultWeight ?? 0,
+              sessionExerciseId: exercise.sessionExerciseId,
+              reps: exercise.defaultReps ?? exercise.targetReps ?? 0,
+              weight: exercise.defaultWeight ?? exercise.targetWeight ?? 0,
+              restSeconds:
+                exercise.defaultRestSeconds ?? exercise.targetRestSeconds ?? 0,
               isComplete: false,
               exerciseId: exercise.exerciseId ?? exercise.id ?? exerciseLocalId,
+              setOrder: exercise.sets.length + 1,
             },
           ],
         };
