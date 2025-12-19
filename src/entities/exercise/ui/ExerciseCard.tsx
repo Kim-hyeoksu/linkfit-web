@@ -9,8 +9,8 @@ type ClientSet = ExerciseSet & {
   completedAt?: boolean;
 };
 type ClientExercise = {
-  localId?: string | number;
   exerciseId?: string | number;
+  sessionExerciseId?: string | number;
   id?: string | number;
   name?: string;
   exerciseName?: string;
@@ -25,19 +25,19 @@ interface ExerciseProps {
   sets: ClientSet[];
   isCurrent?: boolean;
   currentExerciseSetId: number | string;
-  onClickExercise: (exerciseLocalId: number | string) => void;
-  addSets: (exerciseLocalId: number | string) => void;
+  onClickExercise: (sessionExerciseId: number | string) => void;
+  addSets: (sessionExerciseId: number | string) => void;
   onClickSetCheckBtn: (
-    exerciseLocalId: number | string,
+    sessionExerciseId: number | string,
     setLocalId: number | string
   ) => void;
   onUpdateSet: (
-    exerciseLocalId: number | string,
+    sessionExerciseId: number | string,
     setLocalId: number | string,
     values: { weight: number; reps: number }
   ) => void;
   onDeleteSet: (
-    exerciseLocalId: number | string,
+    sessionExerciseId: number | string,
     setLocalId: number | string
   ) => void;
 }
@@ -53,8 +53,7 @@ export const ExerciseCard = ({
   onUpdateSet,
   onDeleteSet,
 }: ExerciseProps) => {
-  const exerciseId =
-    exercise.localId ?? exercise.exerciseId ?? exercise.id ?? "";
+  const exerciseId = exercise.sessionExerciseId ?? -1;
   const exerciseName =
     exercise.name ??
     exercise.exerciseName ??
@@ -95,11 +94,11 @@ export const ExerciseCard = ({
   const toggleChecked = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
     index: number,
-    exerciseLocalId: number | string,
+    sessionExerciseId: number | string,
     set
   ) => {
     e.stopPropagation();
-    onClickSetCheckBtn(exerciseLocalId, set);
+    onClickSetCheckBtn(sessionExerciseId, set);
   };
 
   return (

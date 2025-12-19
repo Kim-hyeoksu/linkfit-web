@@ -69,7 +69,7 @@ export default function PlanClient({
     `local-${Math.random().toString(36).substring(2, 9)}`;
 
   const [currentExerciseId, setCurrentExerciseId] = useState<number | string>(
-    initialExercisesState[0]?.localId ?? -1
+    initialExercisesState[0]?.sessionExerciseId ?? -1
   );
 
   const [currentExerciseSetId, setCurrentExerciseSetId] = useState<
@@ -176,7 +176,10 @@ export default function PlanClient({
   //   // setCurrentExerciseId(exerciseId);
   // };
 
-  const toggleSetCompletion = async (exerciseId: number | string, set) => {
+  const toggleSetCompletion = async (
+    sessionExerciseId: number | string,
+    set
+  ) => {
     if (set.id) {
       const body = {
         reps: set.reps,
@@ -189,7 +192,7 @@ export default function PlanClient({
       const response = await updateSessionSet(set.id, body);
       setExercises((prev) =>
         prev.map((exercise) => {
-          if (exercise.localId !== exerciseId) return exercise;
+          if (exercise.sessionExerciseId !== sessionExerciseId) return exercise;
 
           return {
             ...exercise,
@@ -210,7 +213,7 @@ export default function PlanClient({
       const response = await addSessionSet(body);
       setExercises((prev) =>
         prev.map((exercise) => {
-          if (exercise.localId !== exerciseId) return exercise;
+          if (exercise.sessionExerciseId !== sessionExerciseId) return exercise;
 
           return {
             ...exercise,
@@ -223,9 +226,9 @@ export default function PlanClient({
       );
     }
 
-    setPendingExerciseId(exerciseId); // ✅ 다음 세트 계산 예약
-    setCurrentExerciseId(exerciseId);
-    setCurrentExerciseSetId(setId);
+    setPendingExerciseId(sessionExerciseId); // ✅ 다음 세트 계산 예약
+    setCurrentExerciseId(sessionExerciseId);
+    setCurrentExerciseSetId(set.id);
     if (startTrigger === 0) {
       startExerciseTimer();
     }
@@ -335,12 +338,12 @@ export default function PlanClient({
     }
   };
 
-  const addSets = async (exerciseLocalId: number | string) => {
+  const addSets = async (sessionExerciseId: number | string) => {
     const localId = generateLocalId();
 
     setExercises((prev) =>
       prev.map((exercise) => {
-        if (exercise.localId !== exerciseLocalId) return exercise;
+        if (exercise.sessionExerciseId !== sessionExerciseId) return exercise;
 
         return {
           ...exercise,
@@ -355,7 +358,6 @@ export default function PlanClient({
               restSeconds:
                 exercise.defaultRestSeconds ?? exercise.targetRestSeconds ?? 0,
               isComplete: false,
-              exerciseId: exercise.exerciseId ?? exercise.id ?? exerciseLocalId,
               setOrder: exercise.sets.length + 1,
             },
           ],
@@ -365,13 +367,13 @@ export default function PlanClient({
   };
 
   const handleUpdateSet = (
-    exerciseLocalId: number | string,
+    sessionExerciseId: number | string,
     setLocalId: number | string,
     values: { weight: number; reps: number }
   ) => {
     setExercises((prev) =>
       prev.map((exercise) => {
-        if (exercise.localId !== exerciseLocalId) return exercise;
+        if (exercise.sessionExerciseId !== sessionExerciseId) return exercise;
 
         return {
           ...exercise,
@@ -386,12 +388,12 @@ export default function PlanClient({
   };
 
   const handleDeleteSet = (
-    exerciseLocalId: number | string,
+    sessionExerciseId: number | string,
     setLocalId: number | string
   ) => {
     setExercises((prev) =>
       prev.map((exercise) => {
-        if (exercise.localId !== exerciseLocalId) return exercise;
+        if (exercise.sessionExerciseId !== sessionExerciseId) return exercise;
 
         return {
           ...exercise,
@@ -452,10 +454,11 @@ export default function PlanClient({
 
             return (
               <div
-                key={exercise?.localId}
+                key={exercise?.sessionExerciseId}
                 className="bg-white"
                 ref={(el) => {
-                  if (el) exerciseRefs.current.set(exercise.localId, el);
+                  if (el)
+                    exerciseRefs.current.set(exercise.sessionExerciseId, el);
                 }}
               >
                 <ExerciseCard
