@@ -29,7 +29,7 @@ interface ExerciseProps {
   addSets: (sessionExerciseId: number | string) => void;
   onClickSetCheckBtn: (
     sessionExerciseId: number | string,
-    setLocalId: number | string
+    set: ClientSet
   ) => void;
   onUpdateSet: (
     sessionExerciseId: number | string,
@@ -38,7 +38,7 @@ interface ExerciseProps {
   ) => void;
   onDeleteSet: (
     sessionExerciseId: number | string,
-    setLocalId: number | string
+    setId: number | string
   ) => void;
 }
 
@@ -142,7 +142,7 @@ export const ExerciseCard = ({
       {!rotated && (
         <div className="text-sm  flex flex-col gap-[8px]">
           {sets.map((set, index) => {
-            const setKey = set.localId ?? set.id ?? index;
+            const setKey = set.id;
             return (
               <div
                 key={setKey}

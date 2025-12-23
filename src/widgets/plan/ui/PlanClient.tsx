@@ -7,6 +7,7 @@ import {
   startSession,
   updateSessionSet,
   addSessionSet,
+  deleteSessionSet,
 } from "@/features/session-control";
 import { ExerciseCard } from "@/entities/exercise";
 import { Timer } from "@/entities/exercise";
@@ -33,13 +34,11 @@ export default function PlanClient({
   const buildInitialExercises = () => {
     return initialExercisesData.map((ex, exIndex) => {
       const exerciseKey = ex.exerciseId ?? ex.id ?? exIndex;
-      const exerciseLocalId = ex.localId ?? `ex-${exerciseKey}`;
       const rawSets = ex.sets ?? [];
 
       return {
         ...ex,
         exerciseId: exerciseKey,
-        localId: exerciseLocalId,
         sets: rawSets.map((set: LocalPlanExerciseSetItem, setIndex: number) => {
           const setKey = set.id ?? setIndex;
           const setLocalId = set.localId ?? `set-${exerciseKey}-${setKey}`;
@@ -387,23 +386,29 @@ export default function PlanClient({
     );
   };
 
-  const handleDeleteSet = (
+  const handleDeleteSet = async (
     sessionExerciseId: number | string,
-    setLocalId: number | string
+    setId: number | string
   ) => {
-    setExercises((prev) =>
-      prev.map((exercise) => {
-        if (exercise.sessionExerciseId !== sessionExerciseId) return exercise;
+    try {
+      const response = await deleteSessionSet(setId);
+      setExercises((prev) =>
+        prev.map((exercise) => {
+          if (exercise.sessionExerciseId !== sessionExerciseId) return exercise;
 
-        return {
-          ...exercise,
-          sets: exercise.sets.filter(
-            (set: LocalPlanExerciseSetItem) =>
-              set.localId !== setLocalId && set.id !== setLocalId
-          ),
-        };
-      })
-    );
+          return {
+            ...exercise,
+            sets: exercise.sets.filter(
+              (set: LocalPlanExerciseSetItem) => set.id !== setId
+            ),
+          };
+        })
+      );
+    } catch (e) {
+      console.error("세트 삭제 실패", e);
+      alert("세트 삭제에 실패했습니다.");
+      return;
+    }
   };
 
   const handleSave = async () => {
