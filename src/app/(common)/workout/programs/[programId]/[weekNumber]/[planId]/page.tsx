@@ -25,7 +25,7 @@ export default async function PlanPage({ params }: PlanPageProps) {
   let activeSession: PlanResponse | null = null;
   try {
     activeSession = await getActiveSessionServer(userId, params.planId);
-    console.log("activeSession.exercises", activeSession.exercises[0].sets[0]);
+    console.log("activeSession.exercises", activeSession?.exercises[0].sets[0]);
   } catch (err) {
     console.error("getActiveSessionServer error", err);
     throw err;

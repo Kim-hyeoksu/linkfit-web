@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { ExerciseSet } from "../";
 
@@ -24,6 +24,7 @@ interface ExerciseProps {
   exercise: ClientExercise;
   sets: ClientSet[];
   isCurrent?: boolean;
+  isEditing?: boolean;
   currentExerciseSetId: number | string;
   onClickExercise: (sessionExerciseId: number | string) => void;
   addSets: (sessionExerciseId: number | string) => void;
@@ -40,18 +41,21 @@ interface ExerciseProps {
     sessionExerciseId: number | string,
     setId: number | string
   ) => void;
+  onToggleEdit?: () => void;
 }
 
 export const ExerciseCard = ({
   exercise,
   sets,
   isCurrent,
+  isEditing = false,
   currentExerciseSetId,
   onClickExercise,
   addSets,
   onClickSetCheckBtn,
   onUpdateSet,
   onDeleteSet,
+  onToggleEdit,
 }: ExerciseProps) => {
   const exerciseId = exercise.sessionExerciseId ?? -1;
   const exerciseName =
@@ -61,15 +65,22 @@ export const ExerciseCard = ({
     "운동";
 
   const [rotated, setRotated] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
   const [tempWeight, setTempWeight] = useState("");
   const [tempReps, setTempReps] = useState("");
   const [editingSetId, setEditingSetId] = useState<number | string | null>(
     null
   );
 
+  useEffect(() => {
+    if (!isEditing) {
+      setEditingSetId(null);
+      setTempWeight("");
+      setTempReps("");
+    }
+  }, [isEditing]);
+
   const handleToggleEdit = () => {
-    setIsEditing((prev) => !prev);
+    onToggleEdit?.();
   };
 
   const handleEditStart = (set: ClientSet, field: "weight" | "reps" | null) => {

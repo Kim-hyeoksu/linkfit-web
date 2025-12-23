@@ -47,6 +47,7 @@ export default function PlanClient({
   );
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [isSessionStarted, setIsSessionStarted] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   // 활성 세션으로 진입한 경우 startedAt 기준 경과 시간 복구
   useEffect(() => {
@@ -354,10 +355,14 @@ export default function PlanClient({
           </button>
         ) : (
           <button
-            onClick={handleStartWorkout}
-            className="bg-main text-white w-[124px] h-[32px] rounded-lg"
+            onClick={() => setIsEditing((prev) => !prev)}
+            className={`w-[124px] h-[32px] rounded-lg ${
+              isEditing
+                ? "bg-light-gray text-dark-gray"
+                : "bg-main text-white"
+            }`}
           >
-            운동 시작
+            {isEditing ? "수정 완료" : "운동 수정"}
           </button>
         )}
       </Header>
@@ -389,12 +394,14 @@ export default function PlanClient({
                   exercise={exercise}
                   sets={exerciseSets}
                   isCurrent={exercise.sessionExerciseId === currentExerciseId}
+                  isEditing={isEditing}
                   currentExerciseSetId={currentExerciseSetId}
                   onClickExercise={handleExerciseClick}
                   onClickSetCheckBtn={toggleSetCompletion}
                   addSets={addSets}
                   onUpdateSet={handleUpdateSet}
                   onDeleteSet={handleDeleteSet}
+                  onToggleEdit={() => setIsEditing((prev) => !prev)}
                 />
               </div>
             );
