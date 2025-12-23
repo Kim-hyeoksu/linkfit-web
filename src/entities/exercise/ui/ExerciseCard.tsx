@@ -33,7 +33,7 @@ interface ExerciseProps {
   ) => void;
   onUpdateSet: (
     sessionExerciseId: number | string,
-    setLocalId: number | string,
+    setId: number | string,
     values: { weight: number; reps: number }
   ) => void;
   onDeleteSet: (
@@ -73,8 +73,7 @@ export const ExerciseCard = ({
   };
 
   const handleEditStart = (set: ClientSet, field: "weight" | "reps" | null) => {
-    const targetId = set.localId ?? set.id ?? null;
-    setEditingSetId(targetId);
+    setEditingSetId(set.id);
     setTempWeight(String(set.weight));
     setTempReps(String(set.reps));
   };

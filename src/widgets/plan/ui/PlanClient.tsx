@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import type { PlanResponse, PlanExerciseSetItem } from "@/entities/plan";
-import type { StartSessionRequest } from "@/entities/session";
+import type { PlanResponse } from "@/entities/plan";
+import type { StartSessionRequest, SessionSet } from "@/entities/session";
 import {
   startSession,
   updateSessionSet,
@@ -14,10 +14,6 @@ import { Timer } from "@/entities/exercise";
 import { Header } from "@/shared";
 import { formatTime } from "@/shared";
 
-interface LocalPlanExerciseSetItem extends PlanExerciseSetItem {
-  localId?: string | number;
-  isComplete?: boolean;
-}
 export default function PlanClient({
   initialPlanDetail,
 }: {
@@ -25,47 +21,11 @@ export default function PlanClient({
 }) {
   const TIMER_HEIGHT = 375;
 
-  const initialExercisesData = Array.isArray(initialPlanDetail?.exercises)
+  const initialExercisesState = Array.isArray(initialPlanDetail?.exercises)
     ? initialPlanDetail.exercises
-    : Array.isArray(initialPlanDetail)
-    ? initialPlanDetail
     : [];
 
-  const buildInitialExercises = () => {
-    return initialExercisesData.map((ex, exIndex) => {
-      const exerciseKey = ex.exerciseId ?? ex.id ?? exIndex;
-      const rawSets = ex.sets ?? [];
-
-      return {
-        ...ex,
-        exerciseId: exerciseKey,
-        sets: rawSets.map((set: LocalPlanExerciseSetItem, setIndex: number) => {
-          const setKey = set.id ?? setIndex;
-          const setLocalId = set.localId ?? `set-${exerciseKey}-${setKey}`;
-          const reps = set.reps ?? (set as any).targetReps ?? 0;
-          const weight = set.weight ?? (set as any).targetWeight ?? 0;
-          const restSeconds =
-            set.restSeconds ?? (set as any).targetRestSeconds ?? 0;
-
-          return {
-            ...set,
-            id: set.id ?? null,
-            localId: setLocalId,
-            reps,
-            weight,
-            restSeconds,
-            isComplete: set.isComplete ?? false,
-            exerciseId: exerciseKey,
-          };
-        }),
-      };
-    });
-  };
-
-  const initialExercisesState = buildInitialExercises();
   const [exercises, setExercises] = useState(initialExercisesState);
-  const generateLocalId = () =>
-    `local-${Math.random().toString(36).substring(2, 9)}`;
 
   const [currentExerciseId, setCurrentExerciseId] = useState<number | string>(
     initialExercisesState[0]?.sessionExerciseId ?? -1
@@ -73,7 +33,7 @@ export default function PlanClient({
 
   const [currentExerciseSetId, setCurrentExerciseSetId] = useState<
     number | string
-  >(initialExercisesState[0]?.sets?.[0]?.localId ?? -1);
+  >(initialExercisesState[0]?.sets?.[0]?.id ?? -1);
   const exerciseRefs = useRef<Map<number | string, HTMLDivElement>>(new Map());
   const wrapperRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -87,23 +47,6 @@ export default function PlanClient({
   );
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [isSessionStarted, setIsSessionStarted] = useState(false);
-
-  // 데이터 로딩
-
-  // 영역 밖 클릭 시 선택 해제
-  // useEffect(() => {
-  //   const handleClickOutside = (event: MouseEvent) => {
-  //     if (
-  //       wrapperRef.current &&
-  //       !wrapperRef.current.contains(event.target as Node)
-  //     ) {
-  //       setCurrentExerciseId(0);
-  //     }
-  //   };
-
-  //   document.addEventListener("mousedown", handleClickOutside);
-  //   return () => document.removeEventListener("mousedown", handleClickOutside);
-  // }, []);
 
   // 활성 세션으로 진입한 경우 startedAt 기준 경과 시간 복구
   useEffect(() => {
@@ -154,30 +97,10 @@ export default function PlanClient({
       });
     }, 1000);
   };
-  // const toggleSetCompletion = (exerciseId: number, setId: number) => {
-  //   setCompletedSetIds((prev) => {
-  //     const newSet = new Set(prev);
-  //     // 체크 해제시
-  //     if (newSet.has(setId)) {
-  //       newSet.delete(setId);
-  //       setCurrentExerciseSetId(setId);
-  //     }
-  //     // 체크시
-  //     else {
-  //       newSet.add(setId);
-  //       console.log("체크해제아님");
-  //       handleExerciseClick(exerciseId);
-  //       handleNextSet(exerciseId);
-  //     }
-  //     setStartTrigger((t) => t + 1);
-  //     return newSet;
-  //   });
-  //   // setCurrentExerciseId(exerciseId);
-  // };
 
   const toggleSetCompletion = async (
     sessionExerciseId: number | string,
-    set
+    set: SessionSet
   ) => {
     if (set.id) {
       const body = {
@@ -195,7 +118,7 @@ export default function PlanClient({
 
           return {
             ...exercise,
-            sets: exercise.sets.map((s: LocalPlanExerciseSetItem) =>
+            sets: exercise.sets.map((s: SessionSet) =>
               s.id === set.id ? response : s
             ),
           };
@@ -288,38 +211,42 @@ export default function PlanClient({
   //   }
   // };
   const handleNextSet = (exerciseId: number | string) => {
-    const exercise = exercises.find((ex) => ex.localId === exerciseId);
+    const exercise = exercises.find(
+      (ex) => ex.sessionExerciseId === exerciseId
+    );
     if (!exercise) return;
     // 아직 완료되지 않은 세트를 찾음
     const nextIncompleteSet = exercise.sets.find(
-      (set: LocalPlanExerciseSetItem) => !set.isComplete
+      (set: SessionSet) => !set.completedAt
     );
     console.log("nextIncompleteSet", nextIncompleteSet);
 
     if (nextIncompleteSet) {
       // 완료되지 않은 세트가 있으면 거기로 이동
-      setCurrentExerciseSetId(nextIncompleteSet.localId);
+      setCurrentExerciseSetId(nextIncompleteSet.sessionExerciseId);
     } else {
       // 현재 운동의 모든 세트를 완료한 경우 다음 운동으로 이동
       const currentExerciseIndex = exercises.findIndex(
-        (item) => item.localId === exerciseId
+        (item) => item.sessionExerciseId === exerciseId
       );
       const nextExercise = exercises[currentExerciseIndex + 1];
 
       if (nextExercise) {
         const nextExerciseFirstIncompleteSet = nextExercise.sets.find(
-          (set) => !set.isComplete
+          (set) => !set.completedAt
         );
 
         // 다음 운동의 첫 미완료 세트로 이동
         if (nextExerciseFirstIncompleteSet) {
-          setCurrentExerciseSetId(nextExerciseFirstIncompleteSet.localId);
+          setCurrentExerciseSetId(
+            nextExerciseFirstIncompleteSet.sessionExerciseId
+          );
         } else {
           // 다음 운동의 세트가 모두 완료된 경우 -1로 설정
           setCurrentExerciseSetId(-1);
         }
 
-        handleExerciseClick(nextExercise.localId);
+        handleExerciseClick(nextExercise.sessionExerciseId);
       } else {
         // 모든 운동이 끝난 경우
         setCurrentExerciseSetId(-1);
@@ -327,19 +254,17 @@ export default function PlanClient({
     }
   };
 
-  const nextExercise = (exerciseId: number | string) => {
+  const nextExercise = (exerciseId: number) => {
     const currentIndex = exercises.findIndex(
-      (item) => item.localId === exerciseId
+      (item) => item.sessionExerciseId === exerciseId
     );
     if (currentIndex !== -1 && currentIndex + 1 < exercises.length) {
-      const nextExerciseId = exercises[currentIndex + 1].localId;
+      const nextExerciseId = exercises[currentIndex + 1].sessionExerciseId;
       handleExerciseClick(nextExerciseId);
     }
   };
 
-  const addSets = async (sessionExerciseId: number | string) => {
-    const localId = generateLocalId();
-
+  const addSets = async (sessionExerciseId: number) => {
     setExercises((prev) =>
       prev.map((exercise) => {
         if (exercise.sessionExerciseId !== sessionExerciseId) return exercise;
@@ -350,13 +275,11 @@ export default function PlanClient({
             ...exercise.sets,
             {
               id: null, // 아직 서버에 저장되지 않음
-              localId,
               sessionExerciseId: exercise.sessionExerciseId,
               reps: exercise.defaultReps ?? exercise.targetReps ?? 0,
               weight: exercise.defaultWeight ?? exercise.targetWeight ?? 0,
               restSeconds:
                 exercise.defaultRestSeconds ?? exercise.targetRestSeconds ?? 0,
-              isComplete: false,
               setOrder: exercise.sets.length + 1,
             },
           ],
@@ -367,7 +290,7 @@ export default function PlanClient({
 
   const handleUpdateSet = (
     sessionExerciseId: number | string,
-    setLocalId: number | string,
+    setId: number | string,
     values: { weight: number; reps: number }
   ) => {
     setExercises((prev) =>
@@ -376,10 +299,8 @@ export default function PlanClient({
 
         return {
           ...exercise,
-          sets: exercise.sets.map((set: LocalPlanExerciseSetItem) =>
-            set.localId === setLocalId || set.id === setLocalId
-              ? { ...set, ...values }
-              : set
+          sets: exercise.sets.map((set: SessionSet) =>
+            set.id === setId ? { ...set, ...values } : set
           ),
         };
       })
@@ -398,9 +319,7 @@ export default function PlanClient({
 
           return {
             ...exercise,
-            sets: exercise.sets.filter(
-              (set: LocalPlanExerciseSetItem) => set.id !== setId
-            ),
+            sets: exercise.sets.filter((set: SessionSet) => set.id !== setId),
           };
         })
       );
@@ -413,7 +332,7 @@ export default function PlanClient({
 
   const handleSave = async () => {
     const completedSets = exercises.flatMap((exercise) =>
-      exercise.sets.filter((set: LocalPlanExerciseSetItem) => set.isComplete)
+      exercise.sets.filter((set: SessionSet) => set.completedAt)
     );
     await fetch("/api/save-sets", {
       method: "POST",
@@ -469,7 +388,7 @@ export default function PlanClient({
                 <ExerciseCard
                   exercise={exercise}
                   sets={exerciseSets}
-                  isCurrent={exercise.localId === currentExerciseId}
+                  isCurrent={exercise.sessionExerciseId === currentExerciseId}
                   currentExerciseSetId={currentExerciseSetId}
                   onClickExercise={handleExerciseClick}
                   onClickSetCheckBtn={toggleSetCompletion}

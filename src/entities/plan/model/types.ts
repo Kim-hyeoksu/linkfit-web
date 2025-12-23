@@ -1,26 +1,33 @@
+import type { SessionSet } from "@/entities/session";
+
 export interface PlanResponse {
   id: number;
-  userId: number;
+  planId: number;
   programId: number | null;
   programName: string;
-  dayOrder: number | null;
-  weekNumber: number | null;
-  weekDay: number | null;
-  title: string;
-  createdAt: string; // ISO
-  exerciseCount: number;
-  totalVolume: number;
+  userId: number;
+  status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
+  sessionDate: string; // ISO
+  startedAt?: string; // ISO
+  endedAt?: string; // ISO
+  totalDurationSeconds: number;
+  memo: string | null;
   exercises?: PlanExerciseItem[] | null; // 단건 조회 시 채워짐
 }
 export interface PlanExerciseItem {
+  sessionExerciseId: number;
   exerciseId: number;
   exerciseName: string;
-  defaultSets: number | null;
-  defaultReps: number | null;
-  defaultWeight: number | null;
-  defaultRestSeconds: number | null;
+  defaultSets?: number | null;
+  defaultReps?: number | null;
+  defaultWeight?: number | null;
+  defaultRestSeconds?: number | null;
+  targetSets?: number | null;
+  targetReps?: number | null;
+  targetWeight?: number | null;
+  targetRestSeconds?: number | null;
   orderIndex: number;
-  sets: PlanExerciseSetItem[]; // 세트별 타깃 값
+  sets: SessionSet[]; // 세트별 타깃 값
 }
 
 export interface PlanExerciseSetItem {
