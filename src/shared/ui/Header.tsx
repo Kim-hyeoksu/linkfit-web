@@ -8,7 +8,7 @@ interface HeaderProps {
   onBackClick?: () => void; // 뒤로가기 버튼 클릭 시 실행될 사용자 정의 함수입니다.
   rightButtonIconUrl?: string;
   onRightClick?: () => void;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   className?: string; // 헤더 전체에 적용될 추가 Tailwind CSS 클래스입니다.
 }
 

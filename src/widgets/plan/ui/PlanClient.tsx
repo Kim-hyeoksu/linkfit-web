@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import type { PlanResponse } from "@/entities/plan";
 import type { StartSessionRequest, SessionSet } from "@/entities/session";
 import {
@@ -21,6 +22,7 @@ export default function PlanClient({
   initialPlanDetail: PlanResponse;
 }) {
   const TIMER_HEIGHT = 375;
+  const router = useRouter();
 
   const initialExercisesState = Array.isArray(initialPlanDetail?.exercises)
     ? initialPlanDetail.exercises
@@ -358,21 +360,23 @@ export default function PlanClient({
       totalDuraionSeconds: Math.floor(totalExerciseMs / 1000),
       memo: "",
     };
-    try {
-      const response = await completeSession(sessionId as number, body);
-      console.log("세션 완료 성공", response);
-    } catch (e) {
-      console.error("세션 완료 실패", e);
-      alert("운동 종료에 실패했습니다.");
-      return;
-    }
+    const response = await completeSession(sessionId as number, body);
+    console.log("세션 완료 성공", response);
+    return response;
   };
 
   const handleConfirmEndWorkout = async () => {
     setIsEndConfirmLoading(true);
     try {
       await handleSave();
+
+      if (sessionId) {
+        router.push(`/workout/sessions/${sessionId}/complete`);
+      }
       setIsEndConfirmOpen(false);
+    } catch (e) {
+      console.error("세션 완료 실패", e);
+      alert("운동 종료에 실패했습니다.");
     } finally {
       setIsEndConfirmLoading(false);
     }
