@@ -27,13 +27,13 @@ export default function PlanClient({
 
   const [exercises, setExercises] = useState(initialExercisesState);
 
-  const [currentExerciseId, setCurrentExerciseId] = useState<number | string>(
+  const [currentExerciseId, setCurrentExerciseId] = useState<number>(
     initialExercisesState[0]?.sessionExerciseId ?? -1
   );
 
-  const [currentExerciseSetId, setCurrentExerciseSetId] = useState<
-    number | string
-  >(initialExercisesState[0]?.sets?.[0]?.id ?? -1);
+  const [currentExerciseSetId, setCurrentExerciseSetId] = useState<number>(
+    initialExercisesState[0]?.sets?.[0]?.id ?? -1
+  );
   const exerciseRefs = useRef<Map<number | string, HTMLDivElement>>(new Map());
   const wrapperRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -42,9 +42,7 @@ export default function PlanClient({
   const [startTrigger, setStartTrigger] = useState(0);
 
   const [totalExerciseMs, setTotalExerciseMs] = useState(0);
-  const [pendingExerciseId, setPendingExerciseId] = useState<number | string>(
-    -1
-  );
+  const [pendingExerciseId, setPendingExerciseId] = useState<number>(-1);
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [isSessionStarted, setIsSessionStarted] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -100,7 +98,7 @@ export default function PlanClient({
   };
 
   const toggleSetCompletion = async (
-    sessionExerciseId: number | string,
+    sessionExerciseId: number,
     set: SessionSet
   ) => {
     if (set.id) {
@@ -156,6 +154,24 @@ export default function PlanClient({
       startExerciseTimer();
     }
     setStartTrigger((t) => t + 1);
+  };
+
+  const handleCompleteCurrentSetFromTimer = async (
+    sessionExerciseId: number,
+    sessionSetId: number
+  ) => {
+    const exercise = exercises.find(
+      (ex: any) => ex.sessionExerciseId === sessionExerciseId
+    );
+    console.log("exercise", exercise);
+    if (!exercise) return;
+
+    const set = (exercise.sets ?? []).find(
+      (s: any) => s.id === sessionSetId
+    ) as SessionSet | undefined;
+    if (!set) return;
+    console.log("set", set);
+    await toggleSetCompletion(Number(sessionExerciseId), set);
   };
 
   // 언마운트 시 타이머 정리
@@ -357,9 +373,7 @@ export default function PlanClient({
           <button
             onClick={() => setIsEditing((prev) => !prev)}
             className={`w-[124px] h-[32px] rounded-lg ${
-              isEditing
-                ? "bg-light-gray text-dark-gray"
-                : "bg-main text-white"
+              isEditing ? "bg-light-gray text-dark-gray" : "bg-main text-white"
             }`}
           >
             {isEditing ? "수정 완료" : "운동 수정"}
@@ -410,15 +424,18 @@ export default function PlanClient({
         <Timer
           startTrigger={startTrigger}
           restSeconds={
-            exercises.find((exercise) => exercise.localId === currentExerciseId)
-              ?.restSeconds || 60
+            exercises.find(
+              (exercise) => exercise.sessionExerciseId === currentExerciseId
+            )?.targetRestSeconds || 60
           }
           nextExercise={nextExercise}
           showType={showType}
           onShowTypeChange={(newType) => setShowType(newType)}
-          onCompleteSet={toggleSetCompletion}
+          onCompleteSet={handleCompleteCurrentSetFromTimer}
           currentExerciseId={currentExerciseId}
           currentExerciseSetId={currentExerciseSetId}
+          onStartWorkout={handleStartWorkout}
+          isSessionStarted={isSessionStarted}
         />
       </div>
     </div>
