@@ -12,7 +12,7 @@ import {
 } from "@/features/session-control";
 import { ExerciseCard } from "@/entities/exercise";
 import { Timer } from "@/entities/exercise";
-import { Header } from "@/shared";
+import { ConfirmModal, Header, Modal } from "@/shared";
 import { formatTime } from "@/shared";
 
 export default function PlanClient({
@@ -47,6 +47,9 @@ export default function PlanClient({
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [isSessionStarted, setIsSessionStarted] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
+  const [isEndConfirmOpen, setIsEndConfirmOpen] = useState(false);
+  const [isEndConfirmLoading, setIsEndConfirmLoading] = useState(false);
 
   // 활성 세션으로 진입한 경우 startedAt 기준 경과 시간 복구
   useEffect(() => {
@@ -365,26 +368,55 @@ export default function PlanClient({
     }
   };
 
+  const handleConfirmEndWorkout = async () => {
+    setIsEndConfirmLoading(true);
+    try {
+      await handleSave();
+      setIsEndConfirmOpen(false);
+    } finally {
+      setIsEndConfirmLoading(false);
+    }
+  };
+
   return (
     <div>
       <Header showBackButton={true} title={formatTime(totalExerciseMs)}>
-        {totalExerciseMs > 0 ? (
+        <div className="flex items-center gap-2">
           <button
-            onClick={handleSave}
-            className="bg-light-gray text-dark-gray w-[124px] h-[32px] rounded-lg"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsInfoModalOpen(true);
+            }}
+            className="bg-light-gray text-dark-gray w-[60px] h-[32px] rounded-lg"
           >
-            운동 종료
+            정보
           </button>
-        ) : (
-          <button
-            onClick={() => setIsEditing((prev) => !prev)}
-            className={`w-[124px] h-[32px] rounded-lg ${
-              isEditing ? "bg-light-gray text-dark-gray" : "bg-main text-white"
-            }`}
-          >
-            {isEditing ? "수정 완료" : "운동 수정"}
-          </button>
-        )}
+          {totalExerciseMs > 0 ? (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsEndConfirmOpen(true);
+              }}
+              className="bg-light-gray text-dark-gray w-[124px] h-[32px] rounded-lg"
+            >
+              운동 종료
+            </button>
+          ) : (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsEditing((prev) => !prev);
+              }}
+              className={`w-[124px] h-[32px] rounded-lg ${
+                isEditing
+                  ? "bg-light-gray text-dark-gray"
+                  : "bg-main text-white"
+              }`}
+            >
+              {isEditing ? "수정 완료" : "운동 수정"}
+            </button>
+          )}
+        </div>
       </Header>
       <div
         ref={wrapperRef}
@@ -444,6 +476,37 @@ export default function PlanClient({
           isSessionStarted={isSessionStarted}
         />
       </div>
+      <Modal
+        isOpen={isInfoModalOpen}
+        onClose={() => setIsInfoModalOpen(false)}
+        title="세션 정보"
+      >
+        <div className="text-sm text-gray-700 space-y-2">
+          <div>sessionId: {sessionId ?? "-"}</div>
+          <div>isSessionStarted: {String(isSessionStarted)}</div>
+          <div>isEditing: {String(isEditing)}</div>
+          <div>currentExerciseId: {String(currentExerciseId)}</div>
+          <div>currentExerciseSetId: {String(currentExerciseSetId)}</div>
+        </div>
+        <div className="mt-5">
+          <button
+            className="w-full h-[42px] rounded-lg bg-main text-white"
+            onClick={() => setIsInfoModalOpen(false)}
+          >
+            닫기
+          </button>
+        </div>
+      </Modal>
+      <ConfirmModal
+        isOpen={isEndConfirmOpen}
+        onClose={() => setIsEndConfirmOpen(false)}
+        title="운동 종료"
+        description="운동을 종료하고 기록을 저장할까요?"
+        confirmText="종료"
+        cancelText="취소"
+        isConfirmLoading={isEndConfirmLoading}
+        onConfirm={handleConfirmEndWorkout}
+      />
     </div>
   );
 }
