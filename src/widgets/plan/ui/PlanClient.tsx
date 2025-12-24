@@ -8,6 +8,7 @@ import {
   updateSessionSet,
   addSessionSet,
   deleteSessionSet,
+  completeSession,
 } from "@/features/session-control";
 import { ExerciseCard } from "@/entities/exercise";
 import { Timer } from "@/entities/exercise";
@@ -348,15 +349,20 @@ export default function PlanClient({
   };
 
   const handleSave = async () => {
-    const completedSets = exercises.flatMap((exercise) =>
-      exercise.sets.filter((set: SessionSet) => set.completedAt)
-    );
-    await fetch("/api/save-sets", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(completedSets),
-    });
-    console.log("저장한 세트:", completedSets);
+    const body = {
+      endedAt: new Date().toISOString(),
+      status: "COMPLETED",
+      totalDuraionSeconds: Math.floor(totalExerciseMs / 1000),
+      memo: "",
+    };
+    try {
+      const response = await completeSession(sessionId as number, body);
+      console.log("세션 완료 성공", response);
+    } catch (e) {
+      console.error("세션 완료 실패", e);
+      alert("운동 종료에 실패했습니다.");
+      return;
+    }
   };
 
   return (
