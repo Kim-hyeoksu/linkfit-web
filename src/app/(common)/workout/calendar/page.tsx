@@ -67,6 +67,25 @@ const getSessionExercises = (session: SessionLike) => {
   );
 };
 
+const getSessionTotalVolumeKg = (session: SessionLike) => {
+  if (typeof session.totalVolumeKg === "number") return session.totalVolumeKg;
+  if (typeof session.totalVolume === "number") return session.totalVolume;
+
+  const exercises = getSessionExercises(session) as any[];
+  const total = exercises.reduce((acc: number, ex: any) => {
+    const sets = getExerciseSets(ex) as any[];
+    const completedSets = sets.filter(isCompletedSet);
+    const volume = completedSets.reduce((sum: number, s: any) => {
+      const reps = Number(s.reps ?? s.actualReps ?? s.targetReps ?? 0);
+      const weight = Number(s.weight ?? s.actualWeight ?? s.targetWeight ?? 0);
+      return sum + reps * weight;
+    }, 0);
+    return acc + volume;
+  }, 0);
+
+  return total;
+};
+
 const getExerciseSets = (exercise: any) => {
   return exercise.sets ?? exercise.sessionSets ?? exercise.exerciseSets ?? [];
 };
@@ -187,7 +206,7 @@ export default function WorkoutCalendarPage() {
         <div className="bg-white rounded-lg p-4">
           <div className="flex items-center justify-between">
             <button
-              className="w-[42px] h-[32px] rounded-lg bg-light-gray text-dark-gray"
+              className="w-[42px] h-[32px] rounded-lg bg-main text-white"
               onClick={() =>
                 setMonthCursor(
                   (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1)
@@ -198,7 +217,7 @@ export default function WorkoutCalendarPage() {
             </button>
             <div className="font-bold">{monthLabel}</div>
             <button
-              className="w-[42px] h-[32px] rounded-lg bg-light-gray text-dark-gray"
+              className="w-[42px] h-[32px] rounded-lg bg-main text-white"
               onClick={() =>
                 setMonthCursor(
                   (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1)
@@ -276,7 +295,16 @@ export default function WorkoutCalendarPage() {
                     const planTitle = s.planTitle;
                     const programName = s.programName;
                     return (
-                      <div key={s.id ?? idx} className="border rounded-lg p-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (s?.id) {
+                            window.location.href = `/workout/sessions/${s.id}/complete`;
+                          }
+                        }}
+                        key={s.id ?? idx}
+                        className="text-left border rounded-lg p-3"
+                      >
                         <div className="flex justify-between text-sm">
                           <div className="font-medium">
                             {formatTime(s.startedAt)} ~ {formatTime(s.endedAt)}
@@ -291,6 +319,9 @@ export default function WorkoutCalendarPage() {
                             {planTitle ?? ""}
                           </div>
                         )}
+                          <div className="mt-1 text-xs text-gray-600">
+                            총 볼륨 {Math.round(getSessionTotalVolumeKg(s))} kg
+                          </div>
                         <div className="mt-2 flex flex-col gap-2">
                           {(exercises as any[]).map((ex, exIdx) => {
                             const name =
@@ -338,7 +369,7 @@ export default function WorkoutCalendarPage() {
                             );
                           })}
                         </div>
-                      </div>
+                      </button>
                     );
                   })}
                 </div>
@@ -365,37 +396,47 @@ export default function WorkoutCalendarPage() {
                             <button
                               key={s.id ?? idx}
                               type="button"
-                              onClick={() => setSelectedDateKey(dateKey)}
+                              onClick={() => {
+                                if (s?.id) {
+                                  window.location.href = `/workout/sessions/${s.id}/complete`;
+                                } else {
+                                  setSelectedDateKey(dateKey);
+                                }
+                              }}
                               className="text-left border rounded-lg p-3"
                             >
                               <div className="flex justify-between text-sm">
                                 <div className="font-medium">
                                   {formatTime(s.startedAt)} ~{" "}
-                                  {formatTime(s.endedAt)}
-                                </div>
-                                <div className="text-gray-600">
-                                  {formatDuration(s.totalDurationSeconds)}
-                                </div>
-                              </div>
-                              <div className="mt-2 text-xs text-gray-600 line-clamp-2">
-                                {s.programName || s.planTitle
-                                  ? `${
-                                      s.programName ? `[${s.programName}] ` : ""
-                                    }${s.planTitle ?? ""}`
-                                  : (getSessionExercises(s) as any[])
-                                      .map(
-                                        (ex) =>
-                                          ex.exerciseName ??
-                                          ex.name ??
-                                          ex.title ??
-                                          "운동"
-                                      )
-                                      .join(", ")}
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
+	                                  {formatTime(s.endedAt)}
+	                                </div>
+	                                <div className="text-gray-600">
+	                                  {formatDuration(s.totalDurationSeconds)}
+	                                </div>
+	                              </div>
+	                              <div className="mt-2 text-xs text-gray-600 line-clamp-2">
+	                                {s.programName || s.planTitle
+	                                  ? `${
+	                                      s.programName ? `[${s.programName}] ` : ""
+	                                    }${s.planTitle ?? ""}`
+	                                  : (getSessionExercises(s) as any[])
+	                                      .map(
+	                                        (ex) =>
+	                                          ex.exerciseName ??
+	                                          ex.name ??
+	                                          ex.title ??
+	                                          "운동"
+	                                      )
+	                                      .join(", ")}
+	                              </div>
+                                  <div className="mt-1 text-xs text-gray-600">
+                                    총 볼륨 {Math.round(getSessionTotalVolumeKg(s))}{" "}
+                                    kg
+                                  </div>
+	                            </button>
+	                          ))}
+	                        </div>
+	                      </div>
                     ))}
                 </div>
               )}
