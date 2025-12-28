@@ -2,27 +2,28 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { ExerciseSet } from "../";
+import type { PlanDetailSetDto, PlanDetailExerciseDto } from "@/entities/plan";
+import type { SessionSetDto, SessionExerciseDto } from "@/entities/session";
 
-type ClientSet = ExerciseSet & {
-  localId?: string | number;
-  completedAt?: boolean;
-};
-type ClientExercise = {
-  exerciseId?: string | number;
-  sessionExerciseId?: string | number;
-  id?: string | number;
-  name?: string;
-  exerciseName?: string;
-  sets?: ClientSet[];
-  defaultReps?: number;
-  defaultWeight?: number;
-  restSeconds?: number;
-};
+// type ClientSet = ExerciseSet & {
+//   localId?: string | number;
+//   completedAt?: boolean;
+// };
+// type ClientExercise = {
+//   exerciseId?: string | number;
+//   sessionExerciseId?: string | number;
+//   id?: string | number;
+//   name?: string;
+//   exerciseName?: string;
+//   sets?: ClientSet[];
+//   defaultReps?: number;
+//   defaultWeight?: number;
+//   restSeconds?: number;
+// };
 
 interface ExerciseProps {
-  exercise: ClientExercise;
-  sets: ClientSet[];
+  exercise: PlanDetailExerciseDto | SessionExerciseDto;
+  sets: PlanDetailSetDto[] | SessionSetDto[];
   isCurrent?: boolean;
   isEditing?: boolean;
   currentExerciseSetId: number | string;
@@ -30,7 +31,7 @@ interface ExerciseProps {
   addSets: (sessionExerciseId: number | string) => void;
   onClickSetCheckBtn: (
     sessionExerciseId: number | string,
-    set: ClientSet
+    set: PlanDetailSetDto | SessionSetDto
   ) => void;
   onUpdateSet: (
     sessionExerciseId: number | string,
@@ -137,7 +138,12 @@ export const ExerciseCard = ({
           </div>
         </div>
         <div>
-          <button onClick={handleToggleEdit}>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleToggleEdit();
+            }}
+          >
             <Image
               src="/images/common/icon/edit-contained.svg"
               width={24}
@@ -210,7 +216,7 @@ export const ExerciseCard = ({
                     />
                   ) : (
                     <span className="inline-block w-[25px] text-center">
-                      {set.weight}
+                      {set.weight ?? set.targetWeight}
                     </span>
                   )}
                   &nbsp;KG
@@ -237,7 +243,7 @@ export const ExerciseCard = ({
                     />
                   ) : (
                     <span className="inline-block w-[25px] text-center">
-                      {set.reps}
+                      {set.reps ?? set.targetReps}
                     </span>
                   )}
                   &nbsp;회
@@ -252,7 +258,10 @@ export const ExerciseCard = ({
           운동 메모
         </button>
         <button
-          onClick={() => addSets(exerciseId)}
+          onClick={(e) => {
+            e.stopPropagation();
+            addSets(exerciseId);
+          }}
           className="w-[207px] border border-[#d9d9d9] rounded-[8px]"
         >
           세트 추가하기

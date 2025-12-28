@@ -2,7 +2,9 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import type { PlanResponse } from "@/entities/plan";
+import type { PlanDetailDto } from "@/entities/plan";
+import type { ActiveSessionDto, SessionExerciseDto } from "@/entities/session";
+
 import type { StartSessionRequest, SessionSet } from "@/entities/session";
 import {
   startSession,
@@ -19,7 +21,7 @@ import { formatTime } from "@/shared";
 export default function PlanClient({
   initialPlanDetail,
 }: {
-  initialPlanDetail: PlanResponse;
+  initialPlanDetail: PlanDetailDto | ActiveSessionDto;
 }) {
   const TIMER_HEIGHT = 375;
   const router = useRouter();
@@ -87,6 +89,7 @@ export default function PlanClient({
 
       setSessionId(session.id); // 서버에서 내려준 sessionId
       setIsSessionStarted(true);
+      setExercises(session.exercises);
     } catch (e) {
       console.error("세션 시작 실패", e);
       alert("운동 시작에 실패했습니다.");

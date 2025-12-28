@@ -1,42 +1,39 @@
 import type { SessionSet } from "@/entities/session";
-
-export interface PlanResponse {
+// src/entities/plan/api/types.ts
+export type PlanDetailDto = {
   id: number;
-  planId: number;
-  programId: number | null;
-  programName: string;
   userId: number;
-  status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
-  sessionDate: string; // ISO
-  startedAt?: string; // ISO
-  endedAt?: string; // ISO
-  totalDurationSeconds: number;
-  memo: string | null;
-  exercises?: PlanExerciseItem[] | null; // 단건 조회 시 채워짐
-}
-export interface PlanExerciseItem {
-  sessionExerciseId: number;
+  programId: number;
+  programName: string;
+  dayOrder: number;
+  weekNumber: number;
+  weekDay: number;
+  title: string;
+  createdAt: string; // ISO
+  exerciseCount: number;
+  totalVolume: number;
+  exercises: PlanDetailExerciseDto[];
+};
+
+export type PlanDetailExerciseDto = {
   exerciseId: number;
   exerciseName: string;
-  defaultSets?: number | null;
-  defaultReps?: number | null;
-  defaultWeight?: number | null;
-  defaultRestSeconds?: number | null;
-  targetSets?: number | null;
-  targetReps?: number | null;
-  targetWeight?: number | null;
-  targetRestSeconds?: number | null;
+  defaultSets: number;
+  defaultReps: number;
+  defaultWeight: number;
+  defaultRestSeconds: number;
   orderIndex: number;
-  sets: SessionSet[]; // 세트별 타깃 값
-}
+  sets: PlanDetailSetDto[];
+};
 
-export interface PlanExerciseSetItem {
-  id: number | null; // 템플릿 세트면 null일 수도 있음
+export type PlanDetailSetDto = {
+  id: number;
   setOrder: number;
-  reps: number | null;
-  weight: number | null;
-  restSeconds: number | null;
-}
+  reps: number;
+  weight: number;
+  restSeconds: number;
+};
+
 export interface PlanListResponse {
   programId: number;
   programName: string | null;
