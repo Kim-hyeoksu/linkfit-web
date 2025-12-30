@@ -48,7 +48,7 @@ export const Header = ({
   useEffect(() => {}, [title]);
   return (
     <header className="bg-white p-2 fixed top-0 left-0 right-0 z-50  h-[56px] px-5">
-      <nav className="h-full mx-auto flex justify-between items-center">
+      <nav className="h-full mx-auto flex justify-between items-center w-full max-w-xl">
         {showBackButton && (
           <button
             onClick={handleBack}
