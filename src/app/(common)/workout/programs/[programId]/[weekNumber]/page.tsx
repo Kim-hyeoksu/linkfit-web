@@ -22,7 +22,7 @@ export default async function WorkoutProgramWeekPage({ params }: Props) {
         showBackButton={true}
         backUrl="/workout/programs"
       />
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-2 mb-4 ml-5">
         {Array.from({ length: planData.maxWeekNumber }, (_, index) => {
           const week = index + 1;
           return (
