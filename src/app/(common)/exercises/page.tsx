@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Header } from "@/shared";
 import { getExercises } from "@/entities/exercise";
 import { Exercise } from "@/entities/exercise/model/types";
+import ExerciseList from "@/entities/exercise/ui/ExerciseList";
 
 export default function ExerciseListPage() {
   const [exercises, setExercises] = useState<Exercise[]>([]);
@@ -37,16 +38,7 @@ export default function ExerciseListPage() {
             등록된 운동이 없습니다.
           </div>
         ) : (
-          <div className="flex flex-col gap-3">
-            {exercises.map((exercise) => (
-              <div
-                key={exercise.id}
-                className="bg-white p-4 rounded-lg border border-[#e5e5e5] shadow-sm"
-              >
-                <div className="font-bold text-gray-900">{exercise.name}</div>
-              </div>
-            ))}
-          </div>
+          <ExerciseList exercises={exercises} />
         )}
       </div>
     </div>
