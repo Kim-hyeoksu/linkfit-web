@@ -11,20 +11,6 @@ html {
   font-size: 16px; /* 1rem = 16px */
 }
 
-/* 태블릿 이상 (예: 768px 이상) */
-@media (min-width: 768px) {
-  html {
-    font-size: 17px; /* 태블릿에서는 약간 키움 */
-  }
-}
-
-/* 데스크톱 이상 (예: 1024px 이상) */
-@media (min-width: 1024px) {
-  html {
-    font-size: 18px; /* 데스크톱에서는 더 키움 */
-  }
-}
-
 body {
   margin: 0;
   padding: 0;

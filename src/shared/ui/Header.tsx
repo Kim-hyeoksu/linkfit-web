@@ -8,7 +8,7 @@ interface HeaderProps {
   onBackClick?: () => void; // 뒤로가기 버튼 클릭 시 실행될 사용자 정의 함수입니다.
   rightButtonIconUrl?: string;
   onRightClick?: () => void;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   className?: string; // 헤더 전체에 적용될 추가 Tailwind CSS 클래스입니다.
 }
 
@@ -48,7 +48,7 @@ export const Header = ({
   useEffect(() => {}, [title]);
   return (
     <header className="bg-white p-2 fixed top-0 left-0 right-0 z-50  h-[56px] px-5">
-      <nav className="h-full mx-auto flex justify-between items-center">
+      <nav className="h-full mx-auto flex justify-between items-center w-full max-w-xl">
         {showBackButton && (
           <button
             onClick={handleBack}

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   // <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 };
 
-export default function ProgramsLayout({
+export default function GlobalLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -24,7 +24,7 @@ export default function ProgramsLayout({
             max-w-screen-xl mx-auto: 데스크톱에서 최대 너비 제한 및 중앙 정렬
             p-4 md:p-8: 화면 크기에 따라 패딩 조절
           */}
-      <main className="flex-grow w-full max-w-screen-xl md:p-8 pt-[56px]">
+      <main className="flex-grow w-full max-w-xl mx-auto pt-[56px]">
         {children}
       </main>
       <BottomNavBar />

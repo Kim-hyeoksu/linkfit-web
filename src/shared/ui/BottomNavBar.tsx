@@ -105,19 +105,18 @@ export const BottomNavBar: React.FC = () => {
         fixed bottom-0 left-0 right-0 z-40 // 하단에 고정하고 다른 요소 위에 오도록 z-index 설정
         bg-white // 배경색은 흰색
         border-t border-gray-200 // 상단에 얇은 구분선
-        flex justify-around items-center // 아이템들을 균등하게 배치하고 수직 중앙 정렬
         h-[72px] // 내비게이션 바의 높이
-        py-2 // 상하 패딩
       "
     >
-      {navItems.map((item) => {
-        const isActive = pathname === item.href;
+      <div className="w-full max-w-xl mx-auto flex justify-around items-center h-full">
+        {navItems.map((item) => {
+          const isActive = pathname === item.href;
 
-        return (
-          <Link
-            key={item.name}
-            href={item.href} // 아이템 클릭 시 이동할 경로
-            className={`
+          return (
+            <Link
+              key={item.name}
+              href={item.href} // 아이템 클릭 시 이동할 경로
+              className={`
               flex flex-col items-center justify-center // 아이콘과 텍스트를 수직으로 배치하고 중앙 정렬
               flex-1 
               text-center // 텍스트 중앙 정렬
@@ -129,14 +128,15 @@ export const BottomNavBar: React.FC = () => {
                   : "text-gray-500" // 비활성 상태 텍스트 스타일 (회색)
               }
             `}
-          >
-            {/* ✨ icon이 함수이므로, isActive를 인자로 전달하여 호출한 결과를 렌더링합니다. */}
-            {/* <div className="mb-1">{item.icon(isActive)}</div> */}
-            {/* 메뉴 이름 */}
-            <span className="text-xs">{item.name}</span>
-          </Link>
-        );
-      })}
+            >
+              {/* ✨ icon이 함수이므로, isActive를 인자로 전달하여 호출한 결과를 렌더링합니다. */}
+              {/* <div className="mb-1">{item.icon(isActive)}</div> */}
+              {/* 메뉴 이름 */}
+              <span className="text-xs">{item.name}</span>
+            </Link>
+          );
+        })}
+      </div>
     </nav>
   );
 };

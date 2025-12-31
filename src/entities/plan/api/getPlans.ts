@@ -15,7 +15,7 @@ import { API_BASE_URL } from "@/shared/api/baseUrl";
 
 //   return res.json();
 // };
-export const getPlans = async (id: number): Promise<WorkoutDay[]> => {
+export const getPlans = async (id: number) => {
   const url = `${API_BASE_URL}/api/plans?programId=${id}&page=0&size=50&sort=createdAt`;
   console.log("🚀 [getPlans] 요청 URL:", url);
 

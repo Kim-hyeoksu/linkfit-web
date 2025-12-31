@@ -68,7 +68,7 @@ export const Modal: React.FC<ModalProps> = ({
       <div
         className={`
           fixed inset-0 z-50 // 화면 전체를 덮고 가장 위에 위치
-          bg-black bg-opacity-50 // 어두운 반투명 배경
+          bg-black/30 // 적당히 어두운 반투명 배경
           flex items-center justify-center // 모달 내용을 중앙에 배치
           ${backdropClassName} // 추가 배경 클래스
         `}

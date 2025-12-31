@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import type { SessionSet } from "@/entities/session";
 import Image from "next/image";
 
 declare global {
@@ -19,15 +20,19 @@ export const Timer = ({
   onCompleteSet,
   currentExerciseId,
   currentExerciseSetId,
+  onStartWorkout,
+  isSessionStarted,
 }: {
   startTrigger: number;
   restSeconds: number;
   nextExercise: (exerciseId: number) => void;
   showType?: "bar" | "full";
   onShowTypeChange?: (type: "bar" | "full") => void;
-  onCompleteSet: (exerciseId: number | string, setId: number | string) => void;
-  currentExerciseId: number | string;
-  currentExerciseSetId: number | string;
+  onCompleteSet: (sessionExerciseId: number, sessionSetId: number) => void;
+  currentExerciseId: number;
+  currentExerciseSetId: number;
+  onStartWorkout?: () => void;
+  isSessionStarted?: boolean;
 }) => {
   const isFirstRender = useRef(true);
 
@@ -180,10 +185,7 @@ export const Timer = ({
   };
 
   return (
-    <div
-      ref={wrapperRef}
-      onClick={handleWrapperClick}
-    >
+    <div ref={wrapperRef} onClick={handleWrapperClick}>
       {internalShowType === "bar" ? (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#d9d9d9] flex h-[72px] pt-2 justify-between px-5 z-50 gap-[20px] pb-5">
           <div
@@ -204,7 +206,15 @@ export const Timer = ({
               />
             )}
           </div>
-          {isRunning ? (
+          {!isSessionStarted ? (
+            <button
+              className="flex items-center justify-center rounded-lg h-[42px] bg-main text-white"
+              onClick={onStartWorkout}
+              style={{ flex: 1 }}
+            >
+              운동 시작
+            </button>
+          ) : isRunning ? (
             <button
               className="flex items-center justify-center rounded-lg h-[42px] border border-[#d9d9d9]"
               style={{ flex: 1 }}

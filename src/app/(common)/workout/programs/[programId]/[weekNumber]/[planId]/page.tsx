@@ -7,6 +7,9 @@
 // import Timer from "@/components/common/Timer";
 import PlanClient from "@/widgets/plan/ui/PlanClient";
 import { getPlanDetail } from "@/entities/plan";
+import type { PlanDetailDto } from "@/entities/plan";
+import { getActiveSessionServer } from "@/entities/session";
+import type { ActiveSessionDto } from "@/entities/session";
 import { initMsw } from "@/shared/api/msw/initMsw";
 
 interface PlanPageProps {
@@ -17,6 +20,19 @@ export default async function PlanPage({ params }: PlanPageProps) {
     await initMsw();
   }
 
-  const planDetail = await getPlanDetail(params.planId);
+  const userId = 1; // TODO: 세션/토큰에서 사용자 ID 추출
+  const planPromise = getPlanDetail(params.planId);
+
+  let activeSession: PlanDetailDto | ActiveSessionDto | null = null;
+  try {
+    activeSession = await getActiveSessionServer(userId, params.planId);
+    console.log("activeSession.exercises", activeSession?.exercises[0].sets[0]);
+  } catch (err) {
+    console.error("getActiveSessionServer error", err);
+    throw err;
+  }
+
+  const planDetail: PlanDetailDto | ActiveSessionDto =
+    activeSession ?? (await planPromise);
   return <PlanClient initialPlanDetail={planDetail} />;
 }

@@ -1,4 +1,5 @@
 import { getPlans, PlanList } from "@/entities/plan";
+import type { PlanListResponse } from "@/entities/plan";
 import { initMsw } from "@/shared/api/msw/initMsw";
 import { Header } from "@/shared";
 import Link from "next/link";
@@ -12,7 +13,7 @@ export default async function WorkoutProgramWeekPage({ params }: Props) {
   }
 
   const { programId, weekNumber } = params;
-  const planData = await getPlans(Number(programId));
+  const planData: PlanListResponse = await getPlans(Number(programId));
   return (
     <div>
       {/* 주차별 링크 버튼 */}
@@ -21,7 +22,7 @@ export default async function WorkoutProgramWeekPage({ params }: Props) {
         showBackButton={true}
         backUrl="/workout/programs"
       />
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-2 mb-4 ml-5">
         {Array.from({ length: planData.maxWeekNumber }, (_, index) => {
           const week = index + 1;
           return (
