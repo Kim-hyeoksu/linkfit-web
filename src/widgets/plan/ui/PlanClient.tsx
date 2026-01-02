@@ -436,14 +436,14 @@ export default function PlanClient({
       >
         currentExerciseId:{currentExerciseId}/currentExerciseSetId:{" "}
         {currentExerciseSetId}/startTrigger:{startTrigger}
-        <div className="flex flex-col gap-[10px] bg-[#F7F8F9]">
+        <div className="flex flex-col gap-[10px] ">
           {exercises.map((exercise) => {
             const exerciseSets = exercise.sets ?? [];
 
             return (
               <div
                 key={exercise?.sessionExerciseId}
-                className="bg-white"
+                className="bg-white px-5"
                 ref={(el) => {
                   if (el)
                     exerciseRefs.current.set(exercise.sessionExerciseId, el);
