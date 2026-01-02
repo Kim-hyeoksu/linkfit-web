@@ -34,9 +34,19 @@ export type PlanDetailSetDto = {
   restSeconds: number;
 };
 
+export type PlanResponse = {
+  id: number;
+  dayOrder: number;
+  title: string;
+  exerciseCount: number;
+  totalVolume: number;
+  programId: number;
+  weekNumber: number;
+};
 export interface PlanListResponse {
   programId: number;
   programName: string | null;
   maxWeekNumber: number | null;
   plans: PlanResponse[];
+  lastExercisedPlanId: number | null;
 }

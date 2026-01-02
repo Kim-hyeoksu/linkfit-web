@@ -8,6 +8,7 @@ export const PlanCard = ({
   id,
   programId,
   weekNumber,
+  isLastExercised,
 }: {
   dayOrder: number | null;
   exerciseCount: number;
@@ -16,6 +17,7 @@ export const PlanCard = ({
   id: number;
   programId: number;
   weekNumber: number;
+  isLastExercised: boolean;
 }) => {
   return (
     <div className="relative p-3 border border-[#e5e5e5] rounded-lg bg-white shadow">
@@ -24,6 +26,11 @@ export const PlanCard = ({
           {dayOrder != null ? `${dayOrder}일차` : "일차"}
         </p>
         <h2 className="font-bold text-sm line-clamp-1">{title}</h2>
+        {isLastExercised && (
+          <span className="text-xs text-white bg-blue-500 rounded-full px-2 pt-0.5">
+            마지막 운동
+          </span>
+        )}
       </div>
       <div className="mt-2 flex gap-3 text-xs text-gray-600">
         <div>운동 {exerciseCount}개</div>

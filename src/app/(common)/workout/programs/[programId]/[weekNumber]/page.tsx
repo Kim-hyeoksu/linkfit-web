@@ -46,6 +46,7 @@ export default async function WorkoutProgramWeekPage({ params }: Props) {
         program={planData.plans}
         programId={Number(programId)}
         weekNumber={Number(weekNumber)}
+        lastExercisedPlanId={planData.lastExercisedPlanId}
       />
     </div>
   );
