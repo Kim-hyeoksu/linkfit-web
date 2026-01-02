@@ -2,7 +2,11 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import type { PlanDetailDto } from "@/entities/plan";
+import {
+  updatePlan,
+  type PlanUpdateRequest,
+  type PlanDetailDto,
+} from "@/entities/plan";
 import type { ActiveSessionDto, SessionExerciseDto } from "@/entities/session";
 
 import type { StartSessionRequest, SessionSet } from "@/entities/session";
@@ -51,6 +55,7 @@ export default function PlanClient({
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [isSessionStarted, setIsSessionStarted] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [isEndConfirmOpen, setIsEndConfirmOpen] = useState(false);
   const [isEndConfirmLoading, setIsEndConfirmLoading] = useState(false);
@@ -385,6 +390,45 @@ export default function PlanClient({
     }
   };
 
+  const handleUpdatePlan = async () => {
+    setIsUpdating(true);
+    try {
+      const planUpdatePayload: PlanUpdateRequest = {
+        title: (initialPlanDetail as PlanDetailDto).title,
+        exercises: exercises.map((exercise: any, index) => ({
+          exerciseId: exercise.exerciseId,
+          orderIndex: exercise.orderIndex ?? index,
+          sets: exercise.sets.map((set: any) => ({
+            reps: set.reps,
+            weight: set.weight,
+            restSeconds: set.restSeconds,
+          })),
+        })),
+      };
+
+      await updatePlan({
+        planId: initialPlanDetail.id,
+        plan: planUpdatePayload as any,
+      });
+
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Failed to update plan:", error);
+      alert("플랜 수정에 실패했습니다.");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleEditButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    if (isEditing) {
+      handleUpdatePlan();
+    } else {
+      setIsEditing(true);
+    }
+  };
+
   return (
     <div>
       <Header showBackButton={true} title={formatTime(totalExerciseMs)}>
@@ -410,17 +454,19 @@ export default function PlanClient({
             </button>
           ) : (
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsEditing((prev) => !prev);
-              }}
+              onClick={handleEditButtonClick}
+              disabled={isUpdating}
               className={`w-[124px] h-[32px] rounded-lg ${
                 isEditing
                   ? "bg-light-gray text-dark-gray"
                   : "bg-main text-white"
               }`}
             >
-              {isEditing ? "수정 완료" : "운동 수정"}
+              {isUpdating
+                ? "저장 중..."
+                : isEditing
+                ? "수정 완료"
+                : "운동 수정"}
             </button>
           )}
         </div>
@@ -436,14 +482,14 @@ export default function PlanClient({
       >
         currentExerciseId:{currentExerciseId}/currentExerciseSetId:{" "}
         {currentExerciseSetId}/startTrigger:{startTrigger}
-        <div className="flex flex-col gap-[10px] ">
+        <div className="flex flex-col gap-[10px] pb-[72px]">
           {exercises.map((exercise) => {
             const exerciseSets = exercise.sets ?? [];
 
             return (
               <div
                 key={exercise?.sessionExerciseId}
-                className="bg-white px-5"
+                className="bg-white px-5 "
                 ref={(el) => {
                   if (el)
                     exerciseRefs.current.set(exercise.sessionExerciseId, el);
