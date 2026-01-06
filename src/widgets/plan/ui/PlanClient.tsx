@@ -30,9 +30,14 @@ export default function PlanClient({
   const TIMER_HEIGHT = 375;
   const router = useRouter();
 
-  const initialExercisesState = Array.isArray(initialPlanDetail?.exercises)
-    ? initialPlanDetail.exercises
-    : [];
+  const initialExercisesState = (
+    Array.isArray(initialPlanDetail?.exercises)
+      ? initialPlanDetail.exercises
+      : []
+  ).map((exercise) => ({
+    ...exercise,
+    sessionExerciseId: exercise.sessionExerciseId ?? exercise.exerciseId,
+  }));
 
   const [exercises, setExercises] = useState(initialExercisesState);
 
@@ -164,7 +169,7 @@ export default function PlanClient({
 
     setPendingExerciseId(sessionExerciseId); // ✅ 다음 세트 계산 예약
     setCurrentExerciseId(sessionExerciseId);
-    setCurrentExerciseSetId(set.id);
+    setCurrentExerciseSetId(set.id ?? -1);
     if (startTrigger === 0) {
       startExerciseTimer();
     }
@@ -176,13 +181,13 @@ export default function PlanClient({
     sessionSetId: number
   ) => {
     const exercise = exercises.find(
-      (ex: any) => ex.sessionExerciseId === sessionExerciseId
+      (ex) => ex.sessionExerciseId === sessionExerciseId
     );
     console.log("exercise", exercise);
     if (!exercise) return;
 
     const set = (exercise.sets ?? []).find(
-      (s: any) => s.id === sessionSetId
+      (s: SessionSet) => s.id === sessionSetId
     ) as SessionSet | undefined;
     if (!set) return;
     console.log("set", set);
@@ -205,7 +210,7 @@ export default function PlanClient({
       setPendingExerciseId(-1);
     }
   }, [exercises, pendingExerciseId]);
-  const handleExerciseClick = (id: number | string) => {
+  const handleExerciseClick = (id: number) => {
     console.log("handleExerciseClick", id);
     if (startTrigger === 0) return;
     setCurrentExerciseId(id);
@@ -242,7 +247,7 @@ export default function PlanClient({
   //     setCurrentExerciseSetId(nextSet ? nextSet.id : 0);
   //   }
   // };
-  const handleNextSet = (exerciseId: number | string) => {
+  const handleNextSet = (exerciseId: number) => {
     const exercise = exercises.find(
       (ex) => ex.sessionExerciseId === exerciseId
     );
@@ -255,7 +260,7 @@ export default function PlanClient({
 
     if (nextIncompleteSet) {
       // 완료되지 않은 세트가 있으면 거기로 이동
-      setCurrentExerciseSetId(nextIncompleteSet.sessionExerciseId);
+      setCurrentExerciseSetId(nextIncompleteSet.sessionExerciseId ?? -1);
     } else {
       // 현재 운동의 모든 세트를 완료한 경우 다음 운동으로 이동
       const currentExerciseIndex = exercises.findIndex(
@@ -271,7 +276,7 @@ export default function PlanClient({
         // 다음 운동의 첫 미완료 세트로 이동
         if (nextExerciseFirstIncompleteSet) {
           setCurrentExerciseSetId(
-            nextExerciseFirstIncompleteSet.sessionExerciseId
+            nextExerciseFirstIncompleteSet.sessionExerciseId ?? -1
           );
         } else {
           // 다음 운동의 세트가 모두 완료된 경우 -1로 설정
@@ -296,7 +301,7 @@ export default function PlanClient({
     }
   };
 
-  const addSets = async (exerciseId: number | string) => {
+  const addSets = async (exerciseId: number) => {
     setExercises((prev) =>
       prev.map((exercise) => {
         const currentId = exercise.sessionExerciseId ?? (exercise as any).id;
@@ -494,7 +499,7 @@ export default function PlanClient({
 
             return (
               <div
-                key={exercise?.sessionExerciseId}
+                key={(exercise as any).id ?? exercise.sessionExerciseId}
                 className="bg-white px-5 "
                 ref={(el) => {
                   if (el)

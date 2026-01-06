@@ -17,21 +17,28 @@ export type PlanDetailDto = {
 
 export type PlanDetailExerciseDto = {
   exerciseId: number;
+  sessionExerciseId?: number;
   exerciseName: string;
   defaultSets: number;
   defaultReps: number;
   defaultWeight: number;
   defaultRestSeconds: number;
+  targetSets: number;
+  targetReps: number;
+  targetWeight: number;
+  targetRestSeconds: number;
   orderIndex: number;
   sets: PlanDetailSetDto[];
 };
 
 export type PlanDetailSetDto = {
   id: number;
+  sessionExerciseId?: number;
   setOrder: number;
   reps: number;
   weight: number;
   restSeconds: number;
+  completedAt?: string;
 };
 
 export type PlanResponse = {

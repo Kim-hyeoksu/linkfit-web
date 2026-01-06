@@ -5,8 +5,8 @@ export interface StartSessionRequest {
   memo?: string;
 }
 export interface SessionSet {
-  id: number | null;
-  sessionExerciseId: number;
+  id: number;
+  sessionExerciseId?: number;
   setOrder: number;
   targetReps?: number;
   targeWeight?: number;
@@ -18,7 +18,7 @@ export interface SessionSet {
   weight: number;
   rpe?: number;
   restSeconds: number;
-  status?: "IN_PROGRESS" | "COMPLETED";
+  status?: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
   completedAt?: string;
 }
 
@@ -47,6 +47,10 @@ export type SessionExerciseDto = {
   targetReps: number;
   targetWeight: number;
   targetRestSeconds: number;
+  defaultSets: number;
+  defaultReps: number;
+  defaultWeight: number;
+  defaultRestSeconds: number;
   sets: SessionSetDto[];
 };
 
@@ -54,7 +58,6 @@ export type SessionSetDto = {
   id: number;
   sessionExerciseId: number;
   setOrder: number;
-
   targetReps: number;
   targetWeight: number;
   targetRestSeconds: number;

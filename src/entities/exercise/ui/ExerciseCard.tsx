@@ -26,22 +26,19 @@ interface ExerciseProps {
   sets: PlanDetailSetDto[] | SessionSetDto[];
   isCurrent?: boolean;
   isEditing?: boolean;
-  currentExerciseSetId: number | string;
-  onClickExercise: (sessionExerciseId: number | string) => void;
-  addSets: (sessionExerciseId: number | string) => void;
+  currentExerciseSetId: number;
+  onClickExercise: (sessionExerciseId: number) => void;
+  addSets: (sessionExerciseId: number) => void;
   onClickSetCheckBtn: (
-    sessionExerciseId: number | string,
+    sessionExerciseId: number,
     set: PlanDetailSetDto | SessionSetDto
   ) => void;
   onUpdateSet: (
-    sessionExerciseId: number | string,
-    setId: number | string,
+    sessionExerciseId: number,
+    setId: number,
     values: { weight: number; reps: number }
   ) => void;
-  onDeleteSet: (
-    sessionExerciseId: number | string,
-    setId: number | string
-  ) => void;
+  onDeleteSet: (sessionExerciseId: number, setId: number) => void;
   onToggleEdit?: () => void;
 }
 
