@@ -115,7 +115,9 @@ export default function PlanClient({
     sessionExerciseId: number,
     set: SessionSet
   ) => {
-    if (set.id) {
+    if (!isSessionStarted) return;
+
+    if (set.id && Number(set.id) > 0) {
       const body = {
         reps: set.reps,
         weight: set.weight,
@@ -152,10 +154,9 @@ export default function PlanClient({
 
           return {
             ...exercise,
-            sets: [
-              ...exercise.sets.slice(0, exercise.sets.length - 1),
-              response,
-            ],
+            sets: exercise.sets.map((s: SessionSet) =>
+              s.id === set.id ? response : s
+            ),
           };
         })
       );
@@ -295,17 +296,18 @@ export default function PlanClient({
     }
   };
 
-  const addSets = async (sessionExerciseId: number) => {
+  const addSets = async (exerciseId: number | string) => {
     setExercises((prev) =>
       prev.map((exercise) => {
-        if (exercise.sessionExerciseId !== sessionExerciseId) return exercise;
+        const currentId = exercise.sessionExerciseId ?? (exercise as any).id;
+        if (currentId !== exerciseId) return exercise;
 
         return {
           ...exercise,
           sets: [
             ...exercise.sets,
             {
-              id: null, // 아직 서버에 저장되지 않음
+              id: -(Date.now() + Math.floor(Math.random() * 1000)), // 임시 ID (음수)
               sessionExerciseId: exercise.sessionExerciseId,
               reps: exercise.defaultReps ?? exercise.targetReps ?? 0,
               weight: exercise.defaultWeight ?? exercise.targetWeight ?? 0,
@@ -320,13 +322,14 @@ export default function PlanClient({
   };
 
   const handleUpdateSet = (
-    sessionExerciseId: number | string,
+    exerciseId: number | string,
     setId: number | string,
     values: { weight: number; reps: number }
   ) => {
     setExercises((prev) =>
       prev.map((exercise) => {
-        if (exercise.sessionExerciseId !== sessionExerciseId) return exercise;
+        const currentId = exercise.sessionExerciseId ?? (exercise as any).id;
+        if (currentId !== exerciseId) return exercise;
 
         return {
           ...exercise,
@@ -339,14 +342,17 @@ export default function PlanClient({
   };
 
   const handleDeleteSet = async (
-    sessionExerciseId: number | string,
+    exerciseId: number | string,
     setId: number | string
   ) => {
     try {
-      const response = await deleteSessionSet(setId);
+      if (setId && Number(setId) > 0) {
+        await deleteSessionSet(setId);
+      }
       setExercises((prev) =>
         prev.map((exercise) => {
-          if (exercise.sessionExerciseId !== sessionExerciseId) return exercise;
+          const currentId = exercise.sessionExerciseId ?? (exercise as any).id;
+          if (currentId !== exerciseId) return exercise;
 
           return {
             ...exercise,

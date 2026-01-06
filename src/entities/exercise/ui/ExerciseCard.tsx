@@ -58,7 +58,7 @@ export const ExerciseCard = ({
   onDeleteSet,
   onToggleEdit,
 }: ExerciseProps) => {
-  const exerciseId = exercise.sessionExerciseId ?? -1;
+  const exerciseId = exercise.sessionExerciseId ?? (exercise as any).id;
   const exerciseName =
     exercise.name ??
     exercise.exerciseName ??
