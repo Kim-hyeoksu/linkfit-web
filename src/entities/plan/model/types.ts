@@ -1,4 +1,3 @@
-import type { SessionSet } from "@/entities/session";
 // src/entities/plan/api/types.ts
 export type PlanDetailDto = {
   id: number;
@@ -28,6 +27,8 @@ export type PlanDetailExerciseDto = {
   targetWeight: number;
   targetRestSeconds: number;
   orderIndex: number;
+  bodyPart: string;
+  exerciseImagePath: string;
   sets: PlanDetailSetDto[];
 };
 
@@ -41,7 +42,7 @@ export type PlanDetailSetDto = {
   completedAt?: string;
 };
 
-export type PlanResponse = {
+export type PlanListItemResponse = {
   id: number;
   dayOrder: number;
   title: string;
@@ -54,6 +55,6 @@ export interface PlanListResponse {
   programId: number;
   programName: string | null;
   maxWeekNumber: number | null;
-  plans: PlanResponse[];
+  plans: PlanListItemResponse[];
   lastExercisedPlanId: number | null;
 }

@@ -51,6 +51,8 @@ export type SessionExerciseDto = {
   defaultReps: number;
   defaultWeight: number;
   defaultRestSeconds: number;
+  bodyPart: string;
+  exerciseImagePath: string;
   sets: SessionSetDto[];
 };
 

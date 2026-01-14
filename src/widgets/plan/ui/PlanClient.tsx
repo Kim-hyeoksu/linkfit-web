@@ -4,12 +4,14 @@ import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   updatePlan,
-  type PlanUpdateRequest,
   type PlanDetailDto,
+  type PlanDetailExerciseDto,
 } from "@/entities/plan";
-import type { ActiveSessionDto, SessionExerciseDto } from "@/entities/session";
-
-import type { StartSessionRequest, SessionSet } from "@/entities/session";
+import type {
+  ActiveSessionDto,
+  StartSessionRequest,
+  SessionExerciseDto,
+} from "@/entities/session";
 import {
   startSession,
   updateSessionSet,
@@ -17,7 +19,11 @@ import {
   deleteSessionSet,
   completeSession,
 } from "@/features/session-control";
-import { ExerciseCard } from "@/entities/exercise";
+import {
+  ExerciseCard,
+  type ClientSet,
+  type ClientExercise,
+} from "@/entities/exercise";
 import { Timer } from "@/entities/exercise";
 import { ConfirmModal, Header, Modal } from "@/shared";
 import { formatTime } from "@/shared";
@@ -30,23 +36,66 @@ export default function PlanClient({
   const TIMER_HEIGHT = 375;
   const router = useRouter();
 
-  const initialExercisesState = (
-    Array.isArray(initialPlanDetail?.exercises)
-      ? initialPlanDetail.exercises
-      : []
-  ).map((exercise) => ({
-    ...exercise,
-    sessionExerciseId: exercise.sessionExerciseId ?? exercise.exerciseId,
-  }));
+  // ✅ 2. 초기 데이터를 통일된 타입으로 변환하는 정규화 함수
+  const normalizeExercises = (
+    plan: PlanDetailDto | ActiveSessionDto
+  ): ClientExercise[] => {
+    if (!plan?.exercises || !Array.isArray(plan.exercises)) return [];
 
-  const [exercises, setExercises] = useState(initialExercisesState);
+    return plan.exercises.map(
+      (exercise: PlanDetailExerciseDto | SessionExerciseDto) => {
+        // 세션 모드인지 확인 (sessionExerciseId 존재 여부 등)
+        const isSessionMode = "sessionExerciseId" in exercise;
+        const sessionExerciseId = isSessionMode
+          ? exercise.sessionExerciseId
+          : exercise.exerciseId;
+
+        return {
+          sessionExerciseId,
+          exerciseId: exercise.exerciseId,
+          exerciseName: exercise.exerciseName,
+          bodyPart: exercise.bodyPart,
+          exerciseImagePath: exercise.exerciseImagePath,
+          restSeconds:
+            exercise.targetRestSeconds ?? exercise.defaultRestSeconds ?? 0,
+          orderIndex: exercise.orderIndex,
+          reps: exercise.targetReps ?? exercise.defaultReps,
+          weight: exercise.targetWeight ?? exercise.defaultWeight,
+          sets: exercise.sets.map((set: any, index: number) => ({
+            id: set.id ?? -(Date.now() + index), // ID가 없으면 임시 ID 생성
+            sessionExerciseId,
+            setOrder: set.setOrder ?? index + 1,
+            reps: set.reps ?? 0,
+            weight: set.weight ?? 0,
+            restSeconds:
+              set.restSeconds ??
+              set.defaultRestSeconds ??
+              set.targetRestSeconds ??
+              0,
+            targetReps: set.targetReps ?? set.defaultReps ?? 0,
+            targetWeight: set.targetWeight ?? set.defaultWeight ?? 0,
+            targetRestSeconds:
+              set.targetRestSeconds ?? set.defaultRestSeconds ?? 0,
+            completedAt: set.completedAt ?? null,
+            status: set.status ?? "PENDING",
+            rpe: set.rpe,
+          })),
+        };
+      }
+    );
+  };
+
+  // ✅ 3. 상태를 ClientExercise[] 타입으로 관리
+  const [exercises, setExercises] = useState<ClientExercise[]>(
+    normalizeExercises(initialPlanDetail)
+  );
 
   const [currentExerciseId, setCurrentExerciseId] = useState<number>(
-    initialExercisesState[0]?.sessionExerciseId ?? -1
+    exercises[0]?.sessionExerciseId ?? -1
   );
 
   const [currentExerciseSetId, setCurrentExerciseSetId] = useState<number>(
-    initialExercisesState[0]?.sets?.[0]?.id ?? -1
+    exercises[0]?.sets?.[0]?.id ?? -1
   );
   const exerciseRefs = useRef<Map<number | string, HTMLDivElement>>(new Map());
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -76,7 +125,7 @@ export default function PlanClient({
 
     setTotalExerciseMs(elapsed);
     setIsSessionStarted(true);
-    setSessionId((initialPlanDetail as any)?.id ?? null);
+    setSessionId(initialPlanDetail.id ?? null);
     if (startTrigger === 0) {
       startExerciseTimer();
       setStartTrigger(1);
@@ -99,7 +148,7 @@ export default function PlanClient({
 
       setSessionId(session.id); // 서버에서 내려준 sessionId
       setIsSessionStarted(true);
-      setExercises(session.exercises);
+      setExercises(normalizeExercises(session)); // 세션 시작 후 데이터도 정규화하여 업데이트
     } catch (e) {
       console.error("세션 시작 실패", e);
       alert("운동 시작에 실패했습니다.");
@@ -118,14 +167,17 @@ export default function PlanClient({
 
   const toggleSetCompletion = async (
     sessionExerciseId: number,
-    set: SessionSet
+    set: ClientSet
   ) => {
     if (!isSessionStarted) return;
 
+    const reps = set.reps || set.targetReps || 0;
+    const weight = set.weight || set.targetWeight || 0;
+
     if (set.id && Number(set.id) > 0) {
       const body = {
-        reps: set.reps,
-        weight: set.weight,
+        reps,
+        weight,
         rpe: set.rpe,
         restSeconds: set.restSeconds,
         status: set.status,
@@ -138,9 +190,7 @@ export default function PlanClient({
 
           return {
             ...exercise,
-            sets: exercise.sets.map((s: SessionSet) =>
-              s.id === set.id ? response : s
-            ),
+            sets: exercise.sets.map((s) => (s.id === set.id ? response : s)),
           };
         })
       );
@@ -148,8 +198,8 @@ export default function PlanClient({
       const body = {
         sessionExerciseId: set.sessionExerciseId,
         setOrder: set.setOrder,
-        reps: set.reps,
-        weight: set.weight,
+        reps,
+        weight,
         restSeconds: set.restSeconds,
       };
       const response = await addSessionSet(body);
@@ -159,9 +209,7 @@ export default function PlanClient({
 
           return {
             ...exercise,
-            sets: exercise.sets.map((s: SessionSet) =>
-              s.id === set.id ? response : s
-            ),
+            sets: exercise.sets.map((s) => (s.id === set.id ? response : s)),
           };
         })
       );
@@ -187,8 +235,8 @@ export default function PlanClient({
     if (!exercise) return;
 
     const set = (exercise.sets ?? []).find(
-      (s: SessionSet) => s.id === sessionSetId
-    ) as SessionSet | undefined;
+      (s: ClientSet) => s.id === sessionSetId
+    );
     if (!set) return;
     console.log("set", set);
     await toggleSetCompletion(Number(sessionExerciseId), set);
@@ -253,9 +301,7 @@ export default function PlanClient({
     );
     if (!exercise) return;
     // 아직 완료되지 않은 세트를 찾음
-    const nextIncompleteSet = exercise.sets.find(
-      (set: SessionSet) => !set.completedAt
-    );
+    const nextIncompleteSet = exercise.sets.find((set) => !set.completedAt);
     console.log("nextIncompleteSet", nextIncompleteSet);
 
     if (nextIncompleteSet) {
@@ -304,21 +350,25 @@ export default function PlanClient({
   const addSets = async (exerciseId: number) => {
     setExercises((prev) =>
       prev.map((exercise) => {
-        const currentId = exercise.sessionExerciseId ?? (exercise as any).id;
-        if (currentId !== exerciseId) return exercise;
+        if (exercise.sessionExerciseId !== exerciseId) return exercise;
+
+        const lastSet = exercise.sets[exercise.sets.length - 1];
 
         return {
           ...exercise,
           sets: [
             ...exercise.sets,
             {
-              id: -(Date.now() + Math.floor(Math.random() * 1000)), // 임시 ID (음수)
+              id: -(Date.now() + Math.floor(Math.random() * 1000)),
               sessionExerciseId: exercise.sessionExerciseId,
-              reps: exercise.defaultReps ?? exercise.targetReps ?? 0,
-              weight: exercise.defaultWeight ?? exercise.targetWeight ?? 0,
-              restSeconds:
-                exercise.defaultRestSeconds ?? exercise.targetRestSeconds ?? 0,
               setOrder: exercise.sets.length + 1,
+              reps: 0,
+              weight: 0,
+              restSeconds: exercise.restSeconds,
+              targetReps: lastSet?.targetReps ?? exercise.reps ?? 0,
+              targetWeight: lastSet?.targetWeight ?? exercise.weight ?? 0,
+              targetRestSeconds: exercise.restSeconds,
+              status: "PENDING",
             },
           ],
         };
@@ -333,12 +383,11 @@ export default function PlanClient({
   ) => {
     setExercises((prev) =>
       prev.map((exercise) => {
-        const currentId = exercise.sessionExerciseId ?? (exercise as any).id;
-        if (currentId !== exerciseId) return exercise;
+        if (exercise.sessionExerciseId !== exerciseId) return exercise;
 
         return {
           ...exercise,
-          sets: exercise.sets.map((set: SessionSet) =>
+          sets: exercise.sets.map((set) =>
             set.id === setId ? { ...set, ...values } : set
           ),
         };
@@ -356,12 +405,11 @@ export default function PlanClient({
       }
       setExercises((prev) =>
         prev.map((exercise) => {
-          const currentId = exercise.sessionExerciseId ?? (exercise as any).id;
-          if (currentId !== exerciseId) return exercise;
+          if (exercise.sessionExerciseId !== exerciseId) return exercise;
 
           return {
             ...exercise,
-            sets: exercise.sets.filter((set: SessionSet) => set.id !== setId),
+            sets: exercise.sets.filter((set) => set.id !== setId),
           };
         })
       );
@@ -404,12 +452,12 @@ export default function PlanClient({
   const handleUpdatePlan = async () => {
     setIsUpdating(true);
     try {
-      const planUpdatePayload: PlanUpdateRequest = {
+      const planUpdatePayload = {
         title: (initialPlanDetail as PlanDetailDto).title,
-        exercises: exercises.map((exercise: any, index) => ({
+        exercises: exercises.map((exercise, index) => ({
           exerciseId: exercise.exerciseId,
           orderIndex: exercise.orderIndex ?? index,
-          sets: exercise.sets.map((set: any) => ({
+          sets: exercise.sets.map((set) => ({
             reps: set.reps,
             weight: set.weight,
             restSeconds: set.restSeconds,
@@ -419,7 +467,7 @@ export default function PlanClient({
 
       await updatePlan({
         planId: initialPlanDetail.id,
-        plan: planUpdatePayload as any,
+        plan: planUpdatePayload,
       });
 
       setIsEditing(false);
@@ -499,7 +547,7 @@ export default function PlanClient({
 
             return (
               <div
-                key={(exercise as any).id ?? exercise.sessionExerciseId}
+                key={exercise.sessionExerciseId}
                 className="bg-white px-5 "
                 ref={(el) => {
                   if (el)
@@ -528,7 +576,7 @@ export default function PlanClient({
           restSeconds={
             exercises.find(
               (exercise) => exercise.sessionExerciseId === currentExerciseId
-            )?.targetRestSeconds || 60
+            )?.restSeconds || 60
           }
           nextExercise={nextExercise}
           showType={showType}

@@ -56,10 +56,10 @@
 // }
 // app/workout/programs/[programId]/WorkoutDayListServer.tsx
 import { PlanCard } from "../ui/PlanCard";
-import type { PlanResponse } from "@/entities/plan";
+import type { PlanListItemResponse } from "@/entities/plan";
 
 interface Props {
-  program: PlanResponse[];
+  program: PlanListItemResponse[];
   programId: number;
   weekNumber: number; // 서버에서 주차를 선택
   lastExercisedPlanId: number | null;

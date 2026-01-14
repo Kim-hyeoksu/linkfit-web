@@ -6,7 +6,7 @@ interface UpdatePlanParams {
   plan: Partial<PlanDetailDto>;
 }
 
-export const updatePlan = async ({ planId, plan }: UpdatePlanParams) => {
+export const updatePlan = async ({ planId, plan }) => {
   const response = await api.put<PlanDetailDto>(`/api/plans/${planId}`, plan);
   return response.data;
 };
