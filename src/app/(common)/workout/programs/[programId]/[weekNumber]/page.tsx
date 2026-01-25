@@ -14,6 +14,14 @@ export default async function WorkoutProgramWeekPage({ params }: Props) {
 
   const { programId, weekNumber } = params;
   const planData: PlanListResponse = await getPlans(Number(programId));
+
+  // weekNumber가 null인 데이터가 있을 경우 dayOrder를 기준으로 weekNumber를 계산하여 할당
+  const processedPlans = planData.plans.map((plan) => ({
+    ...plan,
+    weekNumber:
+      plan.weekNumber ?? (plan.dayOrder ? Math.ceil(plan.dayOrder / 7) : 1),
+  }));
+
   return (
     <div>
       {/* 주차별 링크 버튼 */}
@@ -43,7 +51,7 @@ export default async function WorkoutProgramWeekPage({ params }: Props) {
 
       {/* 주차별 운동일차 리스트 */}
       <PlanList
-        program={planData.plans}
+        program={processedPlans}
         programId={Number(programId)}
         weekNumber={Number(weekNumber)}
         lastExercisedPlanId={planData.lastExercisedPlanId}
