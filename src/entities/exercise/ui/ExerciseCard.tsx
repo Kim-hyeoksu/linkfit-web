@@ -18,10 +18,15 @@ interface ExerciseProps {
   onUpdateSet: (
     sessionExerciseId: number,
     setId: number,
-    values: { weight: number; reps: number }
+    values: { weight: number; reps: number },
   ) => void;
   onDeleteSet: (sessionExerciseId: number, setId: number) => void;
   onToggleEdit?: () => void;
+  onUpdateDefault?: (
+    sessionExerciseId: number,
+    weight: number,
+    reps: number,
+  ) => void;
 }
 
 export const ExerciseCard = ({
@@ -36,6 +41,7 @@ export const ExerciseCard = ({
   onUpdateSet,
   onDeleteSet,
   onToggleEdit,
+  onUpdateDefault,
 }: ExerciseProps) => {
   const exerciseId = exercise.sessionExerciseId;
   const exerciseName = exercise.exerciseName;
@@ -48,7 +54,7 @@ export const ExerciseCard = ({
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
     index: number,
     sessionExerciseId: number,
-    set: ClientSet
+    set: ClientSet,
   ) => {
     e.stopPropagation();
     onClickSetCheckBtn(sessionExerciseId, set);
@@ -97,6 +103,44 @@ export const ExerciseCard = ({
           </div>
         </div>
       </div>
+
+      {/* 편집 모드일 때 기본값 설정 영역 */}
+      {isEditing && (
+        <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200 flex gap-4 items-center justify-center">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-gray-500">기본 무게</span>
+            <input
+              type="number"
+              className="w-14 p-1 border border-gray-300 rounded text-center text-sm"
+              value={exercise.defaultWeight}
+              onChange={(e) =>
+                onUpdateDefault?.(
+                  exerciseId,
+                  Number(e.target.value),
+                  exercise.defaultReps,
+                )
+              }
+            />
+            <span className="text-xs text-gray-500">kg</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-gray-500">기본 횟수</span>
+            <input
+              type="number"
+              className="w-14 p-1 border border-gray-300 rounded text-center text-sm"
+              value={exercise.defaultReps}
+              onChange={(e) =>
+                onUpdateDefault?.(
+                  exerciseId,
+                  exercise.defaultWeight,
+                  Number(e.target.value),
+                )
+              }
+            />
+            <span className="text-xs text-gray-500">회</span>
+          </div>
+        </div>
+      )}
 
       {/* Sets Header */}
       <div className="grid grid-cols-12 gap-2 text-xs text-gray-500 font-bold mb-2 px-2">

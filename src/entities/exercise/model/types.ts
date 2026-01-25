@@ -29,6 +29,9 @@ export interface ClientExercise {
   exerciseId: number;
   exerciseName: string;
   sets: ClientSet[];
+  defaultReps: number;
+  defaultWeight: number;
+  defaultSets: number;
   restSeconds: number;
   bodyPart?: string;
   exerciseImagePath?: string;
