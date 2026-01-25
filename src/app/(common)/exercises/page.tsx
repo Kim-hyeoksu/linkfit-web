@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { Header } from "@/shared";
 import { getExercises } from "@/entities/exercise";
-import { Exercise } from "@/entities/exercise/model/types";
-import ExerciseList from "@/entities/exercise/ui/ExerciseList";
+import type { Exercise } from "@/entities/exercise/model/types";
+import { ExerciseList } from "@/entities/exercise";
 
 export default function ExerciseListPage() {
   const [exercises, setExercises] = useState<Exercise[]>([]);
