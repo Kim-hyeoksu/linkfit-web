@@ -53,8 +53,6 @@ const ProgramAddPage = () => {
         setAvailableExercises(data);
       } catch (error) {
         console.error("운동 목록 조회 실패:", error);
-      } finally {
-        setLoading(false);
       }
     };
 
