@@ -13,20 +13,20 @@ import type {
 } from "@/entities/session";
 import type { PlanDetailDto } from "@/entities/plan";
 import type { ClientExercise, ClientSet } from "@/entities/exercise";
+import { normalizeExercises } from "./normalize";
 
-// 정규화 함수도 Logic 내로 이동 또는 Utils로 분리 가능하나, 
-// 여기서는 Hook 내부 로직에서 상태 초기화에 쓰이므로 인자로 받거나 내부 정의
+// ... (imports)
+
+// 정규화 함수는 이제 내부에서 import해서 사용하거나, 초기값은 인자로 받음
 export const useSessionLogic = (
   initialPlanDetail: PlanDetailDto | ActiveSessionDto,
-  normalizeExercises: (data: any) => ClientExercise[]
+  initialExercises: ClientExercise[]
 ) => {
   const router = useRouter();
   
   // 상태 관리
   // exercises는 세션 로직에서 빈번하게 업데이트되므로 여기서 메인으로 관리
-  const [exercises, setExercises] = useState<ClientExercise[]>(
-    normalizeExercises(initialPlanDetail)
-  );
+  const [exercises, setExercises] = useState<ClientExercise[]>(initialExercises);
   
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [isSessionStarted, setIsSessionStarted] = useState(false);

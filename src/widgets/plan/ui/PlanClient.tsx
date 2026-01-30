@@ -16,64 +16,17 @@ import { formatTime } from "@/shared";
 import { usePlanLogic } from "../model/usePlanLogic";
 import { useSessionLogic } from "../model/useSessionLogic";
 
+// ... imports
+
 export default function PlanClient({
   initialPlanDetail,
+  initialExercises,
 }: {
   initialPlanDetail: PlanDetailDto | ActiveSessionDto;
+  initialExercises: ClientExercise[];
 }) {
   const TIMER_HEIGHT = 375;
   const router = useRouter();
-
-  // ✅ 정규화 함수
-  const normalizeExercises = (
-    plan: PlanDetailDto | ActiveSessionDto,
-  ): ClientExercise[] => {
-    if (!plan?.exercises || !Array.isArray(plan.exercises)) return [];
-
-    return plan.exercises.map(
-      (exercise: PlanDetailExerciseDto | SessionExerciseDto) => {
-        const isSessionMode = "sessionExerciseId" in exercise;
-        const sessionExerciseId = isSessionMode
-          ? exercise.sessionExerciseId
-          : exercise.exerciseId;
-
-        return {
-          sessionExerciseId,
-          exerciseId: exercise.exerciseId,
-          exerciseName: exercise.exerciseName,
-          bodyPart: exercise.bodyPart,
-          exerciseImagePath: exercise.exerciseImagePath,
-          restSeconds:
-            exercise.targetRestSeconds ?? exercise.defaultRestSeconds ?? 0,
-          orderIndex: exercise.orderIndex,
-          reps: exercise.targetReps ?? exercise.defaultReps,
-          weight: exercise.targetWeight ?? exercise.defaultWeight,
-          defaultReps: exercise.targetReps ?? exercise.defaultReps ?? 0,
-          defaultSets: exercise.targetSets ?? exercise.defaultSets ?? 0,
-          defaultWeight: exercise.targetWeight ?? exercise.defaultWeight ?? 0,
-          sets: exercise.sets.map((set: any, index: number) => ({
-            id: set.id ?? -(Date.now() + index),
-            sessionExerciseId,
-            setOrder: set.setOrder ?? index + 1,
-            reps: set.reps ?? 0,
-            weight: set.weight ?? 0,
-            restSeconds:
-              set.restSeconds ??
-              set.defaultRestSeconds ??
-              set.targetRestSeconds ??
-              0,
-            targetReps: set.targetReps ?? set.defaultReps ?? 0,
-            targetWeight: set.targetWeight ?? set.defaultWeight ?? 0,
-            targetRestSeconds:
-              set.targetRestSeconds ?? set.defaultRestSeconds ?? 0,
-            completedAt: set.completedAt ?? null,
-            status: set.status ?? "PENDING",
-            rpe: set.rpe,
-          })),
-        };
-      },
-    );
-  };
 
   // ✅ Custom Hooks 사용
   const {
@@ -103,7 +56,7 @@ export default function PlanClient({
     handleUpdateSet,
     handleSave,
     handleUpdateDefault,
-  } = useSessionLogic(initialPlanDetail, normalizeExercises);
+  } = useSessionLogic(initialPlanDetail, initialExercises);
 
   // UI 상태 관리
   const [showType, setShowType] = useState<"bar" | "full">("bar");
