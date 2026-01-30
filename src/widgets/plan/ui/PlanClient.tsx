@@ -2,10 +2,16 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import type { PlanDetailDto } from "@/entities/plan";
-import type { ActiveSessionDto, SessionExerciseDto } from "@/entities/session";
-
-import type { StartSessionRequest, SessionSet } from "@/entities/session";
+import {
+  updatePlan,
+  type PlanDetailDto,
+  type PlanDetailExerciseDto,
+} from "@/entities/plan";
+import type {
+  ActiveSessionDto,
+  StartSessionRequest,
+  SessionExerciseDto,
+} from "@/entities/session";
 import {
   startSession,
   updateSessionSet,
@@ -13,7 +19,11 @@ import {
   deleteSessionSet,
   completeSession,
 } from "@/features/session-control";
-import { ExerciseCard } from "@/entities/exercise";
+import {
+  ExerciseCard,
+  type ClientSet,
+  type ClientExercise,
+} from "@/entities/exercise";
 import { Timer } from "@/entities/exercise";
 import { ConfirmModal, Header, Modal } from "@/shared";
 import { formatTime } from "@/shared";
@@ -26,18 +36,69 @@ export default function PlanClient({
   const TIMER_HEIGHT = 375;
   const router = useRouter();
 
-  const initialExercisesState = Array.isArray(initialPlanDetail?.exercises)
-    ? initialPlanDetail.exercises
-    : [];
+  // ✅ 2. 초기 데이터를 통일된 타입으로 변환하는 정규화 함수
+  const normalizeExercises = (
+    plan: PlanDetailDto | ActiveSessionDto,
+  ): ClientExercise[] => {
+    if (!plan?.exercises || !Array.isArray(plan.exercises)) return [];
 
-  const [exercises, setExercises] = useState(initialExercisesState);
+    return plan.exercises.map(
+      (exercise: PlanDetailExerciseDto | SessionExerciseDto) => {
+        // 세션 모드인지 확인 (sessionExerciseId 존재 여부 등)
+        const isSessionMode = "sessionExerciseId" in exercise;
+        const sessionExerciseId = isSessionMode
+          ? exercise.sessionExerciseId
+          : exercise.exerciseId;
+
+        return {
+          sessionExerciseId,
+          exerciseId: exercise.exerciseId,
+          exerciseName: exercise.exerciseName,
+          bodyPart: exercise.bodyPart,
+          exerciseImagePath: exercise.exerciseImagePath,
+          restSeconds:
+            exercise.targetRestSeconds ?? exercise.defaultRestSeconds ?? 0,
+          orderIndex: exercise.orderIndex,
+          reps: exercise.targetReps ?? exercise.defaultReps,
+          weight: exercise.targetWeight ?? exercise.defaultWeight,
+          defaultReps: exercise.targetReps ?? exercise.defaultReps ?? 0,
+          defaultSets: exercise.targetSets ?? exercise.defaultSets ?? 0,
+          defaultWeight: exercise.targetWeight ?? exercise.defaultWeight ?? 0,
+          sets: exercise.sets.map((set: any, index: number) => ({
+            id: set.id ?? -(Date.now() + index), // ID가 없으면 임시 ID 생성
+            sessionExerciseId,
+            setOrder: set.setOrder ?? index + 1,
+            reps: set.reps ?? 0,
+            weight: set.weight ?? 0,
+            restSeconds:
+              set.restSeconds ??
+              set.defaultRestSeconds ??
+              set.targetRestSeconds ??
+              0,
+            targetReps: set.targetReps ?? set.defaultReps ?? 0,
+            targetWeight: set.targetWeight ?? set.defaultWeight ?? 0,
+            targetRestSeconds:
+              set.targetRestSeconds ?? set.defaultRestSeconds ?? 0,
+            completedAt: set.completedAt ?? null,
+            status: set.status ?? "PENDING",
+            rpe: set.rpe,
+          })),
+        };
+      },
+    );
+  };
+
+  // ✅ 3. 상태를 ClientExercise[] 타입으로 관리
+  const [exercises, setExercises] = useState<ClientExercise[]>(
+    normalizeExercises(initialPlanDetail),
+  );
 
   const [currentExerciseId, setCurrentExerciseId] = useState<number>(
-    initialExercisesState[0]?.sessionExerciseId ?? -1
+    exercises[0]?.sessionExerciseId ?? -1,
   );
 
   const [currentExerciseSetId, setCurrentExerciseSetId] = useState<number>(
-    initialExercisesState[0]?.sets?.[0]?.id ?? -1
+    exercises[0]?.sets?.[0]?.id ?? -1,
   );
   const exerciseRefs = useRef<Map<number | string, HTMLDivElement>>(new Map());
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -51,6 +112,7 @@ export default function PlanClient({
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [isSessionStarted, setIsSessionStarted] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [isEndConfirmOpen, setIsEndConfirmOpen] = useState(false);
   const [isEndConfirmLoading, setIsEndConfirmLoading] = useState(false);
@@ -66,7 +128,7 @@ export default function PlanClient({
 
     setTotalExerciseMs(elapsed);
     setIsSessionStarted(true);
-    setSessionId((initialPlanDetail as any)?.id ?? null);
+    setSessionId(initialPlanDetail.id ?? null);
     if (startTrigger === 0) {
       startExerciseTimer();
       setStartTrigger(1);
@@ -89,7 +151,7 @@ export default function PlanClient({
 
       setSessionId(session.id); // 서버에서 내려준 sessionId
       setIsSessionStarted(true);
-      setExercises(session.exercises);
+      setExercises(normalizeExercises(session)); // 세션 시작 후 데이터도 정규화하여 업데이트
     } catch (e) {
       console.error("세션 시작 실패", e);
       alert("운동 시작에 실패했습니다.");
@@ -108,12 +170,17 @@ export default function PlanClient({
 
   const toggleSetCompletion = async (
     sessionExerciseId: number,
-    set: SessionSet
+    set: ClientSet,
   ) => {
-    if (set.id) {
+    if (!isSessionStarted) return;
+
+    const reps = set.reps || set.targetReps || 0;
+    const weight = set.weight || set.targetWeight || 0;
+
+    if (set.id && Number(set.id) > 0) {
       const body = {
-        reps: set.reps,
-        weight: set.weight,
+        reps,
+        weight,
         rpe: set.rpe,
         restSeconds: set.restSeconds,
         status: set.status,
@@ -126,18 +193,16 @@ export default function PlanClient({
 
           return {
             ...exercise,
-            sets: exercise.sets.map((s: SessionSet) =>
-              s.id === set.id ? response : s
-            ),
+            sets: exercise.sets.map((s) => (s.id === set.id ? response : s)),
           };
-        })
+        }),
       );
     } else {
       const body = {
         sessionExerciseId: set.sessionExerciseId,
         setOrder: set.setOrder,
-        reps: set.reps,
-        weight: set.weight,
+        reps,
+        weight,
         restSeconds: set.restSeconds,
       };
       const response = await addSessionSet(body);
@@ -147,18 +212,15 @@ export default function PlanClient({
 
           return {
             ...exercise,
-            sets: [
-              ...exercise.sets.slice(0, exercise.sets.length - 1),
-              response,
-            ],
+            sets: exercise.sets.map((s) => (s.id === set.id ? response : s)),
           };
-        })
+        }),
       );
     }
 
     setPendingExerciseId(sessionExerciseId); // ✅ 다음 세트 계산 예약
     setCurrentExerciseId(sessionExerciseId);
-    setCurrentExerciseSetId(set.id);
+    setCurrentExerciseSetId(set.id ?? -1);
     if (startTrigger === 0) {
       startExerciseTimer();
     }
@@ -167,17 +229,17 @@ export default function PlanClient({
 
   const handleCompleteCurrentSetFromTimer = async (
     sessionExerciseId: number,
-    sessionSetId: number
+    sessionSetId: number,
   ) => {
     const exercise = exercises.find(
-      (ex: any) => ex.sessionExerciseId === sessionExerciseId
+      (ex) => ex.sessionExerciseId === sessionExerciseId,
     );
     console.log("exercise", exercise);
     if (!exercise) return;
 
     const set = (exercise.sets ?? []).find(
-      (s: any) => s.id === sessionSetId
-    ) as SessionSet | undefined;
+      (s: ClientSet) => s.id === sessionSetId,
+    );
     if (!set) return;
     console.log("set", set);
     await toggleSetCompletion(Number(sessionExerciseId), set);
@@ -199,7 +261,7 @@ export default function PlanClient({
       setPendingExerciseId(-1);
     }
   }, [exercises, pendingExerciseId]);
-  const handleExerciseClick = (id: number | string) => {
+  const handleExerciseClick = (id: number) => {
     console.log("handleExerciseClick", id);
     if (startTrigger === 0) return;
     setCurrentExerciseId(id);
@@ -236,36 +298,34 @@ export default function PlanClient({
   //     setCurrentExerciseSetId(nextSet ? nextSet.id : 0);
   //   }
   // };
-  const handleNextSet = (exerciseId: number | string) => {
+  const handleNextSet = (exerciseId: number) => {
     const exercise = exercises.find(
-      (ex) => ex.sessionExerciseId === exerciseId
+      (ex) => ex.sessionExerciseId === exerciseId,
     );
     if (!exercise) return;
     // 아직 완료되지 않은 세트를 찾음
-    const nextIncompleteSet = exercise.sets.find(
-      (set: SessionSet) => !set.completedAt
-    );
+    const nextIncompleteSet = exercise.sets.find((set) => !set.completedAt);
     console.log("nextIncompleteSet", nextIncompleteSet);
 
     if (nextIncompleteSet) {
       // 완료되지 않은 세트가 있으면 거기로 이동
-      setCurrentExerciseSetId(nextIncompleteSet.sessionExerciseId);
+      setCurrentExerciseSetId(nextIncompleteSet.sessionExerciseId ?? -1);
     } else {
       // 현재 운동의 모든 세트를 완료한 경우 다음 운동으로 이동
       const currentExerciseIndex = exercises.findIndex(
-        (item) => item.sessionExerciseId === exerciseId
+        (item) => item.sessionExerciseId === exerciseId,
       );
       const nextExercise = exercises[currentExerciseIndex + 1];
 
       if (nextExercise) {
         const nextExerciseFirstIncompleteSet = nextExercise.sets.find(
-          (set) => !set.completedAt
+          (set) => !set.completedAt,
         );
 
         // 다음 운동의 첫 미완료 세트로 이동
         if (nextExerciseFirstIncompleteSet) {
           setCurrentExerciseSetId(
-            nextExerciseFirstIncompleteSet.sessionExerciseId
+            nextExerciseFirstIncompleteSet.sessionExerciseId ?? -1,
           );
         } else {
           // 다음 운동의 세트가 모두 완료된 경우 -1로 설정
@@ -282,7 +342,7 @@ export default function PlanClient({
 
   const nextExercise = (exerciseId: number) => {
     const currentIndex = exercises.findIndex(
-      (item) => item.sessionExerciseId === exerciseId
+      (item) => item.sessionExerciseId === exerciseId,
     );
     if (currentIndex !== -1 && currentIndex + 1 < exercises.length) {
       const nextExerciseId = exercises[currentIndex + 1].sessionExerciseId;
@@ -290,64 +350,90 @@ export default function PlanClient({
     }
   };
 
-  const addSets = async (sessionExerciseId: number) => {
+  const addSets = async (exerciseId: number) => {
     setExercises((prev) =>
       prev.map((exercise) => {
-        if (exercise.sessionExerciseId !== sessionExerciseId) return exercise;
+        if (exercise.sessionExerciseId !== exerciseId) return exercise;
+
+        const lastSet = exercise.sets[exercise.sets.length - 1];
 
         return {
           ...exercise,
           sets: [
             ...exercise.sets,
             {
-              id: null, // 아직 서버에 저장되지 않음
+              id: -(Date.now() + Math.floor(Math.random() * 1000)),
               sessionExerciseId: exercise.sessionExerciseId,
-              reps: exercise.defaultReps ?? exercise.targetReps ?? 0,
-              weight: exercise.defaultWeight ?? exercise.targetWeight ?? 0,
-              restSeconds:
-                exercise.defaultRestSeconds ?? exercise.targetRestSeconds ?? 0,
               setOrder: exercise.sets.length + 1,
+              reps: 0,
+              weight: 0,
+              restSeconds: exercise.restSeconds,
+              targetReps: lastSet?.targetReps ?? exercise.reps ?? 0,
+              targetWeight: lastSet?.targetWeight ?? exercise.weight ?? 0,
+              targetRestSeconds: exercise.restSeconds,
+              status: "PENDING",
             },
           ],
         };
-      })
+      }),
     );
   };
 
   const handleUpdateSet = (
-    sessionExerciseId: number | string,
+    exerciseId: number | string,
     setId: number | string,
-    values: { weight: number; reps: number }
+    values: { weight: number; reps: number },
+  ) => {
+    setExercises((prev) =>
+      prev.map((exercise) => {
+        if (exercise.sessionExerciseId !== exerciseId) return exercise;
+
+        return {
+          ...exercise,
+          sets: exercise.sets.map((set) =>
+            set.id === setId ? { ...set, ...values } : set,
+          ),
+        };
+      }),
+    );
+  };
+
+  const handleUpdateDefault = (
+    sessionExerciseId: number,
+    weight: number,
+    reps: number,
   ) => {
     setExercises((prev) =>
       prev.map((exercise) => {
         if (exercise.sessionExerciseId !== sessionExerciseId) return exercise;
-
         return {
           ...exercise,
-          sets: exercise.sets.map((set: SessionSet) =>
-            set.id === setId ? { ...set, ...values } : set
-          ),
+          defaultWeight: weight,
+          defaultReps: reps,
+          weight: weight, // addSets에서 참조하는 값 업데이트
+          reps: reps, // addSets에서 참조하는 값 업데이트
         };
-      })
+      }),
     );
   };
 
   const handleDeleteSet = async (
-    sessionExerciseId: number | string,
-    setId: number | string
+    exerciseId: number | string,
+    setId: number | string,
   ) => {
     try {
-      const response = await deleteSessionSet(setId);
+      if (setId && Number(setId) > 0) {
+        await deleteSessionSet(setId);
+      }
       setExercises((prev) =>
         prev.map((exercise) => {
-          if (exercise.sessionExerciseId !== sessionExerciseId) return exercise;
+          if (exercise.sessionExerciseId !== exerciseId) return exercise;
 
           return {
             ...exercise,
-            sets: exercise.sets.filter((set: SessionSet) => set.id !== setId),
+            sets: exercise.sets.filter((set) => set.id !== setId),
           };
-        })
+        }),
       );
     } catch (e) {
       console.error("세트 삭제 실패", e);
@@ -385,6 +471,52 @@ export default function PlanClient({
     }
   };
 
+  const handleUpdatePlan = async () => {
+    setIsUpdating(true);
+    try {
+      const planUpdatePayload = {
+        title: (initialPlanDetail as PlanDetailDto).title,
+        dayOrder: (initialPlanDetail as PlanDetailDto).dayOrder,
+        weekNumber: (initialPlanDetail as PlanDetailDto).weekNumber,
+        weekDay: (initialPlanDetail as PlanDetailDto).weekDay,
+        exercises: exercises.map((exercise, index) => ({
+          exerciseId: exercise.exerciseId,
+          orderIndex: exercise.orderIndex ?? index,
+          defaultReps: exercise.defaultReps || 0,
+          defaultSets: exercise.defaultSets || 0,
+          defaultWeight: exercise.defaultWeight || 0,
+          sets: exercise.sets.map((set) => ({
+            setOrder: set.setOrder,
+            reps: set.reps,
+            weight: set.weight,
+            restSeconds: set.restSeconds,
+          })),
+        })),
+      };
+
+      await updatePlan({
+        planId: initialPlanDetail.id,
+        plan: planUpdatePayload,
+      });
+
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Failed to update plan:", error);
+      alert("플랜 수정에 실패했습니다.");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleEditButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    if (isEditing) {
+      handleUpdatePlan();
+    } else {
+      setIsEditing(true);
+    }
+  };
+
   return (
     <div>
       <Header showBackButton={true} title={formatTime(totalExerciseMs)}>
@@ -410,17 +542,19 @@ export default function PlanClient({
             </button>
           ) : (
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsEditing((prev) => !prev);
-              }}
+              onClick={handleEditButtonClick}
+              disabled={isUpdating}
               className={`w-[124px] h-[32px] rounded-lg ${
                 isEditing
                   ? "bg-light-gray text-dark-gray"
                   : "bg-main text-white"
               }`}
             >
-              {isEditing ? "수정 완료" : "운동 수정"}
+              {isUpdating
+                ? "저장 중..."
+                : isEditing
+                  ? "수정 완료"
+                  : "운동 수정"}
             </button>
           )}
         </div>
@@ -436,14 +570,14 @@ export default function PlanClient({
       >
         currentExerciseId:{currentExerciseId}/currentExerciseSetId:{" "}
         {currentExerciseSetId}/startTrigger:{startTrigger}
-        <div className="flex flex-col gap-[10px] bg-[#F7F8F9]">
+        <div className="flex flex-col gap-[10px] pb-[72px]">
           {exercises.map((exercise) => {
             const exerciseSets = exercise.sets ?? [];
 
             return (
               <div
-                key={exercise?.sessionExerciseId}
-                className="bg-white"
+                key={exercise.sessionExerciseId}
+                className="bg-white px-5 "
                 ref={(el) => {
                   if (el)
                     exerciseRefs.current.set(exercise.sessionExerciseId, el);
@@ -460,6 +594,7 @@ export default function PlanClient({
                   addSets={addSets}
                   onUpdateSet={handleUpdateSet}
                   onDeleteSet={handleDeleteSet}
+                  onUpdateDefault={handleUpdateDefault}
                   onToggleEdit={() => setIsEditing((prev) => !prev)}
                 />
               </div>
@@ -470,8 +605,8 @@ export default function PlanClient({
           startTrigger={startTrigger}
           restSeconds={
             exercises.find(
-              (exercise) => exercise.sessionExerciseId === currentExerciseId
-            )?.targetRestSeconds || 60
+              (exercise) => exercise.sessionExerciseId === currentExerciseId,
+            )?.restSeconds || 60
           }
           nextExercise={nextExercise}
           showType={showType}

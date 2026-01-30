@@ -56,15 +56,21 @@
 // }
 // app/workout/programs/[programId]/WorkoutDayListServer.tsx
 import { PlanCard } from "../ui/PlanCard";
-import type { PlanResponse } from "@/entities/plan";
+import type { PlanListItemResponse } from "@/entities/plan";
 
 interface Props {
-  program: PlanResponse[];
+  program: PlanListItemResponse[];
   programId: number;
   weekNumber: number; // 서버에서 주차를 선택
+  lastExercisedPlanId: number | null;
 }
 
-export const PlanList = ({ program, programId, weekNumber }: Props) => {
+export const PlanList = ({
+  program,
+  programId,
+  weekNumber,
+  lastExercisedPlanId,
+}: Props) => {
   const currentWeekPlans = program
     .filter((w) => w.weekNumber === weekNumber)
     .sort((a, b) => a.dayOrder - b.dayOrder);
@@ -79,6 +85,7 @@ export const PlanList = ({ program, programId, weekNumber }: Props) => {
             {...plan}
             programId={programId}
             weekNumber={weekNumber}
+            isLastExercised={plan.id === lastExercisedPlanId}
           />
         ))}
       </div>
