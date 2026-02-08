@@ -38,11 +38,11 @@ export const ConfirmModal = ({
       hideCloseButton={hideCloseButton}
       className="max-w-[360px]"
     >
-      {description && <div className="text-sm text-gray-700">{description}</div>}
-      <div className="mt-5 flex gap-2">
+      {description && <div className="text-[15px] font-medium text-slate-500 leading-relaxed mb-8">{description}</div>}
+      <div className="flex gap-3 mt-8">
         <button
           type="button"
-          className={`h-[42px] flex-1 rounded-lg ${cancelButtonClassName}`}
+          className={`h-12 flex-1 rounded-2xl font-bold text-[14px] transition-all active:scale-95 bg-slate-100 text-slate-500 hover:bg-slate-200 ${cancelButtonClassName}`}
           onClick={onClose}
           disabled={isConfirmLoading}
         >
@@ -50,7 +50,7 @@ export const ConfirmModal = ({
         </button>
         <button
           type="button"
-          className={`h-[42px] flex-1 rounded-lg ${confirmButtonClassName} ${
+          className={`h-12 flex-1 rounded-2xl font-black text-[14px] transition-all active:scale-95 bg-main text-white shadow-sm shadow-blue-100 hover:shadow-md ${confirmButtonClassName} ${
             isConfirmLoading ? "opacity-60" : ""
           }`}
           onClick={onConfirm}

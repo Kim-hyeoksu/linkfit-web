@@ -40,7 +40,7 @@ export const Timer = ({
   const [totalMs, setTotalMs] = useState(restSeconds * 1000); // 총 시간
   const [isRunning, setIsRunning] = useState(false);
   const [internalShowType, setInternalShowType] = useState<"full" | "bar">(
-    showType
+    showType,
   );
 
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -83,7 +83,7 @@ export const Timer = ({
           setIsRunning(false);
           sendRestFinishedToRN(
             "휴식 끝! 🤸‍♀️",
-            "이제 다음 운동 세트를 시작할 시간이에요!"
+            "이제 다음 운동 세트를 시작할 시간이에요!",
           );
         }
 
@@ -157,7 +157,7 @@ export const Timer = ({
     const seconds = totalSeconds % 60;
     return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(
       2,
-      "0"
+      "0",
     )}`;
   };
 
@@ -185,14 +185,18 @@ export const Timer = ({
   };
 
   return (
-    <div ref={wrapperRef} onClick={handleWrapperClick}>
+    <div
+      ref={wrapperRef}
+      onClick={handleWrapperClick}
+      className="transition-all duration-500 ease-in-out"
+    >
       {internalShowType === "bar" ? (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#d9d9d9] flex h-[72px] pt-2 justify-between px-5 z-50 gap-[20px] pb-5">
+        <div className="fixed bottom-4 left-4 right-4 backdrop-blur-xl bg-white/80 border border-slate-200/50 flex h-[72px] items-center justify-between px-5 z-[100] gap-[16px] rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.08)] animate-in slide-in-from-bottom-5">
           <div
-            className={`text-lg font-bold h-[42px] w-[93px] rounded-lg flex items-center justify-center transition-colors duration-300 ${
+            className={`text-[16px] font-black h-[44px] w-[100px] rounded-2xl flex items-center justify-center transition-all duration-300 shadow-sm ${
               isRunning
-                ? "bg-main text-white"
-                : "bg-white text-main border border-[#d9d9d9]"
+                ? "bg-main text-white shadow-blue-200 ring-4 ring-blue-50"
+                : "bg-slate-100 text-slate-400 border border-slate-100"
             }`}
           >
             {isRunning ? (
@@ -200,147 +204,118 @@ export const Timer = ({
             ) : (
               <Image
                 src="/images/common/icon/access_alarm_24px.svg"
-                width={24}
-                height={24}
+                width={22}
+                height={22}
                 alt="휴식"
+                className="opacity-40"
               />
             )}
           </div>
           {!isSessionStarted ? (
             <button
-              className="flex items-center justify-center rounded-lg h-[42px] bg-main text-white"
+              className="flex-1 h-[44px] flex items-center justify-center rounded-2xl bg-main text-white font-black text-[15px] shadow-sm shadow-blue-100 hover:shadow-md transition-all active:scale-95"
               onClick={onStartWorkout}
-              style={{ flex: 1 }}
             >
               운동 시작
             </button>
           ) : isRunning ? (
             <button
-              className="flex items-center justify-center rounded-lg h-[42px] border border-[#d9d9d9]"
-              style={{ flex: 1 }}
+              onClick={(e) => {
+                e.stopPropagation();
+                nextExercise(currentExerciseId);
+              }}
+              className="flex-1 h-[44px] flex items-center justify-center rounded-2xl bg-slate-100 text-slate-600 font-bold text-[14px] hover:bg-slate-200 transition-all active:scale-95"
             >
-              다음 운동
+              다음 운동 스킵
             </button>
           ) : (
             <button
-              onClick={() =>
-                onCompleteSet(currentExerciseId, currentExerciseSetId)
-              }
-              className="flex items-center justify-center rounded-lg h-[42px] bg-main text-white "
-              style={{ flex: 1 }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onCompleteSet(currentExerciseId, currentExerciseSetId);
+              }}
+              className="flex-1 h-[44px] flex items-center justify-center rounded-2xl bg-main text-white font-black text-[15px] shadow-sm shadow-blue-100 hover:shadow-md transition-all active:scale-95"
             >
-              세트 완료
+              현재 세트 완료
             </button>
           )}
         </div>
       ) : (
-        <div className="flex flex-col w-full px-5 h-[375px] min-h-[375px] justify-between items-center fixed bottom-0 bg-white left-0 right-0 pt-5 z-50 border-t border-[#d9d9d9]">
+        <div className="flex flex-col w-full px-6 h-[400px] justify-between items-center fixed bottom-0 bg-white/95 backdrop-blur-2xl left-0 right-0 pt-8 pb-10 z-[110] border-t border-slate-200/60 rounded-t-[40px] shadow-[0_-10px_40px_rgba(0,0,0,0.05)] animate-in slide-in-from-bottom-full duration-500 ease-out">
+          <div className="w-12 h-1.5 bg-slate-200 rounded-full mb-2 opacity-50" />
+
           {/* +/- 버튼 */}
-          <div className="w-full flex justify-between">
+          <div className="w-full flex justify-between px-4">
             <button
-              onClick={() => changeSeconds(-10)}
-              className="flex justify-center items-center w-[37px] h-[33px] border border-[#d9d9d9] rounded-[8px]"
+              onClick={(e) => {
+                e.stopPropagation();
+                changeSeconds(-10);
+              }}
+              className="flex justify-center items-center px-4 h-10 bg-slate-50 text-slate-600 font-bold rounded-xl border border-slate-100 hover:bg-slate-100 transition-all active:scale-90"
             >
               -10s
             </button>
             <button
-              onClick={() => changeSeconds(10)}
-              className="flex justify-center items-center w-[37px] h-[33px] border border-[#d9d9d9] rounded-[8px]"
+              onClick={(e) => {
+                e.stopPropagation();
+                changeSeconds(10);
+              }}
+              className="flex justify-center items-center px-4 h-10 bg-slate-50 text-slate-600 font-bold rounded-xl border border-slate-100 hover:bg-slate-100 transition-all active:scale-90"
             >
               +10s
             </button>
           </div>
 
           {/* 원형 프로그레스바 */}
-          <div
-            className="flex justify-center items-center rounded-full w-[198px] h-[198px]"
-            style={{
-              background: `conic-gradient(
-            #0EA5E9 ${(remainingMs / totalMs) * 100}%,
-            #d9d9d9 ${(remainingMs / totalMs) * 100}% 100%
-          )`,
-            }}
-          >
-            <div className="rounded-full bg-white flex justify-center items-center w-[180px] h-[180px] text-[40px] font-bold">
-              {formatTime(remainingMs)}
+          <div className="relative flex justify-center items-center">
+            <div
+              className="flex justify-center items-center rounded-full w-[180px] h-[180px] transition-all duration-300"
+              style={{
+                background: `conic-gradient(
+                  #0ea5e9 ${(remainingMs / totalMs) * 100}%,
+                  #f1f5f9 ${(remainingMs / totalMs) * 100}% 100%
+                )`,
+                boxShadow:
+                  "inset 0 0 20px rgba(0,0,0,0.02), 0 10px 30px rgba(14, 165, 233, 0.1)",
+              }}
+            >
+              <div className="rounded-full bg-white flex flex-col justify-center items-center w-[150px] h-[150px] shadow-inner">
+                <span className="text-[40px] font-black text-slate-800 tracking-tighter tabular-nums drop-shadow-sm">
+                  {formatTime(remainingMs)}
+                </span>
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest -mt-1">
+                  RESTING
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* 입력창
-      {!isRunning && remainingMs === 0 && (
-        <div
-          style={{
-            marginBottom: "30px",
-            display: "flex",
-            gap: "15px",
-            alignItems: "center",
-          }}
-        >
-          <input
-            type="number"
-            value={inputMinutes}
-            onChange={(e) =>
-              setInputMinutes(
-                e.target.value.startsWith("-") ? "0" : e.target.value
-              )
-            }
-            placeholder="분"
-            min="0"
-            style={inputStyle}
-          />
-          <span
-            style={{ fontSize: "1.5em", fontWeight: "bold", color: "#555" }}
-          >
-            분
-          </span>
-          <input
-            type="number"
-            value={inputSeconds}
-            onChange={(e) => {
-              const parsed = parseInt(e.target.value);
-              if (isNaN(parsed) || parsed < 0) setInputSeconds("0");
-              else if (parsed > 59) setInputSeconds("59");
-              else setInputSeconds(e.target.value);
-            }}
-            placeholder="초"
-            min="0"
-            max="59"
-            style={inputStyle}
-          />
-          <span
-            style={{ fontSize: "1.5em", fontWeight: "bold", color: "#555" }}
-          >
-            초
-          </span>
-        </div>
-      )} */}
-
-          {/* 리셋 버튼 */}
-          <div
-            className="w-full"
-            style={{
-              display: "flex",
-              gap: "20px",
-              marginBottom: "20px",
-            }}
-          >
+          {/* 리셋 및 컨트롤 버튼 */}
+          <div className="w-full flex gap-4 px-4">
             <button
-              onClick={resetTimer}
-              className="flex items-center justify-center rounded-lg bg-[#0EA5E9] w-[93px] h-[42px]"
+              onClick={(e) => {
+                e.stopPropagation();
+                resetTimer();
+              }}
+              className="flex items-center justify-center rounded-2xl bg-slate-100 w-[70px] h-[52px] hover:bg-slate-200 transition-all active:scale-95 group"
             >
               <Image
                 src="/images/common/icon/reset.svg"
                 width={24}
                 height={24}
                 alt="리셋"
+                className="opacity-60 group-hover:opacity-100 transition-opacity"
               />
             </button>
             <button
-              onClick={nextExercise}
-              className="flex items-center justify-center rounded-lg h-[42px] border border-[#d9d9d9]"
-              style={{ flex: 1 }}
+              onClick={(e) => {
+                e.stopPropagation();
+                nextExercise(currentExerciseId);
+                changeShowType("bar");
+              }}
+              className="flex-1 h-[52px] flex items-center justify-center rounded-2xl bg-[#eff6ff] text-main font-black text-[16px] border border-blue-50 hover:bg-main hover:text-white transition-all active:scale-95 shadow-sm shadow-blue-50"
             >
-              다음 운동
+              다음 운동으로 넘어가기
             </button>
           </div>
         </div>

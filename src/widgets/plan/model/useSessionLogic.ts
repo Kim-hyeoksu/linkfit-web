@@ -7,10 +7,7 @@ import {
   deleteSessionSet,
   completeSession,
 } from "@/features/session-control";
-import type {
-  ActiveSessionDto,
-  StartSessionRequest,
-} from "@/entities/session";
+import type { ActiveSessionDto, StartSessionRequest } from "@/entities/session";
 import type { PlanDetailDto } from "@/entities/plan";
 import type { ClientExercise, ClientSet } from "@/entities/exercise";
 import { normalizeExercises } from "./normalize";
@@ -20,25 +17,26 @@ import { normalizeExercises } from "./normalize";
 // 정규화 함수는 이제 내부에서 import해서 사용하거나, 초기값은 인자로 받음
 export const useSessionLogic = (
   initialPlanDetail: PlanDetailDto | ActiveSessionDto,
-  initialExercises: ClientExercise[]
+  initialExercises: ClientExercise[],
 ) => {
   const router = useRouter();
-  
+
   // 상태 관리
   // exercises는 세션 로직에서 빈번하게 업데이트되므로 여기서 메인으로 관리
-  const [exercises, setExercises] = useState<ClientExercise[]>(initialExercises);
-  
+  const [exercises, setExercises] =
+    useState<ClientExercise[]>(initialExercises);
+
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [isSessionStarted, setIsSessionStarted] = useState(false);
   const [totalExerciseMs, setTotalExerciseMs] = useState(0);
   const [startTrigger, setStartTrigger] = useState(0);
-  
+
   // 현재 운동/세트 포커스 관리
   const [currentExerciseId, setCurrentExerciseId] = useState<number>(
-    exercises[0]?.sessionExerciseId ?? -1
+    exercises[0]?.sessionExerciseId ?? -1,
   );
   const [currentExerciseSetId, setCurrentExerciseSetId] = useState<number>(
-    exercises[0]?.sets?.[0]?.id ?? -1
+    exercises[0]?.sets?.[0]?.id ?? -1,
   );
   const [pendingExerciseId, setPendingExerciseId] = useState<number>(-1);
 
@@ -106,7 +104,7 @@ export const useSessionLogic = (
   // 세트 완료 토글 (체크)
   const toggleSetCompletion = async (
     sessionExerciseId: number,
-    set: ClientSet
+    set: ClientSet,
   ) => {
     if (!isSessionStarted) return;
 
@@ -146,14 +144,14 @@ export const useSessionLogic = (
           ...exercise,
           sets: exercise.sets.map((s) => (s.id === set.id ? updatedSet : s)),
         };
-      })
+      }),
     );
 
     // 다음 세트 준비
     setPendingExerciseId(sessionExerciseId);
     setCurrentExerciseId(sessionExerciseId);
     setCurrentExerciseSetId(set.id ?? -1);
-    
+
     if (startTrigger === 0) {
       startExerciseTimer();
     }
@@ -185,14 +183,14 @@ export const useSessionLogic = (
             },
           ],
         };
-      })
+      }),
     );
   };
 
   // 세트 삭제
   const handleDeleteSet = async (
     exerciseId: number | string,
-    setId: number | string
+    setId: number | string,
   ) => {
     try {
       if (setId && Number(setId) > 0) {
@@ -205,7 +203,7 @@ export const useSessionLogic = (
             ...exercise,
             sets: exercise.sets.filter((set) => set.id !== setId),
           };
-        })
+        }),
       );
     } catch (e) {
       console.error("세트 삭제 실패", e);
@@ -217,7 +215,7 @@ export const useSessionLogic = (
   const handleUpdateSet = (
     exerciseId: number | string,
     setId: number | string,
-    values: { weight: number; reps: number }
+    values: { weight: number; reps: number },
   ) => {
     setExercises((prev) =>
       prev.map((exercise) => {
@@ -225,31 +223,31 @@ export const useSessionLogic = (
         return {
           ...exercise,
           sets: exercise.sets.map((set) =>
-            set.id === setId ? { ...set, ...values } : set
+            set.id === setId ? { ...set, ...values } : set,
           ),
         };
-      })
+      }),
     );
   };
-  
+
   const handleUpdateDefault = (
-      sessionExerciseId: number,
-      weight: number,
-      reps: number,
-    ) => {
-      setExercises((prev) =>
-        prev.map((exercise) => {
-          if (exercise.sessionExerciseId !== sessionExerciseId) return exercise;
-          return {
-            ...exercise,
-            defaultWeight: weight,
-            defaultReps: reps,
-            weight: weight,
-            reps: reps,
-          };
-        }),
-      );
-    };
+    sessionExerciseId: number,
+    weight: number,
+    reps: number,
+  ) => {
+    setExercises((prev) =>
+      prev.map((exercise) => {
+        if (exercise.sessionExerciseId !== sessionExerciseId) return exercise;
+        return {
+          ...exercise,
+          defaultWeight: weight,
+          defaultReps: reps,
+          weight: weight,
+          reps: reps,
+        };
+      }),
+    );
+  };
 
   // 운동 종료
   const handleSave = async () => {
@@ -282,6 +280,6 @@ export const useSessionLogic = (
     handleDeleteSet,
     handleUpdateSet,
     handleSave,
-    handleUpdateDefault
+    handleUpdateDefault,
   };
 };

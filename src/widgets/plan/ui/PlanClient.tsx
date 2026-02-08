@@ -175,15 +175,19 @@ export default function PlanClient({
   };
 
   return (
-    <div>
-      <Header showBackButton={true} title={formatTime(totalExerciseMs)}>
-        <div className="flex items-center gap-2">
+    <div className="min-h-screen bg-[#f8fafc]">
+      <Header
+        showBackButton={true}
+        title={formatTime(totalExerciseMs)}
+        className="backdrop-blur-md bg-white/70 sticky top-0 z-50 border-b border-slate-200/50"
+      >
+        <div className="flex items-center gap-2.5">
           <button
             onClick={(e) => {
               e.stopPropagation();
               setIsInfoModalOpen(true);
             }}
-            className="bg-light-gray text-dark-gray w-[60px] h-[32px] rounded-lg"
+            className="flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-600 px-3.5 h-[36px] rounded-xl font-bold text-[13px] transition-all active:scale-95 whitespace-nowrap"
           >
             정보
           </button>
@@ -193,7 +197,7 @@ export default function PlanClient({
                 e.stopPropagation();
                 setIsEndConfirmOpen(true);
               }}
-              className="bg-light-gray text-dark-gray w-[124px] h-[32px] rounded-lg"
+              className="flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-500 px-4 h-[36px] rounded-xl font-black text-[13px] transition-all active:scale-95 shadow-sm shadow-red-100 whitespace-nowrap"
             >
               운동 종료
             </button>
@@ -201,10 +205,10 @@ export default function PlanClient({
             <button
               onClick={handleEditButtonClick}
               disabled={isUpdating}
-              className={`w-[124px] h-[32px] rounded-lg ${
+              className={`flex items-center justify-center px-4 h-[36px] rounded-xl font-black text-[13px] transition-all active:scale-95 shadow-sm whitespace-nowrap ${
                 isEditing
-                  ? "bg-light-gray text-dark-gray"
-                  : "bg-main text-white"
+                  ? "bg-slate-100 text-slate-500 shadow-none cursor-default"
+                  : "bg-main text-white shadow-blue-100 hover:shadow-md"
               }`}
             >
               {isUpdating
@@ -216,22 +220,23 @@ export default function PlanClient({
           )}
         </div>
       </Header>
+
       <div
         ref={wrapperRef}
-        className="overflow-y-auto"
+        className="overflow-y-auto px-4 pt-4 scroll-smooth"
         style={{
           height: `calc(100vh - 60px - ${
             showType === "full" ? TIMER_HEIGHT : 0
           }px)`,
         }}
       >
-        <div className="flex flex-col gap-[10px] pb-[72px]">
+        <div className="flex flex-col gap-[14px] pb-[100px] max-w-2xl mx-auto">
           {exercises.map((exercise) => {
             const exerciseSets = exercise.sets ?? [];
             return (
               <div
                 key={exercise.sessionExerciseId}
-                className="bg-white px-5 "
+                className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out"
                 ref={(el) => {
                   if (el)
                     exerciseRefs.current.set(exercise.sessionExerciseId, el);
@@ -255,6 +260,7 @@ export default function PlanClient({
             );
           })}
         </div>
+
         <Timer
           startTrigger={startTrigger}
           restSeconds={
@@ -285,7 +291,7 @@ export default function PlanClient({
           <div>currentExerciseSetId: {String(currentExerciseSetId)}</div>
         </div>
         <div className="mt-5">
-         <button
+          <button
             className="w-full h-[42px] rounded-lg bg-main text-white"
             onClick={() => setIsInfoModalOpen(false)}
           >

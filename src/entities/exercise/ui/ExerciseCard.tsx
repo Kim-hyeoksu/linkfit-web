@@ -2,8 +2,6 @@
 
 import React from "react";
 import Image from "next/image";
-import type { PlanDetailSetDto } from "@/entities/plan";
-import type { SessionSetDto } from "@/entities/session";
 import type { ClientSet, ClientExercise } from "../model/types";
 
 interface ExerciseProps {
@@ -52,7 +50,6 @@ export const ExerciseCard = ({
 
   const toggleChecked = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
-    index: number,
     sessionExerciseId: number,
     set: ClientSet,
   ) => {
@@ -62,212 +59,244 @@ export const ExerciseCard = ({
 
   return (
     <div
-      className={`bg-white rounded-xl shadow-md p-4 border ${
-        isCurrent ? "border-blue-500" : "border-gray-200"
+      className={`relative bg-white rounded-[24px] shadow-sm transition-all duration-300 border-[1.5px] overflow-hidden ${
+        isCurrent 
+          ? "border-main shadow-md transform scale-[1.01] z-10" 
+          : "border-transparent hover:border-slate-200"
       }`}
+      onClick={() => onClickExercise(exerciseId)}
     >
-      {/* Header */}
-      <div
-        className="flex justify-between items-start mb-4"
-        onClick={() => onClickExercise(exerciseId)}
-      >
-        <div className="flex-grow">
-          <h2 className="text-xl font-bold text-gray-800">{exerciseName}</h2>
-          <p className="text-sm text-gray-500">
-            {exercise.bodyPart ?? "전신"} · {sets?.length} 세트
-          </p>
+      {/* Decorative side accent for current exercise */}
+      {isCurrent && <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-main rounded-l-full" />}
+
+      <div className="p-5">
+        {/* Header */}
+        <div className="flex justify-between items-start mb-6">
+          <div className="flex-grow space-y-1.5">
+            <h2 className="text-[20px] font-extrabold text-[#1e293b] leading-tight tracking-tight">
+              {exerciseName}
+            </h2>
+            <div className="flex flex-wrap gap-2 items-center">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 uppercase tracking-wider">
+                {exercise.bodyPart ?? "전신"}
+              </span>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#eff6ff] text-main uppercase tracking-wider">
+                {sets?.length} SETS
+              </span>
+            </div>
+          </div>
+          
+          <div className="flex items-start gap-4">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleToggleEdit();
+              }}
+              className="p-2.5 bg-slate-50 hover:bg-slate-100 rounded-xl transition-all active:scale-95 group"
+            >
+              <Image
+                src="/images/common/icon/edit-contained.svg"
+                width={20}
+                height={20}
+                alt="수정"
+                className="opacity-70 group-hover:opacity-100 transition-opacity"
+              />
+            </button>
+            <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-inner bg-slate-100 border border-slate-50">
+              <Image
+                src={exercise.exerciseImagePath ?? "/next.svg"}
+                width={64}
+                height={64}
+                alt={exerciseName}
+                className="object-cover w-full h-full transform transition-transform duration-500 hover:scale-110"
+              />
+            </div>
+          </div>
         </div>
-        <div className="flex items-center space-x-3">
+
+        {/* 편집 모드일 때 기본값 설정 영역 */}
+        {isEditing && (
+          <div className="mb-6 p-4 bg-slate-50 rounded-2xl border border-slate-100 flex gap-6 items-center justify-center animate-in fade-in slide-in-from-top-2">
+            <div className="flex items-center gap-3">
+              <span className="text-[12px] font-bold text-slate-500">기본 무게</span>
+              <div className="relative group">
+                <input
+                  type="number"
+                  className="w-16 h-9 pb-1 bg-white border border-slate-200 rounded-lg text-center font-bold text-slate-700 focus:border-main focus:ring-2 focus:ring-blue-100 transition-all outline-none"
+                  value={exercise.defaultWeight}
+                  onChange={(e) =>
+                    onUpdateDefault?.(
+                      exerciseId,
+                      Number(e.target.value),
+                      exercise.defaultReps,
+                    )
+                  }
+                />
+                <span className="absolute -right-2 top-1/2 -translate-y-1/2 translate-x-full text-xs font-bold text-slate-400">kg</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 ml-6">
+              <span className="text-[12px] font-bold text-slate-500">기본 횟수</span>
+              <div className="relative group">
+                <input
+                  type="number"
+                  className="w-16 h-9 pb-1 bg-white border border-slate-200 rounded-lg text-center font-bold text-slate-700 focus:border-main focus:ring-2 focus:ring-blue-100 transition-all outline-none"
+                  value={exercise.defaultReps}
+                  onChange={(e) =>
+                    onUpdateDefault?.(
+                      exerciseId,
+                      exercise.defaultWeight,
+                      Number(e.target.value),
+                    )
+                  }
+                />
+                <span className="absolute -right-2 top-1/2 -translate-y-1/2 translate-x-full text-xs font-bold text-slate-400">회</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Sets List */}
+        <div className="space-y-2.5">
+          <div className="grid grid-cols-12 gap-2 text-[11px] text-slate-400 font-extrabold px-3 uppercase tracking-widest hidden sm:grid">
+            <div className="col-span-1"></div>
+            <div className="col-span-2 text-center">SET</div>
+            <div className="col-span-4 text-center">WEIGHT (kg)</div>
+            <div className="col-span-5 text-center">REPS (횟수)</div>
+          </div>
+
+          <div className="flex flex-col gap-2.5">
+            {sets.map((set, index) => {
+              const setKey = set.id;
+              const isSetCurrent = currentExerciseSetId === setKey;
+              const isCompleted = !!set.completedAt;
+
+              return (
+                <div
+                  key={setKey}
+                  className={`grid grid-cols-12 gap-2 items-center p-3.5 rounded-[16px] transition-all duration-300 ${
+                    isSetCurrent
+                      ? "bg-blue-50/50 border border-main/30 shadow-sm ring-1 ring-main/10"
+                      : isCompleted 
+                        ? "bg-slate-50/80 opacity-80" 
+                        : "bg-slate-50 hover:bg-slate-100/80"
+                  }`}
+                >
+                  {/* 체크박스 or 삭제 */}
+                  <div className="col-span-2 sm:col-span-1 flex justify-center">
+                    {isEditing ? (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteSet(exerciseId, setKey);
+                        }}
+                        className="w-7 h-7 flex items-center justify-center rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all transform active:scale-95 shadow-sm"
+                      >
+                        <span className="pb-0.5 text-lg">−</span>
+                      </button>
+                    ) : (
+                      <div
+                        onClick={(e) => toggleChecked(e, exerciseId, set)}
+                        className={`w-7 h-7 flex items-center justify-center rounded-full border-2 transition-all duration-300 active:scale-90 ${
+                          isCompleted
+                            ? "bg-main border-main shadow-md shadow-blue-200"
+                            : "bg-white border-slate-300 hover:border-main"
+                        }`}
+                      >
+                        {isCompleted && (
+                          <svg
+                            className="w-4 h-4 text-white"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={3}
+                              d="M5 13l4 4L19 7"
+                            ></path>
+                          </svg>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="col-span-2 text-center text-[15px] font-black text-slate-700">
+                    <span className={isCompleted ? "text-slate-400 line-through decoration-slate-300" : ""}>
+                      {index + 1}
+                    </span>
+                  </div>
+
+                  {/* 무게 */}
+                  <div className="col-span-4 flex justify-center items-center">
+                    {isEditing ? (
+                      <div className="relative">
+                        <input
+                          className="w-16 h-8 bg-white border border-slate-200 text-center rounded-md font-bold focus:ring-2 focus:ring-blue-100 transition-all outline-none"
+                          type="number"
+                          value={String(set.weight || set.targetWeight || "")}
+                          onChange={(e) =>
+                            onUpdateSet(exerciseId, set.id, {
+                              weight: Number(e.target.value),
+                              reps: set.reps,
+                            })
+                          }
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </div>
+                    ) : (
+                      <span className={`text-[16px] font-extrabold ${isCompleted ? "text-slate-400" : "text-[#1e293b]"}`}>
+                        {set.weight || set.targetWeight} <span className="text-[12px] font-medium text-slate-400 ml-0.5">kg</span>
+                      </span>
+                    )}
+                  </div>
+
+                  {/* 횟수 */}
+                  <div className="col-span-4 flex justify-center items-center">
+                    {isEditing ? (
+                      <input
+                        className="w-16 h-8 bg-white border border-slate-200 text-center rounded-md font-bold focus:ring-2 focus:ring-blue-100 transition-all outline-none"
+                        type="number"
+                        value={String(set.reps || set.targetReps || "")}
+                        onChange={(e) =>
+                          onUpdateSet(exerciseId, set.id, {
+                            weight: set.weight,
+                            reps: Number(e.target.value),
+                          })
+                        }
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    ) : (
+                      <span className={`text-[16px] font-extrabold ${isCompleted ? "text-slate-400" : "text-[#1e293b]"}`}>
+                        {set.reps || set.targetReps} <span className="text-[12px] font-medium text-slate-400 ml-0.5">회</span>
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Footer Actions */}
+        <div className="mt-6 flex gap-3">
+          <button className="flex-[0.4] min-w-[32px] h-11 flex items-center justify-center rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all transform active:scale-95">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+          </button>
           <button
             onClick={(e) => {
               e.stopPropagation();
-              handleToggleEdit();
+              addSets(exerciseId);
             }}
-            className="p-1 text-gray-500 hover:text-gray-800 transition-colors"
+            className="flex-1 h-11 flex items-center justify-center gap-2 rounded-2xl bg-[#eff6ff] text-main font-black text-[14px] hover:bg-main hover:text-white transition-all transform active:scale-95 shadow-sm shadow-blue-50"
           >
-            <Image
-              src="/images/common/icon/edit-contained.svg"
-              width={22}
-              height={22}
-              alt="수정"
-            />
+            <span className="text-lg">+</span> 세트 추가하기
           </button>
-          <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100">
-            <Image
-              src={exercise.exerciseImagePath ?? "/next.svg"}
-              width={64}
-              height={64}
-              alt={exerciseName}
-              className="object-cover w-full h-full"
-            />
-          </div>
         </div>
-      </div>
-
-      {/* 편집 모드일 때 기본값 설정 영역 */}
-      {isEditing && (
-        <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200 flex gap-4 items-center justify-center">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-gray-500">기본 무게</span>
-            <input
-              type="number"
-              className="w-14 p-1 border border-gray-300 rounded text-center text-sm"
-              value={exercise.defaultWeight}
-              onChange={(e) =>
-                onUpdateDefault?.(
-                  exerciseId,
-                  Number(e.target.value),
-                  exercise.defaultReps,
-                )
-              }
-            />
-            <span className="text-xs text-gray-500">kg</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-gray-500">기본 횟수</span>
-            <input
-              type="number"
-              className="w-14 p-1 border border-gray-300 rounded text-center text-sm"
-              value={exercise.defaultReps}
-              onChange={(e) =>
-                onUpdateDefault?.(
-                  exerciseId,
-                  exercise.defaultWeight,
-                  Number(e.target.value),
-                )
-              }
-            />
-            <span className="text-xs text-gray-500">회</span>
-          </div>
-        </div>
-      )}
-
-      {/* Sets Header */}
-      <div className="grid grid-cols-12 gap-2 text-xs text-gray-500 font-bold mb-2 px-2">
-        <div className="col-span-1"></div>
-        <div className="col-span-2 text-center">SET</div>
-        <div className="col-span-4 text-center">KG</div>
-        <div className="col-span-5 text-center">REPS</div>
-      </div>
-
-      {/* 세트 리스트 */}
-      <div className="flex flex-col gap-2">
-        {sets.map((set, index) => {
-          const setKey = set.id;
-          return (
-            <div
-              key={setKey}
-              className={`grid grid-cols-12 gap-2 items-center p-2 rounded-lg ${
-                currentExerciseSetId === setKey
-                  ? "bg-blue-50 border border-blue-400"
-                  : "bg-gray-50"
-              }`}
-            >
-              {/* 체크박스 or 삭제 */}
-              <div className="col-span-1 flex justify-center">
-                {isEditing ? (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDeleteSet(exerciseId, setKey);
-                    }}
-                    className="w-5 h-5 flex items-center justify-center rounded-full border border-red-400 text-red-500 text-base font-bold"
-                  >
-                    -
-                  </button>
-                ) : (
-                  <div
-                    onClick={(e) => toggleChecked(e, index, exerciseId, set)}
-                    className={`w-5 h-5 flex items-center justify-center rounded-full border-2 cursor-pointer ${
-                      set.completedAt
-                        ? "bg-blue-500 border-blue-500"
-                        : "border-gray-300"
-                    }`}
-                  >
-                    {set.completedAt && (
-                      <svg
-                        className="w-3 h-3 text-white"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={3}
-                          d="M5 13l4 4L19 7"
-                        ></path>
-                      </svg>
-                    )}
-                  </div>
-                )}
-              </div>
-              <div className="col-span-2 text-center font-semibold text-gray-800">
-                {index + 1}
-              </div>
-              {/* 무게 */}
-              <div className="col-span-4 flex justify-center items-baseline">
-                {isEditing ? (
-                  <input
-                    className="w-16 bg-white border border-gray-300 text-center rounded-md"
-                    type="number"
-                    value={String(set.weight || set.targetWeight || "")}
-                    onChange={(e) =>
-                      onUpdateSet(exerciseId, set.id, {
-                        weight: Number(e.target.value),
-                        reps: set.reps,
-                      })
-                    }
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                ) : (
-                  <span className="font-medium text-gray-800">
-                    {set.weight || set.targetWeight}
-                  </span>
-                )}
-                <span className="text-sm text-gray-600 ml-1.5">kg</span>
-              </div>
-              {/* 횟수 */}
-              <div className="col-span-5 flex justify-center items-baseline">
-                {isEditing ? (
-                  <input
-                    className="w-16 bg-white border border-gray-300 text-center rounded-md"
-                    type="number"
-                    value={String(set.reps || set.targetReps || "")}
-                    onChange={(e) =>
-                      onUpdateSet(exerciseId, set.id, {
-                        weight: set.weight,
-                        reps: Number(e.target.value),
-                      })
-                    }
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                ) : (
-                  <span className="font-medium text-gray-800">
-                    {set.reps || set.targetReps}
-                  </span>
-                )}
-                <span className="text-sm text-gray-600 ml-1.5">회</span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      {/* Footer Buttons */}
-      <div className="mt-4 pt-4 border-t border-gray-100 flex gap-3">
-        <button className="flex-1 py-2.5 px-4 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300">
-          운동 메모
-        </button>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            addSets(exerciseId);
-          }}
-          className="bg-main flex-1 py-2.5 px-4 text-sm font-semibold text-white hover:bg-blue-500 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
-        >
-          세트 추가하기
-        </button>
       </div>
     </div>
   );

@@ -47,43 +47,49 @@ export const Header = ({
   };
   useEffect(() => {}, [title]);
   return (
-    <header className="bg-white p-2 fixed top-0 left-0 right-0 z-50  h-[56px] px-5">
-      <nav className="h-full mx-auto flex justify-between items-center w-full max-w-xl">
-        {showBackButton && (
-          <button
-            onClick={handleBack}
-            className="-ml-2 rounded-full hover:bg-gray-100 transition-colors" // 클릭 영역을 넓히고 호버 효과를 추가합니다.
-            aria-label="뒤로가기" // 웹 접근성을 위해 스크린 리더가 읽을 텍스트를 제공합니다.
-          >
-            {/* 뒤로가기 아이콘 (SVG) */}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="w-6 h-6 text-gray-800" // 아이콘 크기와 색상 설정
+    <header
+      className={`bg-white sticky top-0 left-0 right-0 z-50 h-[64px] border-b border-slate-100 px-5 flex items-center justify-center ${className}`}
+    >
+      <nav className="relative mx-auto flex justify-between items-center w-full max-w-xl h-full">
+        <div className="flex items-center z-10">
+          {showBackButton && (
+            <button
+              onClick={handleBack}
+              className="-ml-2 p-2 rounded-xl text-slate-800 hover:bg-slate-50 transition-all active:scale-95"
+              aria-label="뒤로가기"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 19.5 8.25 12l7.5-7.5"
-              />
-            </svg>
-          </button>
-        )}{" "}
-        <p className="h-full flex items-center font-bold">{title}</p>
-        {children ? (
-          <div
-            onClick={handleRight}
-            className="-ml-2 rounded-full hover:bg-gray-100 transition-colors" // 클릭 영역을 넓히고 호버 효과를 추가합니다.
-            aria-label="뒤로가기" // 웹 접근성을 위해 스크린 리더가 읽을 텍스트를 제공합니다.
-          >
-            {children}
-          </div>
-        ) : (
-          <div></div>
-        )}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2.5}
+                stroke="currentColor"
+                className="w-5 h-5"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 19.5 8.25 12l7.5-7.5"
+                />
+              </svg>
+            </button>
+          )}
+        </div>
+
+        <p className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[17px] font-black text-slate-800 tracking-tight whitespace-nowrap">
+          {title}
+        </p>
+
+        <div className="flex items-center justify-end z-10 gap-2">
+          {children ? (
+            <div
+              onClick={handleRight}
+              className="rounded-xl transition-all active:scale-95 cursor-pointer"
+            >
+              {children}
+            </div>
+          ) : null}
+        </div>
       </nav>
     </header>
   );
