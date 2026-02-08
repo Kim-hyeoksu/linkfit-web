@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { BottomNavBar } from "@/shared";
+import { ActiveSessionFAB } from "@/widgets/floating";
 
 // 전역 메타데이터 정의
 export const metadata: Metadata = {
@@ -16,7 +17,7 @@ export default function GlobalLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen relative">
       {/* 메인 콘텐츠 영역 */}
       {/*
             flex-grow: 남은 공간 채우기
@@ -25,6 +26,7 @@ export default function GlobalLayout({
             p-4 md:p-8: 화면 크기에 따라 패딩 조절
           */}
       <main className="flex-grow w-full max-w-xl mx-auto">{children}</main>
+      <ActiveSessionFAB />
       <BottomNavBar />
     </div>
   );

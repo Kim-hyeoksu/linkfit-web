@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useAtom } from "jotai";
 import {
   startSession,
   updateSessionSet,
@@ -11,23 +12,23 @@ import type { ActiveSessionDto, StartSessionRequest } from "@/entities/session";
 import type { PlanDetailDto } from "@/entities/plan";
 import type { ClientExercise, ClientSet } from "@/entities/exercise";
 import { normalizeExercises } from "./normalize";
+import { sessionStateAtom, sessionReturnUrlAtom } from "@/entities/session";
 
-// ... (imports)
-
-// 정규화 함수는 이제 내부에서 import해서 사용하거나, 초기값은 인자로 받음
 export const useSessionLogic = (
   initialPlanDetail: PlanDetailDto | ActiveSessionDto,
   initialExercises: ClientExercise[],
 ) => {
   const router = useRouter();
 
-  // 상태 관리
+  // Recoil Global State -> Jotai Global State
+  const [sessionState, setSessionState] = useAtom(sessionStateAtom);
+  const [returnUrl, setReturnUrl] = useAtom(sessionReturnUrlAtom);
+
+  // Local UI State
   // exercises는 세션 로직에서 빈번하게 업데이트되므로 여기서 메인으로 관리
   const [exercises, setExercises] =
     useState<ClientExercise[]>(initialExercises);
 
-  const [sessionId, setSessionId] = useState<number | null>(null);
-  const [isSessionStarted, setIsSessionStarted] = useState(false);
   const [totalExerciseMs, setTotalExerciseMs] = useState(0);
   const [startTrigger, setStartTrigger] = useState(0);
 
@@ -42,59 +43,83 @@ export const useSessionLogic = (
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 초기 상태 로드 (이미 진행 중인 세션인 경우)
+  // Initialize from Server Data and Sync to Recoil
   useEffect(() => {
     const startedAt = (initialPlanDetail as any)?.startedAt;
-    if (!startedAt) return;
 
-    const startedMs = new Date(startedAt).getTime();
-    const nowMs = Date.now();
-    const elapsed = Math.max(nowMs - startedMs, 0);
+    if (startedAt) {
+      // If server says session is active, sync to global state
+      setSessionState((prev) => ({
+        ...prev,
+        sessionId: initialPlanDetail.id,
+        isSessionStarted: true,
+        startedAt: startedAt,
+        planId: initialPlanDetail.id,
+      }));
+      setReturnUrl(window.location.pathname);
 
-    setTotalExerciseMs(elapsed);
-    setIsSessionStarted(true);
-    setSessionId(initialPlanDetail.id ?? null);
-    if (startTrigger === 0) {
-      startExerciseTimer();
-      setStartTrigger(1);
+      // Initialize local timer display
+      const startedMs = new Date(startedAt).getTime();
+      const nowMs = Date.now();
+      const elapsed = Math.max(nowMs - startedMs, 0);
+      setTotalExerciseMs(elapsed);
+
+      if (startTrigger === 0) {
+        setStartTrigger(1);
+      }
     }
-  }, [initialPlanDetail]);
+  }, [initialPlanDetail, setSessionState, setReturnUrl]);
 
-  // 언마운트 시 타이머 정리
+  // Timer Logic (Based on Global startedAt)
   useEffect(() => {
-    return () => {
+    if (sessionState.isSessionStarted && sessionState.startedAt) {
+      if (timerRef.current) clearInterval(timerRef.current);
+
+      // Update immediately
+      const startedMs = new Date(sessionState.startedAt).getTime();
+      setTotalExerciseMs(Math.max(Date.now() - startedMs, 0));
+
+      timerRef.current = setInterval(() => {
+        const now = Date.now();
+        setTotalExerciseMs(Math.max(now - startedMs, 0));
+      }, 1000);
+    } else {
       if (timerRef.current) {
         clearInterval(timerRef.current);
         timerRef.current = null;
       }
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, []);
-
-  // 타이머 로직
-  const startExerciseTimer = () => {
-    if (timerRef.current) return;
-    timerRef.current = setInterval(() => {
-      setTotalExerciseMs((prev) => prev + 1000);
-    }, 1000);
-  };
+  }, [sessionState.isSessionStarted, sessionState.startedAt]);
 
   // 운동 시작
   const handleStartWorkout = async () => {
-    if (isSessionStarted) return;
+    if (sessionState.isSessionStarted) return;
     try {
+      const now = new Date().toISOString();
       const body: StartSessionRequest = {
         planId: initialPlanDetail.id,
         userId: 1, // TODO: 실제 유저 ID
-        sessionDate: new Date().toISOString(),
+        sessionDate: now,
         memo: "",
       };
 
       const session = await startSession(body);
-      startExerciseTimer();
 
-      setSessionId(session.id);
-      setIsSessionStarted(true);
+      // Update Global State
+      setSessionState({
+        sessionId: session.id,
+        isSessionStarted: true,
+        startedAt: session.startedAt,
+        planId: initialPlanDetail.id,
+        totalExerciseMs: 0,
+      });
+      setReturnUrl(window.location.pathname);
+
       setExercises(normalizeExercises(session)); // 데이터 갱신
+      setStartTrigger(1);
     } catch (e) {
       console.error("세션 시작 실패", e);
       alert("운동 시작에 실패했습니다.");
@@ -106,7 +131,7 @@ export const useSessionLogic = (
     sessionExerciseId: number,
     set: ClientSet,
   ) => {
-    if (!isSessionStarted) return;
+    if (!sessionState.isSessionStarted) return; // Use Global State Check
 
     const reps = set.reps || set.targetReps || 0;
     const weight = set.weight || set.targetWeight || 0;
@@ -152,10 +177,8 @@ export const useSessionLogic = (
     setCurrentExerciseId(sessionExerciseId);
     setCurrentExerciseSetId(set.id ?? -1);
 
-    if (startTrigger === 0) {
-      startExerciseTimer();
-    }
-    setStartTrigger((t) => t + 1);
+    // Start trigger logic is now handled by effect, but we can double check
+    // Actually startTrigger isn't critical for global timer, but local feedback
   };
 
   // 세트 추가 (낙관적 업데이트)
@@ -251,21 +274,41 @@ export const useSessionLogic = (
 
   // 운동 종료
   const handleSave = async () => {
+    if (!sessionState.sessionId) return;
+
+    let duration = 0;
+    if (sessionState.startedAt) {
+      duration = Math.floor(
+        (Date.now() - new Date(sessionState.startedAt).getTime()) / 1000,
+      );
+    }
+
     const body = {
       endedAt: new Date().toISOString(),
       status: "COMPLETED",
-      totalDuraionSeconds: Math.floor(totalExerciseMs / 1000),
+      totalDuraionSeconds: duration,
       memo: "",
     };
-    const response = await completeSession(sessionId as number, body);
+    const response = await completeSession(sessionState.sessionId, body);
+
+    // Reset Global State
+    setSessionState({
+      sessionId: null,
+      isSessionStarted: false,
+      startedAt: null,
+      planId: null,
+      totalExerciseMs: 0,
+    });
+    setReturnUrl(null);
+
     return response;
   };
 
   return {
     exercises,
     setExercises, // 필요 시 외부 주입
-    sessionId,
-    isSessionStarted,
+    sessionId: sessionState.sessionId,
+    isSessionStarted: sessionState.isSessionStarted,
     totalExerciseMs,
     startTrigger,
     currentExerciseId,
