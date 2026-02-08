@@ -1,4 +1,4 @@
-import { atom } from "jotai";
+import { atomWithStorage } from "jotai/utils";
 
 export interface SessionState {
   sessionId: number | null;
@@ -8,7 +8,7 @@ export interface SessionState {
   totalExerciseMs: number; // for initial sync if needed, but better to calculate from startedAt
 }
 
-export const sessionStateAtom = atom<SessionState>({
+export const sessionStateAtom = atomWithStorage<SessionState>("sessionState", {
   sessionId: null,
   isSessionStarted: false,
   startedAt: null,
@@ -16,4 +16,7 @@ export const sessionStateAtom = atom<SessionState>({
   totalExerciseMs: 0,
 });
 
-export const sessionReturnUrlAtom = atom<string | null>(null);
+export const sessionReturnUrlAtom = atomWithStorage<string | null>(
+  "sessionReturnUrl",
+  null,
+);
