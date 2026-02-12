@@ -25,24 +25,26 @@ export default async function WorkoutProgramWeekPage({ params }: Props) {
   }));
 
   return (
-    <div className="pb-[100px]">
+    <div className="min-h-screen bg-[#f8fafc] pb-[180px]">
       {/* 주차별 링크 버튼 */}
       <Header
         title={planData.programName || ""}
         showBackButton={true}
         backUrl="/workout/programs"
       />
-      <div className="flex gap-2 mb-4 ml-5 mt-4">
+
+      <div className="flex overflow-x-auto px-5 py-4 gap-2 scrollbar-hide sticky top-[56px] z-30 bg-[#f8fafc]/95 backdrop-blur-sm border-b border-slate-200/50">
         {Array.from({ length: planData.maxWeekNumber }, (_, index) => {
           const week = index + 1;
+          const isActive = week === Number(weekNumber);
           return (
             <Link
               key={week}
               href={`/workout/programs/${programId}/${week}`}
-              className={`px-3 py-1 rounded-lg border text-sm ${
-                week === Number(weekNumber)
-                  ? "bg-blue-500 text-white border-blue-500"
-                  : "bg-gray-100 text-gray-700 border-gray-300"
+              className={`flex-shrink-0 px-4 py-2 rounded-full text-[14px] font-bold transition-all shadow-sm active:scale-95 border ${
+                isActive
+                  ? "bg-slate-900 text-white border-slate-900 shadow-slate-200"
+                  : "bg-white text-slate-500 border-slate-100/50 hover:bg-slate-50"
               }`}
             >
               {week}주차
@@ -52,12 +54,14 @@ export default async function WorkoutProgramWeekPage({ params }: Props) {
       </div>
 
       {/* 주차별 운동일차 리스트 */}
-      <PlanList
-        program={processedPlans}
-        programId={Number(programId)}
-        weekNumber={Number(weekNumber)}
-        lastExercisedPlanId={planData.lastExercisedPlanId}
-      />
+      <div className="px-5 mt-6 flex flex-col gap-4">
+        <PlanList
+          program={processedPlans}
+          programId={Number(programId)}
+          weekNumber={Number(weekNumber)}
+          lastExercisedPlanId={planData.lastExercisedPlanId}
+        />
+      </div>
       <ImportProgramButton programId={Number(programId)} />
     </div>
   );

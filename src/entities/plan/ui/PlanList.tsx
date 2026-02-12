@@ -76,19 +76,16 @@ export const PlanList = ({
     .sort((a, b) => a.dayOrder - b.dayOrder);
 
   return (
-    <div className="p-5 bg-white">
-      <h3 className="mb-4 font-bold">{weekNumber}주차</h3>
-      <div className="flex flex-col gap-3">
-        {currentWeekPlans.map((plan) => (
-          <PlanCard
-            key={plan.id}
-            {...plan}
-            programId={programId}
-            weekNumber={weekNumber}
-            isLastExercised={plan.id === lastExercisedPlanId}
-          />
-        ))}
-      </div>
+    <div className="flex flex-col gap-3">
+      {currentWeekPlans.map((plan) => (
+        <PlanCard
+          key={plan.id}
+          {...plan}
+          programId={programId}
+          weekNumber={weekNumber}
+          isLastExercised={plan.id === lastExercisedPlanId}
+        />
+      ))}
     </div>
   );
 };
