@@ -13,7 +13,7 @@ export default async function PopularProgramsPage() {
 
   return (
     <div className=" flex flex-col gap-2 bg-[#F7F8F9]">
-      <Header title="운동 프로그램" rightButtonIconUrl={"calendar"}>
+      <Header title="추천 프로그램" rightButtonIconUrl={"calendar"}>
         <Image
           alt="go-calendar"
           src={`/images/common/icon/calendar.svg`}

@@ -4,27 +4,44 @@ import Link from "next/link";
 
 interface ProgramListProps {
   programs: Program[];
-  // loading: boolean;
-  title: "운동 프로그램" | "나의 운동";
+  title: string;
+  moreLink?: string;
 }
 
-export const ProgramList = ({ programs, title }: ProgramListProps) => {
-  // if (loading) return <div>로딩중...</div>;
-
-  const linkHref =
-    title === "운동 프로그램"
-      ? "/workout/programs/popular"
-      : "/workout/programs/mine";
-
+export const ProgramList = ({
+  programs,
+  title,
+  moreLink,
+}: ProgramListProps) => {
   return (
-    <div className="p-5 bg-white">
-      <h1 className="text-xl font-bold">{title}</h1>
-      <div className="text-right mb-2">
-        <Link href={linkHref} className="mb-4 text-right text-[#7c7c7c]">
-          더보기
-        </Link>
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between px-1">
+        <h2 className="text-[19px] font-bold text-slate-800 tracking-tight">
+          {title}
+        </h2>
+        {moreLink && (
+          <Link
+            href={moreLink}
+            className="text-[13px] font-medium text-slate-400 hover:text-slate-600 transition-colors flex items-center gap-0.5"
+          >
+            더보기
+            <svg
+              className="w-3 h-3"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </Link>
+        )}
       </div>
-      <div className="gap-3 flex flex-col">
+      <div className="flex flex-col gap-[14px]">
         {programs.map((program) => (
           <ProgramCard key={program.id} {...program} />
         ))}
