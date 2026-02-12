@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { importProgram } from "@/entities/program";
 import { ConfirmModal } from "@/shared/ui/ConfirmModal";
+import { useToast } from "@/shared/ui/toast";
 
 interface Props {
   programId: number;
@@ -13,19 +14,19 @@ export const ImportProgramButton = ({ programId }: Props) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { showToast } = useToast();
 
   const handleConfirmImport = async () => {
     setIsLoading(true);
     try {
       await importProgram(programId, 1);
       setIsModalOpen(false);
-      // 성공 피드백은 일단 간단히 처리하거나 추후 Toast로 교체 추천
-      alert("성공적으로 추가되었습니다!");
+      showToast("성공적으로 추가되었습니다!", "success");
       router.push("/workout/programs/mine");
       router.refresh();
     } catch (error) {
       console.error(error);
-      alert("프로그램 추가에 실패했습니다.");
+      showToast("프로그램 추가에 실패했습니다.", "error");
     } finally {
       setIsLoading(false);
     }
