@@ -3,6 +3,8 @@ import type { PlanListResponse } from "@/entities/plan";
 import { initMsw } from "@/shared/api/msw/initMsw";
 import { Header } from "@/shared";
 import Link from "next/link";
+import { ImportProgramButton } from "@/features/program-import";
+
 interface Props {
   params: { programId: string; weekNumber: string };
 }
@@ -23,7 +25,7 @@ export default async function WorkoutProgramWeekPage({ params }: Props) {
   }));
 
   return (
-    <div>
+    <div className="pb-[100px]">
       {/* 주차별 링크 버튼 */}
       <Header
         title={planData.programName || ""}
@@ -56,6 +58,7 @@ export default async function WorkoutProgramWeekPage({ params }: Props) {
         weekNumber={Number(weekNumber)}
         lastExercisedPlanId={planData.lastExercisedPlanId}
       />
+      <ImportProgramButton programId={Number(programId)} />
     </div>
   );
 }
