@@ -19,7 +19,6 @@ export default async function ProgramsPage() {
       <Header
         title="운동 프로그램"
         showBackButton={false}
-        className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/60"
         rightButtonIconUrl={"calendar"}
       >
         <Image

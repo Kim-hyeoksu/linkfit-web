@@ -26,7 +26,7 @@ export default async function WorkoutProgramWeekPage({ params }: Props) {
     <div>
       {/* 주차별 링크 버튼 */}
       <Header
-        title={planData.programName}
+        title={planData.programName || ""}
         showBackButton={true}
         backUrl="/workout/programs"
       />
