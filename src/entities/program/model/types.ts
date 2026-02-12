@@ -1,6 +1,6 @@
 export interface Program {
   id: number;
-  title: string;
+  programName: string;
   period: string;
   level: "beginner" | "intermediate" | "advanced";
   dayNumber: number;

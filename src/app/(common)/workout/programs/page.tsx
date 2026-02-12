@@ -15,7 +15,7 @@ export default async function ProgramsPage() {
   const programs = await getPrograms();
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] pb-24">
+    <div className="min-h-screen bg-[#f8fafc] pb-40">
       <Header
         title="운동 프로그램"
         showBackButton={false}
