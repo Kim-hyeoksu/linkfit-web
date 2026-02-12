@@ -3,16 +3,22 @@
 
 // import { useEffect, useState } from "react";
 import { getPrograms, ProgramList } from "@/entities/program";
+import { getStandalonePlans } from "@/entities/plan/api";
+import { StandalonePlanList } from "@/entities/plan/ui/StandalonePlanList";
 import Image from "next/image";
 import Link from "next/link";
 import { initMsw } from "@/shared/api/msw/initMsw";
 import { Header } from "@/shared";
+
 export default async function ProgramsPage() {
   if (process.env.NEXT_PUBLIC_API_MOCKING === "enabled") {
     await initMsw(); // SSR에서 모킹 활성화
   }
 
-  const programs = await getPrograms();
+  const [programs, standalonePlans] = await Promise.all([
+    getPrograms(),
+    getStandalonePlans(),
+  ]);
 
   return (
     <div className="min-h-screen bg-[#f8fafc] pb-40">
@@ -31,6 +37,12 @@ export default async function ProgramsPage() {
       </Header>
 
       <div className="px-5 pt-6 flex flex-col gap-8">
+        <StandalonePlanList
+          plans={standalonePlans}
+          title="나만의 플랜"
+          moreLink="/workout/plans"
+        />
+
         <ProgramList
           programs={programs}
           title={"추천 프로그램"}
