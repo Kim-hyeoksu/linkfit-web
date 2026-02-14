@@ -1,5 +1,11 @@
 import { ToastProvider } from "@/shared/ui/toast";
+import { AuthInitializer } from "@/features/auth/ui/AuthInitializer";
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  return <ToastProvider>{children}</ToastProvider>;
+  return (
+    <ToastProvider>
+      <AuthInitializer />
+      {children}
+    </ToastProvider>
+  );
 }
