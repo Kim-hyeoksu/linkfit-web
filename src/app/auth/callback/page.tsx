@@ -28,9 +28,13 @@ export default function AuthCallbackPage() {
       // 1. Session Storage에 저장 (Axios 인터셉터용)
       sessionStorage.setItem("accessToken", accessToken);
 
+      // 쿠키에도 저장 (Server Component용)
+      document.cookie = `accessToken=${accessToken}; path=/; max-age=3600; SameSite=Strict`;
+
       // 2. Refresh Token이 있다면 저장
       if (refreshToken) {
         sessionStorage.setItem("refreshToken", refreshToken);
+        document.cookie = `refreshToken=${refreshToken}; path=/; max-age=604800; SameSite=Strict`;
       }
 
       // 3. Global State (Jotai) 업데이트

@@ -1,11 +1,16 @@
 import { API_BASE_URL } from "@/shared/api/baseUrl";
 import { PlanListItemResponse } from "../model/types";
+import { cookies } from "next/headers";
 
 export const getStandalonePlans = async (): Promise<PlanListItemResponse[]> => {
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("accessToken")?.value;
+
   const res = await fetch(`${API_BASE_URL}/api/plans/standalone`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
     },
     cache: "no-store", // 최신 상태 유지
   });
