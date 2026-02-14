@@ -14,6 +14,12 @@ export const LoginForm = () => {
       console.error("Google 로그인 중 오류 발생:", error);
     }
   };
+  const handleKakaoLogin = () => {
+    const backendUrl =
+      process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+    window.location.href = `${backendUrl}/oauth2/authorization/kakao`;
+  };
+
   return (
     <div className="min-h-screen flex flex-col justify-center px-[20px]">
       <div className="flex flex-col gap-5 mb-[270px]">
@@ -45,8 +51,8 @@ export const LoginForm = () => {
           />
           <div className="text-xs">네이버로 계속하기</div>
         </Link>
-        <Link
-          href={"/"}
+        <button
+          onClick={handleKakaoLogin}
           className="flex items-center justify-center gap-2 bg-[#fee500] w-[320px] h-[42px] rounded-[8px] border border-[#e5e5e5]"
         >
           <Image
@@ -56,7 +62,7 @@ export const LoginForm = () => {
             height={34}
           />
           <span className="text-xs">카카오로 계속하기</span>
-        </Link>
+        </button>
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import React, {
   useState,
   useCallback,
   ReactNode,
+  useEffect,
 } from "react";
 import { createPortal } from "react-dom";
 
@@ -32,7 +33,12 @@ export const useToast = () => {
 };
 
 export const ToastProvider = ({ children }: { children: ReactNode }) => {
+  const [mounted, setMounted] = useState(false);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const showToast = useCallback((message: string, type: ToastType = "info") => {
     const id = Date.now();
@@ -47,7 +53,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      {typeof document !== "undefined" &&
+      {mounted &&
         createPortal(
           <div className="fixed bottom-24 left-0 right-0 z-[200] flex flex-col items-center gap-2 pointer-events-none px-4">
             {toasts.map((toast) => (
