@@ -4,52 +4,67 @@ import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSetAtom } from "jotai";
 import { accessTokenState } from "@/features/auth/model/accessTokenState";
+import { userState } from "@/entities/user/model/userState";
+import { getUserMe } from "@/entities/user/api/getUserMe";
 import { useToast } from "@/shared/ui/toast";
 
 export default function AuthCallbackPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const setAccessToken = useSetAtom(accessTokenState);
+  const setUser = useSetAtom(userState);
   const { showToast } = useToast();
 
   useEffect(() => {
-    const accessToken = searchParams.get("token");
-    const refreshToken = searchParams.get("refreshToken");
-    const error = searchParams.get("error");
+    const processLogin = async () => {
+      const accessToken = searchParams.get("token");
+      const refreshToken = searchParams.get("refreshToken");
+      const error = searchParams.get("error");
 
-    if (error) {
-      console.error("Login failed via callback:", error);
-      showToast("로그인에 실패했습니다. 다시 시도해 주세요.", "error");
-      router.push("/login");
-      return;
-    }
-
-    if (accessToken) {
-      // 1. Session Storage에 저장 (Axios 인터셉터용)
-      sessionStorage.setItem("accessToken", accessToken);
-
-      // 쿠키에도 저장 (Server Component용)
-      document.cookie = `accessToken=${accessToken}; path=/; max-age=3600; SameSite=Strict`;
-
-      // 2. Refresh Token이 있다면 저장
-      if (refreshToken) {
-        sessionStorage.setItem("refreshToken", refreshToken);
-        document.cookie = `refreshToken=${refreshToken}; path=/; max-age=604800; SameSite=Strict`;
+      if (error) {
+        console.error("Login failed via callback:", error);
+        showToast("로그인에 실패했습니다. 다시 시도해 주세요.", "error");
+        router.push("/login");
+        return;
       }
 
-      // 3. Global State (Jotai) 업데이트
-      setAccessToken(accessToken);
+      if (accessToken) {
+        // 1. Session Storage에 저장 (Axios 인터셉터용)
+        sessionStorage.setItem("accessToken", accessToken);
 
-      showToast("로그인되었습니다!", "success");
+        // 쿠키에도 저장 (Server Component용)
+        document.cookie = `accessToken=${accessToken}; path=/; max-age=3600; SameSite=Strict`;
 
-      // 4. 메인 페이지로 이동 (TODO: 원래 페이지로의 리다이렉트 처리 가능)
-      router.push("/workout/programs");
-    } else {
-      // 토큰이 없는 경우
-      // showToast("인증 정보가 없습니다.", "error");
-      // router.push("/login");
-    }
-  }, [searchParams, router, setAccessToken, showToast]);
+        // 2. Refresh Token이 있다면 저장
+        if (refreshToken) {
+          sessionStorage.setItem("refreshToken", refreshToken);
+          document.cookie = `refreshToken=${refreshToken}; path=/; max-age=604800; SameSite=Strict`;
+        }
+
+        // 3. Global State (Jotai) 업데이트
+        setAccessToken(accessToken);
+
+        // 4. 내 정보 조회 및 저장
+        try {
+          const user = await getUserMe();
+          if (user) {
+            setUser(user);
+            showToast(`${user.name}님 환영합니다!`, "success");
+          } else {
+            showToast("로그인되었습니다!", "success");
+          }
+        } catch (e) {
+          console.error("User fetch failed", e);
+          showToast("로그인되었습니다! (정보 조회 실패)", "error");
+        }
+
+        // 5. 메인 페이지로 이동
+        router.push("/workout/programs");
+      }
+    };
+
+    processLogin();
+  }, [searchParams, router, setAccessToken, setUser, showToast]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
