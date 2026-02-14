@@ -1,24 +1,53 @@
 // ProgramsPage.tsx
-// "use client";
+"use client";
 
-// import { useEffect, useState } from "react";
-import { getPrograms, ProgramList } from "@/entities/program";
+import { useEffect, useState } from "react";
+import { getPrograms, ProgramList, Program } from "@/entities/program";
 import { getStandalonePlans } from "@/entities/plan/api";
 import { StandalonePlanList } from "@/entities/plan/ui/StandalonePlanList";
+import { PlanListItemResponse } from "@/entities/plan/model/types";
 import Image from "next/image";
 import Link from "next/link";
 import { initMsw } from "@/shared/api/msw/initMsw";
 import { Header } from "@/shared";
 
-export default async function ProgramsPage() {
-  if (process.env.NEXT_PUBLIC_API_MOCKING === "enabled") {
-    await initMsw(); // SSR에서 모킹 활성화
-  }
+export default function ProgramsPage() {
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [standalonePlans, setStandalonePlans] = useState<
+    PlanListItemResponse[]
+  >([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const [programs, standalonePlans] = await Promise.all([
-    getPrograms(),
-    getStandalonePlans(),
-  ]);
+  useEffect(() => {
+    const fetchData = async () => {
+      if (process.env.NEXT_PUBLIC_API_MOCKING === "enabled") {
+        await initMsw();
+      }
+
+      try {
+        const [programsData, plansData] = await Promise.all([
+          getPrograms(),
+          getStandalonePlans(),
+        ]);
+        setPrograms(programsData);
+        setStandalonePlans(plansData);
+      } catch (error) {
+        console.error("데이터 로딩 실패:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f8fafc]">
+        <div className="w-10 h-10 border-4 border-gray-200 border-t-main rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f8fafc] pb-40">
