@@ -147,21 +147,6 @@ const MenuItem = ({
       className="w-full flex items-center justify-between p-4 active:bg-gray-50 transition-colors"
     >
       <div className="flex items-center gap-3">
-        {/* 아이콘 Placeholder (실제 아이콘으로 교체 가능) */}
-        <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="12" cy="12" r="10"></circle>
-          </svg>
-        </div>
         <span className="text-gray-700 font-medium">{label}</span>
       </div>
       <svg
