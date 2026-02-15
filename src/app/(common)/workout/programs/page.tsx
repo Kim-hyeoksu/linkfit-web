@@ -1,4 +1,3 @@
-// ProgramsPage.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,10 +5,10 @@ import { getPrograms, ProgramList, Program } from "@/entities/program";
 import { getStandalonePlans } from "@/entities/plan/api";
 import { StandalonePlanList } from "@/entities/plan/ui/StandalonePlanList";
 import { PlanListItemResponse } from "@/entities/plan/model/types";
-import Image from "next/image";
 import Link from "next/link";
 import { initMsw } from "@/shared/api/msw/initMsw";
 import { Header } from "@/shared";
+import { Calendar, PlusCircle } from "lucide-react";
 
 export default function ProgramsPage() {
   const [programs, setPrograms] = useState<Program[]>([]);
@@ -54,14 +53,11 @@ export default function ProgramsPage() {
       <Header
         title="운동 프로그램"
         showBackButton={false}
-        rightButtonIconUrl={"calendar"}
+        rightButtonIconUrl={"/workout/history"}
       >
-        <Image
-          alt="history"
-          src={`/images/common/icon/calendar.svg`}
-          width={24}
-          height={24}
-          className="opacity-60 hover:opacity-100 transition-opacity"
+        <Calendar
+          size={24}
+          className="text-slate-400 hover:text-slate-600 transition-colors"
         />
       </Header>
 
@@ -89,13 +85,7 @@ export default function ProgramsPage() {
           href={"/workout/programs/add"}
           className="pointer-events-auto h-[56px] w-full mb-24 flex items-center justify-center gap-2 bg-main text-white rounded-2xl font-bold text-[16px] shadow-lg shadow-blue-500/20 active:scale-95 transition-all"
         >
-          <Image
-            alt="add"
-            src="/images/common/icon/add_circle_outline_24px.svg"
-            width={24}
-            height={24}
-            className="brightness-0 invert"
-          />
+          <PlusCircle size={24} />
           <span>새로운 루틴 만들기</span>
         </Link>
       </div>

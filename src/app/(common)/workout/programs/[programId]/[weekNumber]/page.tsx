@@ -1,24 +1,57 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import { getPlans, PlanList } from "@/entities/plan";
-import type { PlanListResponse } from "@/entities/plan";
-import { initMsw } from "@/shared/api/msw/initMsw";
+import type { PlanListResponse, PlanListItemResponse } from "@/entities/plan";
 import { Header } from "@/shared";
 import Link from "next/link";
 import { ImportProgramButton } from "@/features/program-import";
 
-interface Props {
-  params: { programId: string; weekNumber: string };
-}
+export default function WorkoutProgramWeekPage() {
+  const params = useParams();
+  const programId = Number(params?.programId);
+  const weekNumber = Number(params?.weekNumber);
 
-export default async function WorkoutProgramWeekPage({ params }: Props) {
-  if (process.env.NEXT_PUBLIC_API_MOCKING === "enabled") {
-    await initMsw();
+  const [planData, setPlanData] = useState<PlanListResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!programId) return;
+
+    const fetchPlans = async () => {
+      try {
+        setLoading(true);
+        const data = await getPlans(programId);
+        setPlanData(data);
+      } catch (error) {
+        console.error("플랜 로딩 실패:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPlans();
+  }, [programId]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f8fafc]">
+        <div className="w-10 h-10 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin" />
+      </div>
+    );
   }
 
-  const { programId, weekNumber } = params;
-  const planData: PlanListResponse = await getPlans(Number(programId));
+  if (!planData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f8fafc]">
+        <div className="text-gray-500">데이터를 불러올 수 없습니다.</div>
+      </div>
+    );
+  }
 
   // weekNumber가 null인 데이터가 있을 경우 dayOrder를 기준으로 weekNumber를 계산하여 할당
-  const processedPlans = planData.plans.map((plan) => ({
+  const processedPlans = planData.plans.map((plan: PlanListItemResponse) => ({
     ...plan,
     weekNumber:
       plan.weekNumber ?? (plan.dayOrder ? Math.ceil(plan.dayOrder / 7) : 1),
@@ -26,7 +59,6 @@ export default async function WorkoutProgramWeekPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] pb-[180px]">
-      {/* 주차별 링크 버튼 */}
       <Header
         title={planData.programName || ""}
         showBackButton={true}
@@ -34,9 +66,9 @@ export default async function WorkoutProgramWeekPage({ params }: Props) {
       />
 
       <div className="flex overflow-x-auto px-5 py-4 gap-2 scrollbar-hide sticky top-[56px] z-30 bg-[#f8fafc]/95 backdrop-blur-sm border-b border-slate-200/50">
-        {Array.from({ length: planData.maxWeekNumber }, (_, index) => {
+        {Array.from({ length: planData.maxWeekNumber ?? 0 }, (_, index) => {
           const week = index + 1;
-          const isActive = week === Number(weekNumber);
+          const isActive = week === weekNumber;
           return (
             <Link
               key={week}
@@ -53,16 +85,15 @@ export default async function WorkoutProgramWeekPage({ params }: Props) {
         })}
       </div>
 
-      {/* 주차별 운동일차 리스트 */}
       <div className="px-5 mt-6 flex flex-col gap-4">
         <PlanList
           program={processedPlans}
-          programId={Number(programId)}
-          weekNumber={Number(weekNumber)}
+          programId={programId}
+          weekNumber={weekNumber}
           lastExercisedPlanId={planData.lastExercisedPlanId}
         />
       </div>
-      <ImportProgramButton programId={Number(programId)} />
+      <ImportProgramButton programId={programId} />
     </div>
   );
 }

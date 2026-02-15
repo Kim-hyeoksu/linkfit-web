@@ -29,10 +29,8 @@ export default function AuthCallbackPage() {
       }
 
       if (accessToken) {
-        // 1. Session Storage에 저장 (Axios 인터셉터용)
+        // 1. Session Storage & Cookie 저장
         sessionStorage.setItem("accessToken", accessToken);
-
-        // 2. Refresh Token이 있다면 저장
         if (refreshToken) {
           sessionStorage.setItem("refreshToken", refreshToken);
         }
