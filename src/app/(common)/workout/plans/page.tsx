@@ -1,15 +1,40 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { StandalonePlanCard } from "@/entities/plan/ui/StandalonePlanCard";
 import { getStandalonePlans } from "@/entities/plan/api";
+import { PlanListItemResponse } from "@/entities/plan/model/types";
 import { Header } from "@/shared";
 import Link from "next/link";
-import { initMsw } from "@/shared/api/msw/initMsw";
+import { Plus } from "lucide-react";
 
-export default async function MyPlansPage() {
-  if (process.env.NEXT_PUBLIC_API_MOCKING === "enabled") {
-    await initMsw();
+export default function MyPlansPage() {
+  const [plans, setPlans] = useState<PlanListItemResponse[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const data = await getStandalonePlans();
+        setPlans(data);
+      } catch (error) {
+        console.error("나만의 플랜 로딩 실패:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f8fafc]">
+        <div className="w-10 h-10 border-4 border-gray-200 border-t-main rounded-full animate-spin" />
+      </div>
+    );
   }
-
-  const plans = await getStandalonePlans();
 
   return (
     <div className="min-h-screen bg-[#f8fafc] pb-40">
@@ -38,25 +63,13 @@ export default async function MyPlansPage() {
         )}
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 z-30 pointer-events-none">
+      <div className="fixed bottom-0 left-0 right-0 z-40 pointer-events-none">
         <div className="max-w-xl mx-auto px-5 w-full relative h-32 flex items-end pb-8 justify-end">
           <Link
             href="/workout/plans/add"
-            className="pointer-events-auto h-14 w-14 rounded-full bg-main text-white shadow-lg flex items-center justify-center transition-transform active:scale-95 mb-[88px]"
+            className="pointer-events-auto h-16 w-16 rounded-full bg-main text-white shadow-xl shadow-blue-500/30 flex items-center justify-center transition-all active:scale-95 mb-[88px]"
           >
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
+            <Plus size={32} strokeWidth={2.5} />
           </Link>
         </div>
       </div>
