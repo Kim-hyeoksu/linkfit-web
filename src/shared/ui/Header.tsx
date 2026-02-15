@@ -1,6 +1,8 @@
 "use client";
-import { useRouter } from "next/navigation"; // Next.js 13+ App Router의 useRouter 훅
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { ChevronLeft } from "lucide-react";
+
 interface HeaderProps {
   title?: string | number; // 헤더에 표시될 제목입니다. (필수)
   showBackButton?: boolean; // 뒤로가기 버튼을 보일지 여부를 결정합니다. (기본값: true)
@@ -58,20 +60,7 @@ export const Header = ({
               className="-ml-2 p-2 rounded-xl text-slate-800 hover:bg-slate-50 transition-all active:scale-95"
               aria-label="뒤로가기"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2.5}
-                stroke="currentColor"
-                className="w-5 h-5"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.75 19.5 8.25 12l7.5-7.5"
-                />
-              </svg>
+              <ChevronLeft size={26} className="text-gray-900" />
             </button>
           )}
         </div>

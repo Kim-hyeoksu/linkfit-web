@@ -2,6 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
+import { Check, Edit2, Plus, Minus } from "lucide-react";
 import type { ClientSet, ClientExercise } from "../model/types";
 
 interface ExerciseProps {
@@ -60,14 +61,16 @@ export const ExerciseCard = ({
   return (
     <div
       className={`relative bg-white rounded-[24px] shadow-sm transition-all duration-300 border-[1.5px] overflow-hidden ${
-        isCurrent 
-          ? "border-main shadow-md transform scale-[1.01] z-10" 
+        isCurrent
+          ? "border-main shadow-md transform scale-[1.01] z-10"
           : "border-transparent hover:border-slate-200"
       }`}
       onClick={() => onClickExercise(exerciseId)}
     >
       {/* Decorative side accent for current exercise */}
-      {isCurrent && <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-main rounded-l-full" />}
+      {isCurrent && (
+        <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-main rounded-l-full" />
+      )}
 
       <div className="p-5">
         {/* Header */}
@@ -85,7 +88,7 @@ export const ExerciseCard = ({
               </span>
             </div>
           </div>
-          
+
           <div className="flex items-start gap-4">
             <button
               onClick={(e) => {
@@ -118,7 +121,9 @@ export const ExerciseCard = ({
         {isEditing && (
           <div className="mb-6 p-4 bg-slate-50 rounded-2xl border border-slate-100 flex gap-6 items-center justify-center animate-in fade-in slide-in-from-top-2">
             <div className="flex items-center gap-3">
-              <span className="text-[12px] font-bold text-slate-500">기본 무게</span>
+              <span className="text-[12px] font-bold text-slate-500">
+                기본 무게
+              </span>
               <div className="relative group">
                 <input
                   type="number"
@@ -132,11 +137,15 @@ export const ExerciseCard = ({
                     )
                   }
                 />
-                <span className="absolute -right-2 top-1/2 -translate-y-1/2 translate-x-full text-xs font-bold text-slate-400">kg</span>
+                <span className="absolute -right-2 top-1/2 -translate-y-1/2 translate-x-full text-xs font-bold text-slate-400">
+                  kg
+                </span>
               </div>
             </div>
             <div className="flex items-center gap-3 ml-6">
-              <span className="text-[12px] font-bold text-slate-500">기본 횟수</span>
+              <span className="text-[12px] font-bold text-slate-500">
+                기본 횟수
+              </span>
               <div className="relative group">
                 <input
                   type="number"
@@ -150,7 +159,9 @@ export const ExerciseCard = ({
                     )
                   }
                 />
-                <span className="absolute -right-2 top-1/2 -translate-y-1/2 translate-x-full text-xs font-bold text-slate-400">회</span>
+                <span className="absolute -right-2 top-1/2 -translate-y-1/2 translate-x-full text-xs font-bold text-slate-400">
+                  회
+                </span>
               </div>
             </div>
           </div>
@@ -177,8 +188,8 @@ export const ExerciseCard = ({
                   className={`grid grid-cols-12 gap-2 items-center p-3.5 rounded-[16px] transition-all duration-300 ${
                     isSetCurrent
                       ? "bg-blue-50/50 border border-main/30 shadow-sm ring-1 ring-main/10"
-                      : isCompleted 
-                        ? "bg-slate-50/80 opacity-80" 
+                      : isCompleted
+                        ? "bg-slate-50/80 opacity-80"
                         : "bg-slate-50 hover:bg-slate-100/80"
                   }`}
                 >
@@ -192,7 +203,7 @@ export const ExerciseCard = ({
                         }}
                         className="w-7 h-7 flex items-center justify-center rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all transform active:scale-95 shadow-sm"
                       >
-                        <span className="pb-0.5 text-lg">−</span>
+                        <Minus size={16} strokeWidth={3} />
                       </button>
                     ) : (
                       <div
@@ -204,27 +215,24 @@ export const ExerciseCard = ({
                         }`}
                       >
                         {isCompleted && (
-                          <svg
-                            className="w-4 h-4 text-white"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={3}
-                              d="M5 13l4 4L19 7"
-                            ></path>
-                          </svg>
+                          <Check
+                            size={16}
+                            className="text-white"
+                            strokeWidth={3}
+                          />
                         )}
                       </div>
                     )}
                   </div>
 
                   <div className="col-span-2 text-center text-[15px] font-black text-slate-700">
-                    <span className={isCompleted ? "text-slate-400 line-through decoration-slate-300" : ""}>
+                    <span
+                      className={
+                        isCompleted
+                          ? "text-slate-400 line-through decoration-slate-300"
+                          : ""
+                      }
+                    >
                       {index + 1}
                     </span>
                   </div>
@@ -247,8 +255,13 @@ export const ExerciseCard = ({
                         />
                       </div>
                     ) : (
-                      <span className={`text-[16px] font-extrabold ${isCompleted ? "text-slate-400" : "text-[#1e293b]"}`}>
-                        {set.weight || set.targetWeight} <span className="text-[12px] font-medium text-slate-400 ml-0.5">kg</span>
+                      <span
+                        className={`text-[16px] font-extrabold ${isCompleted ? "text-slate-400" : "text-[#1e293b]"}`}
+                      >
+                        {set.weight || set.targetWeight}{" "}
+                        <span className="text-[12px] font-medium text-slate-400 ml-0.5">
+                          kg
+                        </span>
                       </span>
                     )}
                   </div>
@@ -269,8 +282,13 @@ export const ExerciseCard = ({
                         onClick={(e) => e.stopPropagation()}
                       />
                     ) : (
-                      <span className={`text-[16px] font-extrabold ${isCompleted ? "text-slate-400" : "text-[#1e293b]"}`}>
-                        {set.reps || set.targetReps} <span className="text-[12px] font-medium text-slate-400 ml-0.5">회</span>
+                      <span
+                        className={`text-[16px] font-extrabold ${isCompleted ? "text-slate-400" : "text-[#1e293b]"}`}
+                      >
+                        {set.reps || set.targetReps}{" "}
+                        <span className="text-[12px] font-medium text-slate-400 ml-0.5">
+                          회
+                        </span>
                       </span>
                     )}
                   </div>
@@ -283,9 +301,7 @@ export const ExerciseCard = ({
         {/* Footer Actions */}
         <div className="mt-6 flex gap-3">
           <button className="flex-[0.4] min-w-[32px] h-11 flex items-center justify-center rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all transform active:scale-95">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
+            <Edit2 size={20} />
           </button>
           <button
             onClick={(e) => {
@@ -294,7 +310,7 @@ export const ExerciseCard = ({
             }}
             className="flex-1 h-11 flex items-center justify-center gap-2 rounded-2xl bg-[#eff6ff] text-main font-black text-[14px] hover:bg-main hover:text-white transition-all transform active:scale-95 shadow-sm shadow-blue-50"
           >
-            <span className="text-lg">+</span> 세트 추가하기
+            <Plus size={18} /> 세트 추가하기
           </button>
         </div>
       </div>

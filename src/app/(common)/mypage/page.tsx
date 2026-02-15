@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { accessTokenState } from "@/features/auth/model/accessTokenState";
 import { Header } from "@/shared";
+import { User, LogOut, ChevronRight } from "lucide-react";
 
 export default function MyPage() {
   const user = useAtomValue(userState);
@@ -48,19 +49,7 @@ export default function MyPage() {
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-gray-400">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
+                <User size={32} />
               </div>
             )}
           </div>
@@ -80,22 +69,14 @@ export default function MyPage() {
 
         {/* 메뉴 리스트 */}
         <section className="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 divide-y divide-gray-50">
-          <MenuItem icon="settings" label="내 정보 수정" onClick={() => {}} />
-          <MenuItem icon="bell" label="알림 설정" onClick={() => {}} />
+          <MenuItem label="내 정보 수정" onClick={() => {}} />
+          <MenuItem label="알림 설정" onClick={() => {}} />
         </section>
 
         <section className="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 divide-y divide-gray-50">
-          <MenuItem
-            icon="help-circle"
-            label="고객센터 / 문의하기"
-            onClick={() => {}}
-          />
-          <MenuItem icon="file-text" label="이용약관" onClick={() => {}} />
-          <MenuItem
-            icon="shield"
-            label="개인정보 처리방침"
-            onClick={() => {}}
-          />
+          <MenuItem label="고객센터 / 문의하기" onClick={() => {}} />
+          <MenuItem label="이용약관" onClick={() => {}} />
+          <MenuItem label="개인정보 처리방침" onClick={() => {}} />
         </section>
 
         <section className="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 divide-y divide-gray-50">
@@ -104,20 +85,7 @@ export default function MyPage() {
             className="w-full flex items-center justify-between p-4 active:bg-gray-50 transition-colors text-red-500 font-medium"
           >
             <div className="flex items-center gap-3">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                <polyline points="16 17 21 12 16 7"></polyline>
-                <line x1="21" y1="12" x2="9" y2="12"></line>
-              </svg>
+              <LogOut size={20} />
               <span>로그아웃</span>
             </div>
           </button>
@@ -133,11 +101,9 @@ export default function MyPage() {
 
 // 아이콘 매핑을 위한 간단한 컴포넌트
 const MenuItem = ({
-  icon,
   label,
   onClick,
 }: {
-  icon: string;
   label: string;
   onClick: () => void;
 }) => {
@@ -149,19 +115,7 @@ const MenuItem = ({
       <div className="flex items-center gap-3">
         <span className="text-gray-700 font-medium">{label}</span>
       </div>
-      <svg
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="text-gray-300"
-      >
-        <polyline points="9 18 15 12 9 6"></polyline>
-      </svg>
+      <ChevronRight size={16} className="text-gray-300" />
     </button>
   );
 };
