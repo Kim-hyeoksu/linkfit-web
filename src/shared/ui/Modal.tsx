@@ -2,6 +2,7 @@
 "use client"; // useState, useEffect 등을 사용하므로 클라이언트 컴포넌트임을 명시합니다.
 
 import React, { useEffect, useRef } from "react";
+import { X } from "lucide-react";
 
 interface ModalProps {
   isOpen: boolean; // 모달이 열려있는지 닫혀있는지 제어하는 prop (필수)
@@ -22,7 +23,7 @@ export const Modal: React.FC<ModalProps> = ({
   backdropClassName = "",
   hideCloseButton = false,
 }) => {
-  const modalRef = useRef<HTMLDivElement>(null); 
+  const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -81,20 +82,7 @@ export const Modal: React.FC<ModalProps> = ({
               "
               aria-label="모달 닫기"
             >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2.5"
-                  d="M6 18L18 6M6 6l12 12"
-                ></path>
-              </svg>
+              <X size={20} strokeWidth={2.5} />
             </button>
           )}
 
