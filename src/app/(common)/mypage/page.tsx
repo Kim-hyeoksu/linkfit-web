@@ -69,10 +69,10 @@ export default function MyPage() {
             <p className="text-sm text-gray-500">{user.email}</p>
             <div className="mt-1 flex gap-2">
               <span className="text-xs px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full font-medium">
-                {user.userType === "TRAINER" ? "트레이너" : "일반 회원"}
+                {user.userType === "TRAINER" ? "트레이너" : "트레이니"}
               </span>
               <span className="text-xs px-2 py-0.5 bg-green-50 text-green-600 rounded-full font-medium">
-                Lv. {user.exerciseLevel || "초급"}
+                {user.exerciseLevel || "초급"}
               </span>
             </div>
           </div>
