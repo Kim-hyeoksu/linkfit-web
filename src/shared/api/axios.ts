@@ -16,15 +16,8 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// 응답 인터셉터: 에러를 표준화해 status/body를 포함
+// 응답 인터셉터: 별도의 가공 없이 에러를 던지도록 하여 Axios 고유의 에러 처리를 따름
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    const status = error?.response?.status;
-    const body = error?.response?.data;
-    const err: any = new Error(`API Error: ${status ?? "unknown"}`);
-    err.status = status;
-    err.body = body;
-    return Promise.reject(err);
-  },
+  (error) => Promise.reject(error),
 );
