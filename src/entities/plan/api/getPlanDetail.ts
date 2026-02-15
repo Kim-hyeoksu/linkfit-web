@@ -1,23 +1,14 @@
-import { API_BASE_URL } from "@/shared/api/baseUrl";
+import { api } from "@/shared/api/axios";
 
 export const getPlanDetail = async (planId: string) => {
-  console.log(
-    "🚀 [getPlanDetail] 요청 URL:",
-    `${API_BASE_URL}/api/plans/${planId}`
-  );
+  console.log("🚀 [getPlanDetail] 요청 URL:", `/api/plans/${planId}`);
 
-  const res = await fetch(`${API_BASE_URL}/api/plans/${planId}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (!res.ok) {
-    throw new Error(`프로그램 조회 실패: ${res.status}`);
+  try {
+    const response = await api.get(`/api/plans/${planId}`);
+    console.log("✅ [getPlanDetail] 응답 데이터:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("❌ [getPlanDetail] 요청 실패:", error);
+    throw error;
   }
-  const data = await res.json();
-  console.log("✅ [getPlanDetail] 응답 데이터:", data);
-
-  return data;
 };

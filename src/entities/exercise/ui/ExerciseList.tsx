@@ -3,8 +3,12 @@
 import { Exercise } from "@/entities/exercise";
 
 interface ExerciseListProps {
-  exercises: Exercise[];
-  onSelect?: (exercise: Exercise) => void;
+  exercises: (Partial<Exercise> & {
+    id: number;
+    name: string;
+    bodyPart: string;
+  })[];
+  onSelect?: (exercise: any) => void;
 }
 
 export function ExerciseList({ exercises, onSelect }: ExerciseListProps) {

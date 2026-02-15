@@ -32,7 +32,10 @@ export default function RootLayout({
         여기에는 전역적으로 적용될 CSS 클래스(예: Tailwind CSS의 flex, min-h-screen)를 적용할 수 있습니다.
         이렇게 하면 모든 페이지가 최소한 화면 높이만큼을 차지하고, flexbox 컨테이너가 되어 내부 요소 정렬에 유리해집니다.
       */}
-      <body className="flex flex-col min-h-screen">
+      <body
+        className="flex flex-col min-h-screen"
+        suppressHydrationWarning={true}
+      >
         {/*
           'children'은 현재 라우트에서 렌더링될 페이지 또는 중첩 레이아웃의 콘텐츠를 나타냅니다.
           예를 들어, Home 페이지(app/page.tsx)의 내용이 여기에 들어오게 됩니다.

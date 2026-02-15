@@ -1,26 +1,19 @@
-import { API_BASE_URL } from "@/shared/api/baseUrl";
+import { api } from "@/shared/api/axios";
 
 export const getActiveSessionServer = async (
   userId: number | string,
-  planId: number | string
+  planId: number | string,
 ) => {
-  const url = `${API_BASE_URL}/api/sessions/active?userId=${userId}&planId=${planId}`;
+  const url = `/api/sessions/active?userId=${userId}&planId=${planId}`;
 
-  const res = await fetch(url, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    cache: "no-store",
-  });
-
-  if (res.status === 404) {
-    return null; // 활성 세션 없음
+  try {
+    const response = await api.get(url);
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      return null; // 활성 세션 없음
+    }
+    console.error("❌ [getActiveSessionServer] 요청 실패:", error);
+    throw error;
   }
-
-  if (!res.ok) {
-    throw new Error(`getActiveSession failed: ${res.status}`);
-  }
-
-  return res.json();
 };

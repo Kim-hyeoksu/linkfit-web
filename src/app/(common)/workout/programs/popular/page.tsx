@@ -1,27 +1,48 @@
-import { getPrograms } from "@/entities/program";
-import { ProgramCard } from "@/entities/program";
-import Image from "next/image";
-import Link from "next/link";
-import { initMsw } from "@/shared/api/msw/initMsw";
+"use client";
+
+import { useEffect, useState } from "react";
+import { getPrograms, ProgramCard, Program } from "@/entities/program";
 import { Header } from "@/shared";
-export default async function PopularProgramsPage() {
-  if (process.env.NEXT_PUBLIC_API_MOCKING === "enabled") {
-    await initMsw(); // SSR에서 모킹 활성화
+import { Calendar, PlusCircle } from "lucide-react";
+import Link from "next/link";
+
+export default function PopularProgramsPage() {
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const data = await getPrograms();
+        setPrograms(data);
+      } catch (error) {
+        console.error("추천 프로그램 로딩 실패:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f8fafc]">
+        <div className="w-10 h-10 border-4 border-gray-200 border-t-main rounded-full animate-spin" />
+      </div>
+    );
   }
 
-  const programs = await getPrograms();
-
   return (
-    <div className=" flex flex-col gap-2 bg-[#F7F8F9]">
-      <Header title="추천 프로그램" rightButtonIconUrl={"calendar"}>
-        <Image
-          alt="go-calendar"
-          src={`/images/common/icon/calendar.svg`}
-          width={24}
-          height={24}
+    <div className="flex flex-col min-h-screen bg-[#F7F8F9]">
+      <Header title="추천 프로그램" rightButtonIconUrl={"/workout/history"}>
+        <Calendar
+          size={24}
+          className="text-slate-400 hover:text-slate-600 transition-colors"
         />
       </Header>
-      <div className="p-5 bg-white gap-3 flex flex-col">
+      <div className="p-5 bg-white gap-3 flex flex-col flex-1">
         <div className="gap-3 flex flex-col">
           {programs.map((program) => (
             <ProgramCard key={program.id} {...program} />
@@ -29,15 +50,10 @@ export default async function PopularProgramsPage() {
         </div>
         <Link
           href={"/workout/programs/add"}
-          className="flex justify-center items-cetner gap-1 border border-[#d9d9d9] rounded-lg w-full p-2"
+          className="flex justify-center items-center gap-2 border border-[#d9d9d9] rounded-xl w-full p-3 text-[#666] font-medium hover:bg-gray-50 active:scale-95 transition-all"
         >
-          <Image
-            alt="add-program"
-            src="/images/common/icon/add_circle_outline_24px.svg"
-            width={20}
-            height={20}
-          />
-          루틴 추가하기
+          <PlusCircle size={20} />
+          <span>루틴 추가하기</span>
         </Link>
       </div>
     </div>
