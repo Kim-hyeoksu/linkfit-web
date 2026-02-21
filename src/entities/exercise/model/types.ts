@@ -7,6 +7,10 @@ export interface Exercise {
   equipment: string;
   description: string;
   createdAt: string;
+  defaultSets?: number;
+  defaultReps?: number;
+  defaultWeight?: number;
+  defaultRestSeconds?: number;
 }
 
 export interface ClientSet {

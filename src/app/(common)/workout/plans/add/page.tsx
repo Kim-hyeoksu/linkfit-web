@@ -28,6 +28,10 @@ const PlanAddPage = () => {
   const router = useRouter();
   const { showToast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
+  const [focusedField, setFocusedField] = useState<{
+    index: number;
+    field: keyof PlanExercise;
+  } | null>(null);
 
   useEffect(() => {
     const loadExercises = async () => {
@@ -48,10 +52,10 @@ const PlanAddPage = () => {
       name: exercise.name,
       bodyPart: exercise.bodyPart,
       orderIndex: exercises.length + 1,
-      defaultSets: 3,
-      defaultReps: 10,
-      defaultWeight: 20,
-      defaultRestSeconds: 60,
+      defaultSets: exercise.defaultSets || 3,
+      defaultReps: exercise.defaultReps || 10,
+      defaultWeight: exercise.defaultWeight || 0,
+      defaultRestSeconds: exercise.defaultRestSeconds || 60,
     };
     setExercises([...exercises, newExercise]);
     setIsExerciseSelectorOpen(false);
@@ -195,7 +199,17 @@ const PlanAddPage = () => {
                         <input
                           type="number"
                           min="1"
-                          value={exercise.defaultSets}
+                          value={
+                            focusedField?.index === index &&
+                            focusedField?.field === "defaultSets" &&
+                            exercise.defaultSets === 0
+                              ? ""
+                              : exercise.defaultSets
+                          }
+                          onFocus={() =>
+                            setFocusedField({ index, field: "defaultSets" })
+                          }
+                          onBlur={() => setFocusedField(null)}
                           onChange={(e) =>
                             handleUpdateExercise(
                               index,
@@ -215,7 +229,17 @@ const PlanAddPage = () => {
                         <input
                           type="number"
                           min="1"
-                          value={exercise.defaultReps}
+                          value={
+                            focusedField?.index === index &&
+                            focusedField?.field === "defaultReps" &&
+                            exercise.defaultReps === 0
+                              ? ""
+                              : exercise.defaultReps
+                          }
+                          onFocus={() =>
+                            setFocusedField({ index, field: "defaultReps" })
+                          }
+                          onBlur={() => setFocusedField(null)}
                           onChange={(e) =>
                             handleUpdateExercise(
                               index,
@@ -235,7 +259,17 @@ const PlanAddPage = () => {
                         <input
                           type="number"
                           min="0"
-                          value={exercise.defaultWeight}
+                          value={
+                            focusedField?.index === index &&
+                            focusedField?.field === "defaultWeight" &&
+                            exercise.defaultWeight === 0
+                              ? ""
+                              : exercise.defaultWeight
+                          }
+                          onFocus={() =>
+                            setFocusedField({ index, field: "defaultWeight" })
+                          }
+                          onBlur={() => setFocusedField(null)}
                           onChange={(e) =>
                             handleUpdateExercise(
                               index,
@@ -256,7 +290,20 @@ const PlanAddPage = () => {
                           type="number"
                           min="0"
                           step="10"
-                          value={exercise.defaultRestSeconds}
+                          value={
+                            focusedField?.index === index &&
+                            focusedField?.field === "defaultRestSeconds" &&
+                            exercise.defaultRestSeconds === 0
+                              ? ""
+                              : exercise.defaultRestSeconds
+                          }
+                          onFocus={() =>
+                            setFocusedField({
+                              index,
+                              field: "defaultRestSeconds",
+                            })
+                          }
+                          onBlur={() => setFocusedField(null)}
                           onChange={(e) =>
                             handleUpdateExercise(
                               index,
