@@ -117,6 +117,7 @@ const PlanAddPage = () => {
               onChange={(e) => setTitle(e.target.value)}
               className="w-full border border-gray-200 rounded-xl p-3 focus:ring-2 focus:ring-main outline-none transition-all"
               placeholder="예: 가슴 폭발 루틴"
+              maxLength={50}
             />
           </div>
           <div>
@@ -128,6 +129,7 @@ const PlanAddPage = () => {
               onChange={(e) => setDescription(e.target.value)}
               className="w-full border border-gray-200 rounded-xl p-3 focus:ring-2 focus:ring-main outline-none transition-all resize-none h-24"
               placeholder="루틴에 대한 간단한 설명을 적어주세요."
+              maxLength={200}
             />
           </div>
         </div>
