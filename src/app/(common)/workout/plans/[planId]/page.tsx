@@ -39,7 +39,8 @@ export default function StandalonePlanPage() {
           // 1. 해당 플랜으로 진행 중인 활성 세션이 있는지 확인
           data = await getActiveSessionServer(userId, planId);
         } catch (err) {
-          console.error("getActiveSessionServer error", err);
+          // 활성 세션이 없는 것은 일반적인 상황이므로 로그 수준을 낮춥니다.
+          console.log("진행 중인 세션 없음, 기본 플랜 정보를 로드합니다.");
         }
 
         // 2. 활성 세션이 없으면 일반 플랜 상세 정보 조회

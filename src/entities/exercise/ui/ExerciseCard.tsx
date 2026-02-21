@@ -107,7 +107,7 @@ export const ExerciseCard = ({
             </button>
             <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-inner bg-slate-100 border border-slate-50">
               <Image
-                src={exercise.exerciseImagePath ?? "/next.svg"}
+                src={`${process.env.NEXT_PUBLIC_API_URL}${exercise.exerciseImagePath ?? "/next.svg"}`}
                 width={64}
                 height={64}
                 alt={exerciseName}
