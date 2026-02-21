@@ -3,6 +3,9 @@ import { Header, Modal } from "@/shared";
 import { useState, useEffect } from "react";
 import { ExerciseList, type Exercise, getExercises } from "@/entities/exercise";
 import { PlusCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { createStandalonePlan } from "@/entities/plan/api";
+import { useToast } from "@/shared/ui/toast";
 
 interface PlanExercise {
   exerciseId: number;
@@ -21,6 +24,10 @@ const PlanAddPage = () => {
   const [exercises, setExercises] = useState<PlanExercise[]>([]);
   const [isExerciseSelectorOpen, setIsExerciseSelectorOpen] = useState(false);
   const [availableExercises, setAvailableExercises] = useState<Exercise[]>([]);
+
+  const router = useRouter();
+  const { showToast } = useToast();
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const loadExercises = async () => {
@@ -50,25 +57,40 @@ const PlanAddPage = () => {
     setIsExerciseSelectorOpen(false);
   };
 
-  const handleSavePlan = () => {
+  const handleSavePlan = async () => {
     if (!title.trim()) {
-      alert("플랜 제목을 입력해주세요.");
+      showToast("플랜 제목을 입력해주세요.");
       return;
     }
     if (exercises.length === 0) {
-      alert("최소 한 개의 운동을 추가해주세요.");
+      showToast("최소 한 개의 운동을 추가해주세요.");
       return;
     }
 
-    const planData = {
-      title,
-      description,
-      exercises,
-    };
+    try {
+      setIsSaving(true);
+      const planData = {
+        title,
+        description,
+        exercises: exercises.map((ex) => ({
+          exerciseId: ex.exerciseId,
+          orderIndex: ex.orderIndex,
+          defaultSets: ex.defaultSets,
+          defaultReps: ex.defaultReps,
+          defaultWeight: ex.defaultWeight,
+          defaultRestSeconds: ex.defaultRestSeconds,
+        })),
+      };
 
-    console.log("저장할 플랜 데이터:", planData);
-    alert("나만의 플랜이 저장되었습니다! (콘솔 확인)");
-    // TODO: 실제 API 연동 (ex. createStandalonePlan(planData)) 추가 및 이전 페이지로 이동
+      await createStandalonePlan(planData);
+      showToast("나만의 플랜이 저장되었습니다!");
+      router.push("/workout/plans");
+    } catch (error) {
+      console.error("플랜 저장 실패:", error);
+      showToast("플랜 저장에 실패했습니다.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
