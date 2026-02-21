@@ -2,7 +2,7 @@
 import { Header, Modal } from "@/shared";
 import { useState, useEffect } from "react";
 import { ExerciseList, type Exercise, getExercises } from "@/entities/exercise";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createStandalonePlan } from "@/entities/plan/api";
 import { useToast } from "@/shared/ui/toast";
@@ -55,6 +55,20 @@ const PlanAddPage = () => {
     };
     setExercises([...exercises, newExercise]);
     setIsExerciseSelectorOpen(false);
+  };
+
+  const handleUpdateExercise = (
+    index: number,
+    field: keyof PlanExercise,
+    value: number,
+  ) => {
+    setExercises((prev) =>
+      prev.map((ex, i) => (i === index ? { ...ex, [field]: value } : ex)),
+    );
+  };
+
+  const handleRemoveExercise = (index: number) => {
+    setExercises((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSavePlan = async () => {
@@ -151,14 +165,112 @@ const PlanAddPage = () => {
           </button>
 
           {exercises.length > 0 && (
-            <div className="min-h-[100px] mt-2 border-t border-gray-100 pt-4">
-              <ExerciseList
-                exercises={exercises.map((e) => ({
-                  id: e.exerciseId,
-                  name: e.name,
-                  bodyPart: e.bodyPart,
-                }))}
-              />
+            <div className="flex flex-col gap-4 mt-2 border-t border-gray-100 pt-4">
+              {exercises.map((exercise, index) => (
+                <div
+                  key={index}
+                  className="bg-[#F7F8F9] p-4 rounded-xl border border-[#e5e5e5] flex flex-col gap-3 relative"
+                >
+                  <button
+                    onClick={() => handleRemoveExercise(index)}
+                    className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                  <div className="pr-8">
+                    <div className="font-bold text-gray-900">
+                      {exercise.name}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {exercise.bodyPart}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-2">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs font-bold text-gray-500">
+                        세트 (Sets)
+                      </label>
+                      <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-lg px-2 shadow-sm focus-within:ring-2 focus-within:ring-main">
+                        <input
+                          type="number"
+                          min="1"
+                          value={exercise.defaultSets}
+                          onChange={(e) =>
+                            handleUpdateExercise(
+                              index,
+                              "defaultSets",
+                              Number(e.target.value),
+                            )
+                          }
+                          className="w-full py-2 text-center text-sm font-semibold outline-none"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs font-bold text-gray-500">
+                        횟수 (Reps)
+                      </label>
+                      <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-lg px-2 shadow-sm focus-within:ring-2 focus-within:ring-main">
+                        <input
+                          type="number"
+                          min="1"
+                          value={exercise.defaultReps}
+                          onChange={(e) =>
+                            handleUpdateExercise(
+                              index,
+                              "defaultReps",
+                              Number(e.target.value),
+                            )
+                          }
+                          className="w-full py-2 text-center text-sm font-semibold outline-none"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs font-bold text-gray-500">
+                        중량 (kg)
+                      </label>
+                      <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-lg px-2 shadow-sm focus-within:ring-2 focus-within:ring-main">
+                        <input
+                          type="number"
+                          min="0"
+                          value={exercise.defaultWeight}
+                          onChange={(e) =>
+                            handleUpdateExercise(
+                              index,
+                              "defaultWeight",
+                              Number(e.target.value),
+                            )
+                          }
+                          className="w-full py-2 text-center text-sm font-semibold outline-none"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs font-bold text-gray-500">
+                        휴식 (초)
+                      </label>
+                      <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-lg px-2 shadow-sm focus-within:ring-2 focus-within:ring-main">
+                        <input
+                          type="number"
+                          min="0"
+                          step="10"
+                          value={exercise.defaultRestSeconds}
+                          onChange={(e) =>
+                            handleUpdateExercise(
+                              index,
+                              "defaultRestSeconds",
+                              Number(e.target.value),
+                            )
+                          }
+                          className="w-full py-2 text-center text-sm font-semibold outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
