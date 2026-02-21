@@ -17,10 +17,10 @@ export interface ExercisePayload {
 }
 
 export interface SetPayload {
-  targetSets?: number;
-  targetReps?: number;
-  targetWeight?: number;
-  targetRestSeconds?: number;
+  setOrder?: number;
+  reps?: number;
+  weight?: number;
+  restSeconds?: number;
 }
 
 export const createStandalonePlan = async (data: CreatePlanRequest) => {
