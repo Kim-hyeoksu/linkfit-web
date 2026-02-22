@@ -1,6 +1,6 @@
 "use client";
 
-import { Header, Modal } from "@/shared";
+import { Header, Modal, useToast } from "@/shared";
 import { useState, useEffect } from "react";
 import { ExerciseList, type Exercise, getExercises } from "@/entities/exercise";
 import {
@@ -44,6 +44,7 @@ interface ProgramPlan {
 }
 
 const ProgramAddPage = () => {
+  const { showToast } = useToast();
   const [programTitle, setProgramTitle] = useState("");
   const [durationWeeks, setDurationWeeks] = useState(4);
   const [frequencyPerWeek, setFrequencyPerWeek] = useState(3);
@@ -84,6 +85,14 @@ const ProgramAddPage = () => {
   };
 
   const handleConfirmFrequency = () => {
+    if (tempDuration <= 0 || tempFrequency <= 0) {
+      showToast(
+        "진행 기간과 주당 횟수는 반드시 1 이상의 숫자를 입력해야 합니다.",
+        "error",
+      );
+      return;
+    }
+
     // 확정 버튼을 눌렀을 때만 실제 State에 반영
     setDurationWeeks(tempDuration);
     setFrequencyPerWeek(tempFrequency);
