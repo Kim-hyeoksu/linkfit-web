@@ -1,8 +1,18 @@
 "use client";
+
 import { Header, Modal } from "@/shared";
 import { useState, useEffect } from "react";
 import { ExerciseList, type Exercise, getExercises } from "@/entities/exercise";
-import { ChevronRight, PlusCircle } from "lucide-react";
+import {
+  ChevronRight,
+  PlusCircle,
+  Calendar,
+  Settings2,
+  Check,
+  ArrowRight,
+  Info,
+  X,
+} from "lucide-react";
 
 interface ProgramPlanSet {
   setOrder: number;
@@ -34,8 +44,9 @@ interface ProgramPlan {
 }
 
 const ProgramAddPage = () => {
-  const [durationWeeks, setDurationWeeks] = useState(0);
-  const [frequencyPerWeek, setFrequencyPerWeek] = useState(0);
+  const [programTitle, setProgramTitle] = useState("");
+  const [durationWeeks, setDurationWeeks] = useState(4);
+  const [frequencyPerWeek, setFrequencyPerWeek] = useState(3);
   const [isFrequencyModalOpen, setIsFrequencyModalOpen] = useState(false);
   const [currentWeek, setCurrentWeek] = useState(1);
   const [isConfigured, setIsConfigured] = useState(false);
@@ -64,7 +75,6 @@ const ProgramAddPage = () => {
     setIsFrequencyModalOpen(false);
     setIsConfigured(true);
 
-    // 설정된 기간과 빈도에 맞춰 플랜 데이터 초기화
     const newPlans: ProgramPlan[] = [];
     let dayOrderCounter = 1;
     for (let w = 1; w <= durationWeeks; w++) {
@@ -74,7 +84,7 @@ const ProgramAddPage = () => {
           day: d,
           dayOrder: dayOrderCounter++,
           title: `${w}주차 ${d}일차`,
-          weekDay: 1, // 기본값 (월요일)
+          weekDay: 1,
           description: "",
           exercises: [],
         });
@@ -82,7 +92,6 @@ const ProgramAddPage = () => {
     }
     setPlans(newPlans);
 
-    // 기간이 줄어들어 현재 주차가 범위를 벗어날 경우 1주차로 초기화
     if (currentWeek > durationWeeks) {
       setCurrentWeek(1);
     }
@@ -124,39 +133,88 @@ const ProgramAddPage = () => {
   };
 
   return (
-    <div className=" flex flex-col gap-2 bg-[#F7F8F9] min-h-screen pb-20">
-      <Header title="새로운 루틴">
+    <div className="flex flex-col bg-[#F8FAFC] min-h-screen pb-20">
+      <Header title="프로그램 생성" showBackButton={true}>
         {isConfigured && (
-          <button className="text-blue-500 font-bold text-sm">저장</button>
+          <button
+            disabled={!programTitle}
+            className={`font-bold text-[14px] px-3 py-1.5 rounded-xl transition-all ${
+              programTitle
+                ? "text-main bg-blue-50 active:scale-95"
+                : "text-slate-300 bg-slate-100 cursor-not-allowed"
+            }`}
+          >
+            저장
+          </button>
         )}
       </Header>
-      <div className="p-5 flex flex-col gap-4">
-        {/* 운동 일정 설정 버튼 (요약 정보) */}
-        <div
-          onClick={() => setIsFrequencyModalOpen(true)}
-          className="border border-[#e5e5e5] rounded-xl p-4 flex justify-between items-center cursor-pointer bg-white shadow-sm"
-        >
-          <span className="font-bold text-gray-700">운동 일정</span>
-          <span className="text-blue-500 font-medium">
-            {durationWeeks}주간 주 {frequencyPerWeek}회
-          </span>
-        </div>
 
-        {/* 설정 완료 후에만 주차별 UI 표시 */}
+      <div className="px-5 pt-6 flex flex-col gap-8">
+        {/* 프로그램 기본 정보 */}
+        <section className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2.5 px-1">
+            <label className="text-[13px] font-bold text-slate-400 uppercase tracking-wider">
+              프로그램 정보
+            </label>
+            <input
+              type="text"
+              placeholder="프로그램 이름을 입력하세요"
+              value={programTitle}
+              onChange={(e) => setProgramTitle(e.target.value)}
+              className="w-full bg-white border border-slate-200 rounded-2xl p-4 text-[16px] font-bold text-slate-800 placeholder:text-slate-300 focus:ring-2 focus:ring-main/20 focus:border-main outline-none transition-all shadow-sm"
+            />
+          </div>
+
+          <div
+            onClick={() => setIsFrequencyModalOpen(true)}
+            className="group bg-white border border-slate-200 rounded-2xl p-5 flex justify-between items-center cursor-pointer hover:border-main/30 hover:shadow-md transition-all active:scale-[0.98]"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-main group-hover:bg-main group-hover:text-white transition-colors">
+                <Calendar size={22} />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[15px] font-bold text-slate-800">
+                  운동 일정 설정
+                </span>
+                <span className="text-[13px] text-slate-400 font-medium font-outfit">
+                  {isConfigured
+                    ? `${durationWeeks} Weeks • ${frequencyPerWeek} Days/Week`
+                    : "일정을 설정하고 플랜을 구성하세요"}
+                </span>
+              </div>
+            </div>
+            <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 group-hover:text-main group-hover:bg-blue-50 transition-colors">
+              <Settings2 size={18} />
+            </div>
+          </div>
+        </section>
+
+        {/* 주차별 플랜 구성 */}
         {isConfigured && (
-          <>
-            {/* 주차 탭 */}
-            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          <section className="flex flex-col gap-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="flex items-center justify-between px-1">
+              <label className="text-[13px] font-bold text-slate-400 uppercase tracking-wider">
+                주차별 플랜 구성
+              </label>
+              <span className="text-[11px] font-bold bg-blue-50 text-main px-2 py-0.5 rounded-full">
+                {currentWeek} / {durationWeeks} Weeks
+              </span>
+            </div>
+
+            {/* 주차 선택 탭 */}
+            <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide -mx-5 px-5">
               {Array.from({ length: durationWeeks }, (_, index) => {
                 const week = index + 1;
+                const isActive = week === currentWeek;
                 return (
                   <button
                     key={week}
                     onClick={() => setCurrentWeek(week)}
-                    className={`px-4 py-2 rounded-xl border text-sm whitespace-nowrap transition-all ${
-                      week === currentWeek
-                        ? "bg-main text-white border-main shadow-md shadow-blue-500/20"
-                        : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                    className={`h-11 px-5 rounded-2xl text-[14px] font-bold whitespace-nowrap border transition-all ${
+                      isActive
+                        ? "bg-slate-800 text-white border-slate-800 shadow-lg shadow-slate-200"
+                        : "bg-white text-slate-400 border-slate-200 hover:border-slate-300"
                     }`}
                   >
                     {week}주차
@@ -169,25 +227,49 @@ const ProgramAddPage = () => {
             <div className="flex flex-col gap-3">
               {plans
                 .filter((plan) => plan.week === currentWeek)
-                .map((plan, index) => (
-                  <div
-                    onClick={() => handlePlanItemClick(plan)}
-                    key={`${plan.week}-${plan.day}`}
-                    className="bg-white p-5 rounded-2xl border border-transparent shadow-sm flex justify-between items-center cursor-pointer hover:border-blue-200 transition-all active:scale-[0.98]"
-                  >
-                    <div>
-                      <div className="font-bold text-gray-900 text-[16px]">
-                        {plan.title}
+                .map((plan) => {
+                  const hasExercises = plan.exercises.length > 0;
+                  return (
+                    <div
+                      key={plan.dayOrder}
+                      onClick={() => handlePlanItemClick(plan)}
+                      className="group bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex justify-between items-center cursor-pointer hover:border-main/20 hover:shadow-md transition-all active:scale-[0.99]"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div
+                          className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-[14px] ${
+                            hasExercises
+                              ? "bg-blue-100 text-main"
+                              : "bg-slate-50 text-slate-300"
+                          }`}
+                        >
+                          D{plan.day}
+                        </div>
+                        <div className="flex flex-col">
+                          <h4 className="font-bold text-slate-800 text-[16px]">
+                            {plan.title || `${plan.day}일차 운동`}
+                          </h4>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            {hasExercises ? (
+                              <span className="text-[12px] font-bold text-main">
+                                {plan.exercises.length}개의 운동 포함
+                              </span>
+                            ) : (
+                              <span className="text-[12px] font-medium text-slate-300 italic">
+                                계획을 구성해주세요
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-sm text-gray-400 mt-1">
-                        {plan.description || "운동 계획을 구성해보세요"}
+                      <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 group-hover:bg-blue-50 group-hover:text-main transition-colors">
+                        <ArrowRight size={18} />
                       </div>
                     </div>
-                    <ChevronRight className="text-gray-300" size={20} />
-                  </div>
-                ))}
+                  );
+                })}
             </div>
-          </>
+          </section>
         )}
       </div>
 
@@ -197,45 +279,63 @@ const ProgramAddPage = () => {
         onClose={() => setIsFrequencyModalOpen(false)}
         title="운동 일정 설정"
       >
-        <div className="space-y-6 py-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              기간 (주)
-            </label>
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                min="1"
-                className="w-full border border-gray-300 rounded-lg p-3 text-center focus:ring-2 focus:ring-main focus:border-transparent outline-none transition-all"
-                value={durationWeeks}
-                onChange={(e) => setDurationWeeks(Number(e.target.value))}
-              />
-              <span className="text-gray-500 w-10 font-medium">주간</span>
+        <div className="flex flex-col gap-8 py-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-3">
+              <label className="text-[13px] font-bold text-slate-400 px-1 uppercase tracking-wider">
+                진행 기간
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  min="1"
+                  max="12"
+                  value={durationWeeks}
+                  onChange={(e) => setDurationWeeks(Number(e.target.value))}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 pr-12 text-center text-[18px] font-bold text-slate-800 focus:ring-2 focus:ring-main/20 focus:bg-white outline-none transition-all"
+                />
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[14px]">
+                  Weeks
+                </span>
+              </div>
+            </div>
+            <div className="flex flex-col gap-3">
+              <label className="text-[13px] font-bold text-slate-400 px-1 uppercase tracking-wider">
+                주당 횟수
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  min="1"
+                  max="7"
+                  value={frequencyPerWeek}
+                  onChange={(e) => setFrequencyPerWeek(Number(e.target.value))}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 pr-12 text-center text-[18px] font-bold text-slate-800 focus:ring-2 focus:ring-main/20 focus:bg-white outline-none transition-all"
+                />
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[14px]">
+                  Days
+                </span>
+              </div>
             </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              주당 횟수
-            </label>
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                min="1"
-                max="7"
-                className="w-full border border-gray-300 rounded-lg p-3 text-center focus:ring-2 focus:ring-main focus:border-transparent outline-none transition-all"
-                value={frequencyPerWeek}
-                onChange={(e) => setFrequencyPerWeek(Number(e.target.value))}
-              />
-              <span className="text-gray-500 w-10 font-medium">회</span>
-            </div>
+
+          <div className="bg-blue-50 rounded-2xl p-4 border border-blue-100 flex items-start gap-3">
+            <Info size={18} className="text-main mt-0.5 flex-shrink-0" />
+            <p className="text-[13px] text-blue-700 leading-relaxed font-medium">
+              설정하신 {durationWeeks}주 동안 매주 {frequencyPerWeek}번의 운동
+              플랜을 구성하게 됩니다. 설정 완료 시 기존 계획이 초기화될 수
+              있습니다.
+            </p>
           </div>
+
+          <button
+            onClick={handleConfirmFrequency}
+            className="w-full h-[60px] rounded-2xl bg-main text-white font-bold text-[16px] shadow-lg shadow-blue-500/25 active:scale-95 transition-all flex items-center justify-center gap-2"
+          >
+            <Check size={20} />
+            일정 확정하기
+          </button>
         </div>
-        <button
-          onClick={handleConfirmFrequency}
-          className="w-full h-[52px] rounded-xl bg-main text-white font-bold text-[16px] shadow-lg shadow-blue-500/20 active:scale-95 transition-all mt-4"
-        >
-          설정 완료
-        </button>
       </Modal>
 
       {/* 플랜 편집 모달 */}
@@ -243,14 +343,28 @@ const ProgramAddPage = () => {
         <Modal
           isOpen={!!editingPlan}
           onClose={() => setEditingPlan(null)}
-          title="플랜 편집"
+          title={step === 1 ? "플랜 정보 수정" : "운동 구성"}
         >
-          {step === 1 ? (
-            <>
-              <div className="space-y-6 py-4 max-h-[70vh] overflow-y-auto">
-                {/* 플랜 제목 */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-500 mb-2">
+          <div className="flex flex-col gap-6">
+            <div className="flex gap-1.5 p-1 bg-slate-100 rounded-2xl">
+              <button
+                onClick={() => setStep(1)}
+                className={`flex-1 py-2.5 rounded-xl text-[13px] font-bold transition-all ${step === 1 ? "bg-white text-slate-800 shadow-sm" : "text-slate-400"}`}
+              >
+                기본 정보
+              </button>
+              <button
+                onClick={() => setStep(2)}
+                className={`flex-1 py-2.5 rounded-xl text-[13px] font-bold transition-all ${step === 2 ? "bg-white text-slate-800 shadow-sm" : "text-slate-400"}`}
+              >
+                운동 목록
+              </button>
+            </div>
+
+            {step === 1 ? (
+              <div className="flex flex-col gap-6 py-2">
+                <div className="flex flex-col gap-2.5">
+                  <label className="text-[13px] font-bold text-slate-400 px-1 uppercase tracking-wider">
                     플랜 제목
                   </label>
                   <input
@@ -259,85 +373,140 @@ const ProgramAddPage = () => {
                     onChange={(e) =>
                       setEditingPlan({ ...editingPlan, title: e.target.value })
                     }
-                    className="w-full border border-gray-200 rounded-xl p-3 focus:ring-2 focus:ring-main outline-none transition-all"
-                    placeholder="예: 가슴 운동하는 날"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-[15px] font-bold text-slate-800 focus:ring-2 focus:ring-main/20 focus:bg-white outline-none transition-all"
+                    placeholder="운동 이름을 입력하세요 (예: 가슴 폭발)"
                   />
                 </div>
 
-                {/* 요일 선택 */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-500 mb-2">
-                    요일
+                <div className="flex flex-col gap-2.5">
+                  <label className="text-[13px] font-bold text-slate-400 px-1 uppercase tracking-wider">
+                    주요 요일
                   </label>
-                  <select
-                    value={editingPlan.weekDay}
+                  <div className="grid grid-cols-7 gap-1.5">
+                    {weekDays.map((day, index) => {
+                      const isSelected = editingPlan.weekDay === index + 1;
+                      return (
+                        <button
+                          key={day}
+                          onClick={() =>
+                            setEditingPlan({
+                              ...editingPlan,
+                              weekDay: index + 1,
+                            })
+                          }
+                          className={`h-11 rounded-xl text-[13px] font-bold transition-all border ${
+                            isSelected
+                              ? "bg-main text-white border-main shadow-md shadow-blue-500/20"
+                              : "bg-white text-slate-400 border-slate-200 hover:border-slate-300"
+                          }`}
+                        >
+                          {day}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2.5">
+                  <label className="text-[13px] font-bold text-slate-400 px-1 uppercase tracking-wider">
+                    메모 (선택)
+                  </label>
+                  <textarea
+                    value={editingPlan.description}
                     onChange={(e) =>
                       setEditingPlan({
                         ...editingPlan,
-                        weekDay: Number(e.target.value),
+                        description: e.target.value,
                       })
                     }
-                    className="w-full border border-gray-200 rounded-xl p-3 focus:ring-2 focus:ring-main outline-none transition-all appearance-none bg-white"
-                  >
-                    {weekDays.map((day, index) => (
-                      <option key={day} value={index + 1}>
-                        {day}요일
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <div className="mt-8 flex gap-3">
-                <button
-                  onClick={() => setEditingPlan(null)}
-                  className="flex-1 h-[52px] rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors"
-                >
-                  취소
-                </button>
-                <button
-                  onClick={() => setStep(2)}
-                  className="flex-1 h-[52px] rounded-xl bg-main text-white font-bold shadow-lg shadow-blue-500/20 active:scale-95 transition-all"
-                >
-                  다음
-                </button>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto">
-                <button
-                  onClick={() => setIsExerciseSelectorOpen(true)}
-                  className="w-full py-4 border-2 border-dashed border-gray-200 rounded-2xl text-gray-400 font-bold hover:border-main hover:text-main hover:bg-blue-50 transition-all flex items-center justify-center gap-2"
-                >
-                  <PlusCircle size={20} />
-                  운동 추가하기
-                </button>
-                <div className="min-h-[100px]">
-                  <ExerciseList
-                    exercises={editingPlan.exercises.map((e) => ({
-                      id: e.exerciseId,
-                      name: e.name,
-                      bodyPart: e.bodyPart,
-                    }))}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-[15px] font-medium text-slate-800 focus:ring-2 focus:ring-main/20 focus:bg-white outline-none transition-all h-24 resize-none"
+                    placeholder="이날 운동에 대한 팁을 적어주세요"
                   />
                 </div>
-              </div>
-              <div className="mt-8 flex gap-3">
+
                 <button
-                  onClick={() => setStep(1)}
-                  className="flex-1 h-[52px] rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors"
+                  onClick={() => setStep(2)}
+                  className="w-full h-[56px] rounded-2xl bg-slate-800 text-white font-bold text-[15px] mt-4 shadow-lg shadow-slate-200 active:scale-95 transition-all flex items-center justify-center gap-2"
                 >
-                  이전
-                </button>
-                <button
-                  onClick={handleSavePlan}
-                  className="flex-1 h-[52px] rounded-xl bg-main text-white font-bold shadow-lg shadow-blue-500/20 active:scale-95 transition-all"
-                >
-                  저장
+                  운동 구성하러 가기
+                  <ArrowRight size={18} />
                 </button>
               </div>
-            </>
-          )}
+            ) : (
+              <div className="flex flex-col gap-5 py-2">
+                <button
+                  onClick={() => setIsExerciseSelectorOpen(true)}
+                  className="w-full py-6 border-2 border-dashed border-slate-200 rounded-3xl text-slate-300 font-bold hover:border-main/40 hover:text-main hover:bg-blue-50 transition-all flex flex-col items-center justify-center gap-2 group"
+                >
+                  <div className="w-10 h-10 rounded-full bg-slate-50 text-slate-300 flex items-center justify-center group-hover:bg-blue-100 group-hover:text-main transition-all">
+                    <PlusCircle size={24} />
+                  </div>
+                  운동 추가하기
+                </button>
+
+                <div className="max-h-[300px] overflow-y-auto pr-1 scrollbar-hide">
+                  {editingPlan.exercises.length > 0 ? (
+                    <div className="flex flex-col gap-3">
+                      {editingPlan.exercises.map((e, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-center gap-3 bg-white p-3.5 rounded-2xl border border-slate-100 shadow-sm"
+                        >
+                          <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-[12px] font-bold text-slate-400">
+                            {idx + 1}
+                          </div>
+                          <div className="flex flex-col grow">
+                            <span className="text-[14px] font-bold text-slate-800">
+                              {e.name}
+                            </span>
+                            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-tighter">
+                              {e.bodyPart}
+                            </span>
+                          </div>
+                          <button
+                            className="p-2 text-slate-300 hover:text-red-400 transition-colors"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              const newExercises = editingPlan.exercises.filter(
+                                (_, i) => i !== idx,
+                              );
+                              setEditingPlan({
+                                ...editingPlan,
+                                exercises: newExercises,
+                              });
+                            }}
+                          >
+                            <X size={18} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-10 text-slate-300">
+                      <p className="text-[13px] font-medium">
+                        아직 등록된 운동이 없습니다.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex gap-2.5 mt-2">
+                  <button
+                    onClick={() => setStep(1)}
+                    className="flex-1 h-[56px] rounded-2xl bg-slate-100 text-slate-500 font-bold hover:bg-slate-200 transition-all"
+                  >
+                    이전
+                  </button>
+                  <button
+                    onClick={handleSavePlan}
+                    className="flex-[2] h-[56px] rounded-2xl bg-main text-white font-bold shadow-lg shadow-blue-500/25 active:scale-95 transition-all"
+                  >
+                    플랜 저장하기
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </Modal>
       )}
 
@@ -345,13 +514,15 @@ const ProgramAddPage = () => {
       <Modal
         isOpen={isExerciseSelectorOpen}
         onClose={() => setIsExerciseSelectorOpen(false)}
-        title="운동 선택"
+        title="운동 검색 및 선택"
       >
-        <div className="h-[60vh] overflow-y-auto pr-2 scrollbar-hide">
-          <ExerciseList
-            exercises={availableExercises}
-            onSelect={handleAddExercise}
-          />
+        <div className="h-[65vh] flex flex-col -mx-1">
+          <div className="h-full overflow-y-auto pr-1 scrollbar-hide">
+            <ExerciseList
+              exercises={availableExercises}
+              onSelect={handleAddExercise}
+            />
+          </div>
         </div>
       </Modal>
     </div>

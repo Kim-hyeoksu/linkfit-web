@@ -62,7 +62,7 @@ export default function ProgramsPage() {
         />
       </Header>
 
-      <div className="px-5 pt-6 flex flex-col gap-8 pb-[100px]">
+      <div className="px-5 pt-6 flex flex-col gap-8 pb-5">
         <StandalonePlanList
           plans={standalonePlans}
           title="나만의 플랜"
