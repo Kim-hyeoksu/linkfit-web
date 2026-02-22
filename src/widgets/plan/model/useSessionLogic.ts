@@ -101,7 +101,6 @@ export const useSessionLogic = (
       const now = new Date().toISOString();
       const body: StartSessionRequest = {
         planId: initialPlanDetail.id,
-        userId: 1, // TODO: 실제 유저 ID
         sessionDate: now,
         memo: "",
       };
