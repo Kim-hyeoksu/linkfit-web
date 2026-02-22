@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+import { Dumbbell } from "lucide-react";
 import { Exercise } from "@/entities/exercise";
 
 interface ExerciseListProps {
@@ -10,6 +12,13 @@ interface ExerciseListProps {
   })[];
   onSelect?: (exercise: any) => void;
 }
+
+const getImageUrl = (ex: any) => {
+  const path = ex.imagePath || ex.exerciseImagePath || ex.imageUrl;
+  if (!path) return null;
+  if (path.startsWith("http")) return path;
+  return `${process.env.NEXT_PUBLIC_API_URL}${path}`;
+};
 
 export function ExerciseList({ exercises, onSelect }: ExerciseListProps) {
   return (
@@ -24,7 +33,18 @@ export function ExerciseList({ exercises, onSelect }: ExerciseListProps) {
             <div className="font-bold text-gray-900">{exercise.name}</div>
             <div className="text-sm text-gray-500">{exercise.bodyPart}</div>
           </div>
-          <div className="w-16 h-16 bg-gray-200 rounded-lg"></div>
+          <div className="w-16 h-16 bg-slate-50 flex-shrink-0 rounded-xl overflow-hidden shadow-inner border border-slate-100 flex items-center justify-center relative">
+            {getImageUrl(exercise as any) ? (
+              <Image
+                src={getImageUrl(exercise as any)!}
+                alt={exercise.name}
+                fill
+                className="object-cover"
+              />
+            ) : (
+              <Dumbbell size={24} className="text-slate-300" />
+            )}
+          </div>
         </div>
       ))}
     </div>
