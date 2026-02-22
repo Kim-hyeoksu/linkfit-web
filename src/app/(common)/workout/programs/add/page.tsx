@@ -2,6 +2,8 @@
 
 import { Header, Modal, useToast } from "@/shared";
 import { useState, useEffect } from "react";
+import { useAtomValue } from "jotai";
+import { userState } from "@/entities/user/model/userState";
 import { ExerciseList, type Exercise, getExercises } from "@/entities/exercise";
 import {
   ChevronRight,
@@ -44,8 +46,15 @@ interface ProgramPlan {
 }
 
 const ProgramAddPage = () => {
+  const user = useAtomValue(userState);
   const { showToast } = useToast();
   const [programTitle, setProgramTitle] = useState("");
+  const [programDescription, setProgramDescription] = useState("");
+  const [programLevel, setProgramLevel] = useState<
+    "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | ""
+  >("");
+  const [programCategory, setProgramCategory] = useState<number>(0);
+
   const [durationWeeks, setDurationWeeks] = useState(4);
   const [frequencyPerWeek, setFrequencyPerWeek] = useState(3);
 
@@ -187,6 +196,72 @@ const ProgramAddPage = () => {
               onChange={(e) => setProgramTitle(e.target.value)}
               className="w-full bg-white border border-slate-200 rounded-2xl p-4 text-[16px] font-bold text-slate-800 placeholder:text-slate-300 focus:ring-2 focus:ring-main/20 focus:border-main outline-none transition-all shadow-sm"
             />
+            <textarea
+              placeholder="프로그램에 대한 간단한 설명을 적어주세요"
+              value={programDescription}
+              onChange={(e) => setProgramDescription(e.target.value)}
+              className="w-full bg-white border border-slate-200 rounded-2xl p-4 text-[15px] font-medium text-slate-800 placeholder:text-slate-300 focus:ring-2 focus:ring-main/20 focus:border-main outline-none transition-all shadow-sm h-24 resize-none mt-2"
+            />
+
+            {user?.userType === "TRAINER" && (
+              <div className="flex flex-col gap-2.5 mt-2">
+                <label className="text-[13px] font-bold text-slate-400 uppercase tracking-wider">
+                  난이도 설정
+                </label>
+                <div className="flex gap-2">
+                  {[
+                    { value: "BEGINNER", label: "초급" },
+                    { value: "INTERMEDIATE", label: "중급" },
+                    { value: "ADVANCED", label: "고급" },
+                  ].map((level) => {
+                    const isSelected = programLevel === level.value;
+                    return (
+                      <button
+                        key={level.value}
+                        onClick={() => setProgramLevel(level.value as any)}
+                        className={`flex-1 h-11 rounded-xl text-[14px] font-bold transition-all border ${
+                          isSelected
+                            ? "bg-slate-800 text-white border-slate-800 shadow-md"
+                            : "bg-white text-slate-400 border-slate-200 hover:border-slate-300"
+                        }`}
+                      >
+                        {level.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            <div className="flex flex-col gap-2.5 mt-2">
+              <label className="text-[13px] font-bold text-slate-400 uppercase tracking-wider">
+                카테고리 목적
+              </label>
+              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                {[
+                  { id: 1, label: "다이어트" },
+                  { id: 2, label: "벌크업" },
+                  { id: 3, label: "체력증진" },
+                  { id: 4, label: "바디프로필" },
+                  { id: 5, label: "재활/교정" },
+                ].map((cat) => {
+                  const isSelected = programCategory === cat.id;
+                  return (
+                    <button
+                      key={cat.id}
+                      onClick={() => setProgramCategory(cat.id)}
+                      className={`whitespace-nowrap px-4 h-11 rounded-xl text-[14px] font-bold transition-all border ${
+                        isSelected
+                          ? "bg-main text-white border-main shadow-md shadow-blue-500/20"
+                          : "bg-white text-slate-400 border-slate-200 hover:border-slate-300"
+                      }`}
+                    >
+                      {cat.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
 
           <div
