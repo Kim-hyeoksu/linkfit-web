@@ -36,7 +36,7 @@ export default function MyProgramsPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-[#F7F8F9]">
-      <Header title="나의 운동" rightButtonIconUrl={"/workout/history"}>
+      <Header title="나의 운동" rightButtonIconUrl={"/workout/calendar"}>
         <Calendar
           size={24}
           className="text-slate-400 hover:text-slate-600 transition-colors"

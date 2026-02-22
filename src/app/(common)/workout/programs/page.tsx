@@ -53,7 +53,7 @@ export default function ProgramsPage() {
       <Header
         title="운동 프로그램"
         showBackButton={false}
-        rightButtonIconUrl={"/workout/history"}
+        rightButtonIconUrl={"/workout/calendar"}
       >
         <Calendar
           size={24}
