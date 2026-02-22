@@ -67,11 +67,6 @@ export const ExerciseCard = ({
       }`}
       onClick={() => onClickExercise(exerciseId)}
     >
-      {/* Decorative side accent for current exercise */}
-      {isCurrent && (
-        <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-main rounded-l-full" />
-      )}
-
       <div className="p-5">
         {/* Header */}
         <div className="flex justify-between items-start mb-6">
@@ -79,7 +74,7 @@ export const ExerciseCard = ({
             <h2 className="text-[20px] font-extrabold text-[#1e293b] leading-tight tracking-tight">
               {exerciseName}
             </h2>
-            <div className="flex flex-wrap gap-2 items-center">
+            <div className="flex flex-wrap gap-1 items-center">
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 uppercase tracking-wider">
                 {exercise.bodyPart ?? "전신"}
               </span>
@@ -89,7 +84,7 @@ export const ExerciseCard = ({
             </div>
           </div>
 
-          <div className="flex items-start gap-4">
+          <div className="flex items-start gap-2">
             <button
               onClick={(e) => {
                 e.stopPropagation();
