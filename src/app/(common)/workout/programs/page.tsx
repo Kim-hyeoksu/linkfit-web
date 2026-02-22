@@ -66,12 +66,14 @@ export default function ProgramsPage() {
           plans={standalonePlans}
           title="나만의 플랜"
           moreLink="/workout/plans"
+          helpMessage="프로그램에 속해있지 않은 자유로운 단일 운동 플랜이에요."
         />
 
         <ProgramList
           programs={programs}
           title={"추천 프로그램"}
           moreLink="/workout/programs/popular"
+          helpMessage="전문가들이 미리 구성해 둔 체계적인 운동 세트 조합이에요."
         />
         <ProgramList
           programs={programs}
@@ -80,6 +82,7 @@ export default function ProgramsPage() {
           addLink="/workout/programs/add"
           emptyMessage="아직 나만의 루틴이 없어요"
           emptyButtonLabel="루틴 만들기"
+          helpMessage="사용자가 직접 구성하고 저장해 둔 맞춤형 운동 프로그램이에요."
         />
       </div>
     </div>
