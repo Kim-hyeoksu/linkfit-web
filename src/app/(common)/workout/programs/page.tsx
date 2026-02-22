@@ -49,7 +49,7 @@ export default function ProgramsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] pb-40">
+    <div className="min-h-screen bg-[#f8fafc] pb-20">
       <Header
         title="운동 프로그램"
         showBackButton={false}
@@ -77,17 +77,10 @@ export default function ProgramsPage() {
           programs={programs}
           title={"나의 운동 루틴"}
           moreLink="/workout/programs/mine"
+          addLink="/workout/programs/add"
+          emptyMessage="아직 나만의 루틴이 없어요"
+          emptyButtonLabel="루틴 만들기"
         />
-      </div>
-
-      <div className="fixed bottom-0 left-0 right-0 z-40 w-full max-w-xl mx-auto px-5 pointer-events-none">
-        <Link
-          href={"/workout/programs/add"}
-          className="pointer-events-auto h-[56px] w-full mb-24 flex items-center justify-center gap-2 bg-main text-white rounded-2xl font-bold text-[16px] shadow-lg shadow-blue-500/20 active:scale-95 transition-all"
-        >
-          <PlusCircle size={24} />
-          <span>새로운 루틴 만들기</span>
-        </Link>
       </div>
     </div>
   );
