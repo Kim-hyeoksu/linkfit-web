@@ -3,7 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { Header } from "@/shared";
 import { getSessions } from "@/entities/session";
-
+import {
+  ChevronLeft,
+  ChevronRight,
+  Calendar as CalendarIcon,
+  Clock,
+  Activity,
+  Dumbbell,
+} from "lucide-react";
 type SessionLike = any;
 
 const pad2 = (n: number) => String(n).padStart(2, "0");
@@ -12,7 +19,7 @@ const toDateKeyLocal = (value: string | Date) => {
   const date = typeof value === "string" ? new Date(value) : value;
   if (Number.isNaN(date.getTime())) return null;
   return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(
-    date.getDate()
+    date.getDate(),
   )}`;
 };
 
@@ -92,7 +99,7 @@ const getExerciseSets = (exercise: any) => {
 
 const isCompletedSet = (set: any) => {
   return Boolean(
-    set.completedAt || set.isComplete || set.status === "COMPLETED"
+    set.completedAt || set.isComplete || set.status === "COMPLETED",
   );
 };
 
@@ -115,15 +122,15 @@ export default function WorkoutCalendarPage() {
       setSelectedDateKey(null);
 
       const from = `${monthCursor.getFullYear()}-${pad2(
-        monthCursor.getMonth() + 1
+        monthCursor.getMonth() + 1,
       )}-01`;
       const lastDay = new Date(
         monthCursor.getFullYear(),
         monthCursor.getMonth() + 1,
-        0
+        0,
       ).getDate();
       const to = `${monthCursor.getFullYear()}-${pad2(
-        monthCursor.getMonth() + 1
+        monthCursor.getMonth() + 1,
       )}-${pad2(lastDay)}`;
 
       try {
@@ -133,7 +140,7 @@ export default function WorkoutCalendarPage() {
           to,
           status: "COMPLETED",
         });
-        const list = Array.isArray(data) ? data : data?.content ?? [];
+        const list = Array.isArray(data) ? data : (data?.content ?? []);
         if (mounted) setSessions(list);
       } catch (e) {
         if (mounted) setError("운동 기록을 불러오지 못했습니다.");
@@ -170,7 +177,7 @@ export default function WorkoutCalendarPage() {
   }, [sessions]);
 
   const monthLabel = `${monthCursor.getFullYear()}.${pad2(
-    monthCursor.getMonth() + 1
+    monthCursor.getMonth() + 1,
   )}`;
 
   const calendarCells = useMemo(() => {
@@ -192,7 +199,7 @@ export default function WorkoutCalendarPage() {
   }, [monthCursor]);
 
   const selectedSessions = selectedDateKey
-    ? sessionsByDate.get(selectedDateKey) ?? []
+    ? (sessionsByDate.get(selectedDateKey) ?? [])
     : [];
 
   return (
@@ -201,48 +208,58 @@ export default function WorkoutCalendarPage() {
         <div />
       </Header>
 
-      <div className="px-5 pt-[72px] pb-10 bg-[#F7F8F9] min-h-screen">
-        {/* 캘린더 */}
-        <div className="bg-white rounded-lg p-4">
-          <div className="flex items-center justify-between">
+      <div className="px-5 pt-5 pb-10 bg-[#F7F8F9] min-h-screen">
+        {/* 캘린더 영역 */}
+        <div className="bg-white rounded-3xl p-6 shadow-[0_2px_20px_rgba(0,0,0,0.04)] mb-8">
+          <div className="flex items-center justify-between mb-6">
             <button
-              className="w-[42px] h-[32px] rounded-lg bg-main text-white"
+              className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100 active:scale-95 transition-all"
               onClick={() =>
                 setMonthCursor(
-                  (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1)
+                  (prev) =>
+                    new Date(prev.getFullYear(), prev.getMonth() - 1, 1),
                 )
               }
             >
-              이전
+              <ChevronLeft size={20} />
             </button>
-            <div className="font-bold">{monthLabel}</div>
+            <div className="text-lg font-extrabold tracking-tight text-slate-800">
+              {monthLabel}
+            </div>
             <button
-              className="w-[42px] h-[32px] rounded-lg bg-main text-white"
+              className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100 active:scale-95 transition-all"
               onClick={() =>
                 setMonthCursor(
-                  (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1)
+                  (prev) =>
+                    new Date(prev.getFullYear(), prev.getMonth() + 1, 1),
                 )
               }
             >
-              다음
+              <ChevronRight size={20} />
             </button>
           </div>
 
-          <div className="grid grid-cols-7 gap-1 mt-3 text-center text-xs text-gray-500">
-            {["일", "월", "화", "수", "목", "금", "토"].map((d) => (
-              <div key={d} className="py-1">
+          <div className="grid grid-cols-7 gap-1 mt-3 text-center text-[13px] font-semibold text-slate-400">
+            {["일", "월", "화", "수", "목", "금", "토"].map((d, i) => (
+              <div
+                key={d}
+                className={`py-2 ${i === 0 ? "text-red-400" : i === 6 ? "text-blue-400" : ""}`}
+              >
                 {d}
               </div>
             ))}
           </div>
 
-          <div className="grid grid-cols-7 gap-1 mt-1">
+          <div className="grid grid-cols-7 gap-y-3 gap-x-1 mt-2">
             {calendarCells.map((cell, idx) => {
               const hasWorkout =
                 cell.dateKey != null &&
                 (sessionsByDate.get(cell.dateKey)?.length ?? 0) > 0;
               const isSelected =
                 cell.dateKey != null && cell.dateKey === selectedDateKey;
+
+              const isToday = cell.dateKey === toDateKeyLocal(new Date());
+
               return (
                 <button
                   key={`${cell.dateKey ?? "empty"}-${idx}`}
@@ -251,19 +268,29 @@ export default function WorkoutCalendarPage() {
                   onClick={() => {
                     if (!cell.dateKey) return;
                     setSelectedDateKey((prev) =>
-                      prev === cell.dateKey ? null : cell.dateKey
+                      prev === cell.dateKey ? null : cell.dateKey,
                     );
                   }}
-                  className={`h-[44px] rounded-lg border text-sm flex flex-col items-center justify-center ${
-                    cell.dateKey
-                      ? "bg-white border-[#d9d9d9]"
-                      : "bg-[#F7F8F9] border-transparent"
-                  } ${isSelected ? "border-black" : ""}`}
+                  className={`relative h-12 rounded-xl flex flex-col items-center justify-center transition-all ${
+                    !cell.dateKey
+                      ? "bg-transparent cursor-default"
+                      : isSelected
+                        ? "bg-main text-white shadow-md shadow-blue-500/20 font-bold"
+                        : hasWorkout
+                          ? "bg-blue-50 text-slate-700 font-semibold hover:bg-blue-100"
+                          : "bg-transparent text-slate-600 hover:bg-slate-50 font-medium"
+                  } ${isToday && !isSelected ? "ring-2 ring-main ring-inset text-main font-bold" : ""}`}
                 >
-                  <div className="leading-none">{cell.day ?? ""}</div>
-                  <div className="h-[10px] flex items-center justify-center">
+                  <span className="text-[15px] z-10 leading-none mt-0.5">
+                    {cell.day ?? ""}
+                  </span>
+
+                  {/* 작은 점 표시 (기록이 있고 선택되지 않았을 때만 보이거나, 조금 다르게 처리) */}
+                  <div className="h-1.5 w-full flex justify-center items-center mt-1">
                     {hasWorkout && (
-                      <div className="w-1.5 h-1.5 rounded-full bg-main" />
+                      <div
+                        className={`w-1 h-1 rounded-full ${isSelected ? "bg-white" : "bg-main"}`}
+                      />
                     )}
                   </div>
                 </button>
@@ -271,21 +298,40 @@ export default function WorkoutCalendarPage() {
             })}
           </div>
         </div>
-        {/* 리스트 */}
-        <div className="mt-3 bg-white rounded-lg p-4">
+        {/* 리스트 영역 */}
+        <div className="px-1">
           {loading ? (
-            <div className="text-sm text-gray-600">불러오는 중...</div>
+            <div className="flex flex-col items-center justify-center py-10 opacity-60">
+              <div className="w-8 h-8 border-4 border-slate-200 border-t-main rounded-full animate-spin mb-4" />
+              <span className="text-sm font-medium text-slate-500">
+                운동 기록을 불러오는 중...
+              </span>
+            </div>
           ) : error ? (
-            <div className="text-sm text-gray-600">{error}</div>
+            <div className="text-center py-10 text-sm font-medium text-red-500 bg-red-50 rounded-2xl">
+              {error}
+            </div>
           ) : selectedDateKey ? (
-            <>
-              <div className="font-bold mb-3">
-                {formatDateHeader(selectedDateKey)} (
-                {getWeekdayKo(selectedDateKey)}) 운동 기록
+            <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="flex items-center gap-2 mb-4 px-1">
+                <CalendarIcon size={20} className="text-main" />
+                <h3 className="text-lg font-extrabold text-slate-800 tracking-tight">
+                  {formatDateHeader(selectedDateKey)} (
+                  {getWeekdayKo(selectedDateKey)})
+                </h3>
               </div>
+
               {selectedSessions.length === 0 ? (
-                <div className="text-sm text-gray-600">
-                  선택한 날짜에 운동 기록이 없습니다.
+                <div className="bg-white rounded-3xl p-10 text-center shadow-[0_2px_20px_rgba(0,0,0,0.02)] border border-slate-100 flex flex-col items-center">
+                  <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                    <Dumbbell size={28} className="text-slate-300" />
+                  </div>
+                  <div className="text-[15px] font-bold text-slate-600 mb-1">
+                    빈 캘린더네요!
+                  </div>
+                  <div className="text-sm text-slate-400">
+                    선택한 날짜에는 아직 운동 완료 기록이 없어요.
+                  </div>
                 </div>
               ) : (
                 <div className="flex flex-col gap-4">
@@ -303,95 +349,137 @@ export default function WorkoutCalendarPage() {
                           }
                         }}
                         key={s.id ?? idx}
-                        className="text-left border rounded-lg p-3"
+                        className="w-full text-left bg-white rounded-3xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-100 hover:border-blue-100 hover:shadow-[0_8px_30px_rgba(59,130,246,0.08)] transition-all active:scale-[0.98] group relative overflow-hidden flex flex-col gap-4"
                       >
-                        <div className="flex justify-between text-sm">
-                          <div className="font-medium">
-                            {formatTime(s.startedAt)} ~ {formatTime(s.endedAt)}
+                        <div className="absolute top-0 left-0 w-1.5 h-full bg-main rounded-l-3xl opacity-80" />
+
+                        {/* Header Info */}
+                        <div className="pl-3">
+                          <div className="flex justify-between items-start mb-1.5">
+                            {planTitle || programName ? (
+                              <h4 className="text-base font-extrabold text-slate-800 line-clamp-1 pr-4">
+                                {programName ? (
+                                  <span className="text-main mr-1">
+                                    [{programName}]
+                                  </span>
+                                ) : (
+                                  ""
+                                )}
+                                {planTitle ?? "완료된 운동"}
+                              </h4>
+                            ) : (
+                              <h4 className="text-base font-extrabold text-slate-800">
+                                자유 운동
+                              </h4>
+                            )}
                           </div>
-                          <div className="text-gray-600">
-                            {formatDuration(duration)}
+
+                          <div className="flex flex-wrap items-center gap-3 mt-2">
+                            <div className="flex items-center gap-1.5 text-[13px] font-medium text-slate-500 bg-slate-50 px-2.5 py-1 rounded-lg">
+                              <Clock size={14} className="text-slate-400" />
+                              <span>
+                                {formatTime(s.startedAt)} ~{" "}
+                                {formatTime(s.endedAt)}
+                              </span>
+                              <span className="text-slate-300">|</span>
+                              <span className="text-slate-700 font-bold">
+                                {formatDuration(duration)}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-[13px] font-medium text-slate-500 bg-blue-50 px-2.5 py-1 rounded-lg">
+                              <Activity size={14} className="text-blue-400" />
+                              <span>총 볼륨</span>
+                              <span className="text-blue-600 font-bold">
+                                {Math.round(
+                                  getSessionTotalVolumeKg(s),
+                                ).toLocaleString()}{" "}
+                                <span className="text-[11px] font-medium">
+                                  kg
+                                </span>
+                              </span>
+                            </div>
                           </div>
                         </div>
-                        {(planTitle || programName) && (
-                          <div className="mt-2 text-xs text-gray-600">
-                            {programName ? `[${programName}] ` : ""}
-                            {planTitle ?? ""}
-                          </div>
-                        )}
-                          <div className="mt-1 text-xs text-gray-600">
-                            총 볼륨 {Math.round(getSessionTotalVolumeKg(s))} kg
-                          </div>
-                        <div className="mt-2 flex flex-col gap-2">
-                          {(exercises as any[]).map((ex, exIdx) => {
+
+                        {/* Exercise Summary Preview (Only show first 3) */}
+                        <div className="pl-3 mt-1 pt-4 border-t border-slate-50 flex flex-col gap-2.5">
+                          {(exercises as any[]).slice(0, 3).map((ex, exIdx) => {
                             const name =
                               ex.exerciseName ?? ex.name ?? ex.title ?? "운동";
                             const sets = getExerciseSets(ex);
                             const completedSets = (sets as any[]).filter(
-                              isCompletedSet
+                              isCompletedSet,
                             );
+
                             if (completedSets.length === 0) return null;
+
+                            // Simple summary for the card: "Squat (3 sets)"
                             return (
-                              <div key={`${name}-${exIdx}`} className="text-sm">
-                                <div className="font-medium text-gray-800">
+                              <div
+                                key={`${name}-${exIdx}`}
+                                className="flex items-center gap-2 text-sm"
+                              >
+                                <div className="w-1.5 h-1.5 rounded-full bg-slate-300 group-hover:bg-blue-300 transition-colors" />
+                                <span className="font-bold text-slate-700">
                                   {name}
-                                </div>
-                                <div className="mt-1 flex flex-col gap-1">
-                                  {completedSets.map(
-                                    (set: any, setIdx: number) => (
-                                      <div
-                                        key={`${exIdx}-${setIdx}`}
-                                        className="flex justify-between text-gray-700"
-                                      >
-                                        <div>
-                                          {set.setOrder ??
-                                            set.order ??
-                                            setIdx + 1}
-                                          세트
-                                        </div>
-                                        <div className="text-gray-600">
-                                          {set.weight ??
-                                            set.actualWeight ??
-                                            set.targetWeight ??
-                                            "-"}
-                                          kg ·{" "}
-                                          {set.reps ??
-                                            set.actualReps ??
-                                            set.targetReps ??
-                                            "-"}
-                                          회
-                                        </div>
-                                      </div>
-                                    )
-                                  )}
-                                </div>
+                                </span>
+                                <span className="text-slate-400 text-[13px] font-medium ml-1">
+                                  {completedSets.length}세트 완료
+                                </span>
                               </div>
                             );
                           })}
+                          {(exercises as any[]).length > 3 && (
+                            <div className="text-[13px] font-bold text-slate-400 pl-3 mt-1">
+                              + {(exercises as any[]).length - 3}개의 운동
+                              더보기
+                            </div>
+                          )}
                         </div>
                       </button>
                     );
                   })}
                 </div>
               )}
-            </>
+            </div>
           ) : (
-            <>
-              <div className="font-bold mb-3">{monthLabel} 전체 운동 기록</div>
+            <div className="animate-in fade-in duration-300">
+              <div className="flex items-center gap-2 mb-4 px-1">
+                <Activity size={20} className="text-slate-400" />
+                <h3 className="text-lg font-extrabold text-slate-800 tracking-tight">
+                  {monthCursor.getMonth() + 1}월 전체 요약
+                </h3>
+              </div>
+
               {sessionsByDate.size === 0 ? (
-                <div className="text-sm text-gray-600">
-                  이번 달 운동 기록이 없습니다.
+                <div className="bg-white rounded-3xl p-10 text-center shadow-[0_2px_20px_rgba(0,0,0,0.02)] border border-slate-100 flex flex-col items-center">
+                  <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                    <CalendarIcon size={28} className="text-slate-300" />
+                  </div>
+                  <div className="text-[15px] font-bold text-slate-600 mb-1">
+                    이번 달은 아직 운동 기록이 없네요!
+                  </div>
+                  <div className="text-sm text-slate-400">
+                    루틴을 시작하고 멋지게 캘린더를 채워보세요.
+                  </div>
                 </div>
               ) : (
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-8">
                   {[...sessionsByDate.entries()]
-                    .sort(([a], [b]) => (a < b ? -1 : 1))
+                    .sort(([a], [b]) => (a < b ? -1 : 1)) // 오름차순
                     .map(([dateKey, list]) => (
-                      <div key={dateKey}>
-                        <div className="text-sm font-medium text-gray-800 mb-2">
-                          {formatDateHeader(dateKey)} ({getWeekdayKo(dateKey)})
+                      <div key={dateKey} className="relative">
+                        <div className="sticky top-[64px] z-10 bg-[#f8fafc]/95 backdrop-blur-sm py-2 px-1 mb-2 border-b border-slate-100">
+                          <div className="text-[15px] font-extrabold text-slate-800 tracking-tight flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-main" />
+                            {formatDateHeader(dateKey)}{" "}
+                            <span className="text-slate-400 text-[13px] font-medium ml-0.5">
+                              ({getWeekdayKo(dateKey)})
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex flex-col gap-2">
+
+                        <div className="flex flex-col gap-3 px-1 mt-3">
                           {list.map((s, idx) => (
                             <button
                               key={s.id ?? idx}
@@ -403,44 +491,46 @@ export default function WorkoutCalendarPage() {
                                   setSelectedDateKey(dateKey);
                                 }
                               }}
-                              className="text-left border rounded-lg p-3"
+                              className="w-full text-left bg-white rounded-2xl p-4 shadow-sm border border-slate-100 hover:border-main/30 hover:shadow-md transition-all active:scale-[0.98] flex gap-4 items-center"
                             >
-                              <div className="flex justify-between text-sm">
-                                <div className="font-medium">
-                                  {formatTime(s.startedAt)} ~{" "}
-	                                  {formatTime(s.endedAt)}
-	                                </div>
-	                                <div className="text-gray-600">
-	                                  {formatDuration(s.totalDurationSeconds)}
-	                                </div>
-	                              </div>
-	                              <div className="mt-2 text-xs text-gray-600 line-clamp-2">
-	                                {s.programName || s.planTitle
-	                                  ? `${
-	                                      s.programName ? `[${s.programName}] ` : ""
-	                                    }${s.planTitle ?? ""}`
-	                                  : (getSessionExercises(s) as any[])
-	                                      .map(
-	                                        (ex) =>
-	                                          ex.exerciseName ??
-	                                          ex.name ??
-	                                          ex.title ??
-	                                          "운동"
-	                                      )
-	                                      .join(", ")}
-	                              </div>
-                                  <div className="mt-1 text-xs text-gray-600">
-                                    총 볼륨 {Math.round(getSessionTotalVolumeKg(s))}{" "}
+                              <div className="flex-1 flex flex-col gap-1.5">
+                                <div className="text-[15px] font-extrabold text-slate-800 line-clamp-1">
+                                  {s.programName || s.planTitle
+                                    ? `${s.programName ? `[${s.programName}] ` : ""}${s.planTitle ?? ""}`
+                                    : (getSessionExercises(s) as any[])
+                                        .map(
+                                          (ex) =>
+                                            ex.exerciseName ??
+                                            ex.name ??
+                                            "운동",
+                                        )
+                                        .join(", ")}
+                                </div>
+
+                                <div className="flex flex-wrap items-center gap-2 mt-1">
+                                  <div className="text-[12px] font-medium text-slate-500 bg-slate-50 px-2 py-0.5 rounded-md">
+                                    {formatTime(s.startedAt)} -{" "}
+                                    {formatDuration(s.totalDurationSeconds)}
+                                  </div>
+                                  <div className="text-[12px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">
+                                    {Math.round(
+                                      getSessionTotalVolumeKg(s),
+                                    ).toLocaleString()}{" "}
                                     kg
                                   </div>
-	                            </button>
-	                          ))}
-	                        </div>
-	                      </div>
+                                </div>
+                              </div>
+                              <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 flex-shrink-0">
+                                <ChevronRight size={18} />
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     ))}
                 </div>
               )}
-            </>
+            </div>
           )}
         </div>
       </div>
