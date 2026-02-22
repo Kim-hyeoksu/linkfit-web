@@ -78,10 +78,10 @@ export default function ProgramsPage() {
         />
         <ProgramList
           programs={programs}
-          title={"나의 운동 루틴"}
+          title={"나의 프로그램"}
           moreLink="/workout/programs/mine"
-          emptyMessage="아직 나만의 루틴이 없어요"
-          emptyButtonLabel="루틴 만들기"
+          emptyMessage="아직 나만의 프로그램이 없어요"
+          emptyButtonLabel="프로그램 만들기"
           helpMessage="사용자가 직접 구성하고 저장해 둔 맞춤형 운동 프로그램이에요."
         />
       </div>
@@ -100,20 +100,24 @@ export default function ProgramsPage() {
             <Link
               href="/workout/plans/add"
               onClick={() => setIsFabOpen(false)}
-              className="pointer-events-auto flex items-center justify-between gap-3 bg-white px-4 py-3 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] active:scale-95 transition-all text-slate-800"
+              className="pointer-events-auto flex items-center justify-between gap-3 bg-white px-4 py-3 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] active:scale-95 transition-all text-slate-800 w-[220px]"
             >
-              <span className="font-bold text-[15px]">나만의 플랜 만들기</span>
-              <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-main">
+              <span className="font-bold text-[15px] whitespace-nowrap">
+                나만의 플랜 만들기
+              </span>
+              <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-main flex-shrink-0">
                 <Dumbbell size={16} />
               </div>
             </Link>
             <Link
               href="/workout/programs/add"
               onClick={() => setIsFabOpen(false)}
-              className="pointer-events-auto flex items-center justify-between gap-3 bg-white px-4 py-3 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] active:scale-95 transition-all text-slate-800"
+              className="pointer-events-auto flex items-center justify-between gap-3 bg-white px-4 py-3 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] active:scale-95 transition-all text-slate-800 w-[220px]"
             >
-              <span className="font-bold text-[15px]">새로운 루틴 만들기</span>
-              <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-main">
+              <span className="font-bold text-[15px] whitespace-nowrap">
+                나의 프로그램 만들기
+              </span>
+              <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-main flex-shrink-0">
                 <ClipboardList size={16} />
               </div>
             </Link>
