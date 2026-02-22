@@ -25,8 +25,8 @@ export default function ProgramsPage() {
 
       try {
         const [programsData, plansData] = await Promise.all([
-          getPrograms(),
-          getStandalonePlans(),
+          getPrograms({ page: 0, size: 3 }),
+          getStandalonePlans({ page: 0, size: 3 }),
         ]);
         setPrograms(programsData);
         setStandalonePlans(plansData);
