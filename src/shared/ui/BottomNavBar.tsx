@@ -72,6 +72,13 @@ const navItems: NavItem[] = [
 export const BottomNavBar: React.FC = () => {
   const pathname = usePathname();
 
+  // 플랜 상세 페이지(독립/프로그램 종속)에서는 하단 바를 숨깁니다.
+  const isPlanDetailPage =
+    /^\/workout\/plans\/[^\/]+$/.test(pathname) ||
+    /^\/workout\/programs\/[^\/]+\/[^\/]+\/[^\/]+$/.test(pathname);
+
+  if (isPlanDetailPage) return null;
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-100 h-[60px] pb-safe">
       <div className="w-full h-full flex justify-around items-center">
