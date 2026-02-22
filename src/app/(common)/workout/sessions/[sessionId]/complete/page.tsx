@@ -4,13 +4,14 @@ import { use, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Header } from "@/shared";
 import { getSession } from "@/entities/session";
+import { CheckCircle2, Clock, Dumbbell } from "lucide-react";
 
 const formatDuration = (durationSeconds: number) => {
   const minutes = Math.floor(durationSeconds / 60);
   const seconds = durationSeconds % 60;
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(
     2,
-    "0"
+    "0",
   )}`;
 };
 
@@ -70,7 +71,7 @@ export default function WorkoutCompletePage({
       (startedAt && endedAt
         ? Math.max(
             Math.floor((endedAt.getTime() - startedAt.getTime()) / 1000),
-            0
+            0,
           )
         : null);
 
@@ -84,12 +85,12 @@ export default function WorkoutCompletePage({
       const name = ex.exerciseName ?? ex.name ?? ex.title ?? "운동";
       const sets = ex.sets ?? ex.sessionSets ?? ex.exerciseSets ?? [];
       const completedSets = (sets as any[]).filter(
-        (s) => s.completedAt || s.isComplete || s.status === "COMPLETED"
+        (s) => s.completedAt || s.isComplete || s.status === "COMPLETED",
       );
       const volume = completedSets.reduce((acc: number, s: any) => {
         const reps = Number(s.reps ?? s.actualReps ?? s.targetReps ?? 0);
         const weight = Number(
-          s.weight ?? s.actualWeight ?? s.targetWeight ?? 0
+          s.weight ?? s.actualWeight ?? s.targetWeight ?? 0,
         );
         return acc + reps * weight;
       }, 0);
@@ -110,7 +111,7 @@ export default function WorkoutCompletePage({
               s.targetRestSeconds ??
               null,
             completed: Boolean(
-              s.completedAt || s.isComplete || s.status === "COMPLETED"
+              s.completedAt || s.isComplete || s.status === "COMPLETED",
             ),
           }))
           .filter((s) => s.completed),
@@ -126,81 +127,131 @@ export default function WorkoutCompletePage({
   }, [session]);
 
   return (
-    <div>
-      <Header showBackButton={true} title="운동 완료"></Header>
+    <div className="bg-white min-h-screen pb-24">
+      <Header showBackButton={true} title="운동 결과" />
 
-      <div className="px-5 pt-[72px] pb-10 bg-[#F7F8F9] min-h-screen">
-        <div className="bg-white rounded-lg p-4">
-          <div className="text-sm text-gray-600">운동 시작</div>
-          <div className="font-bold">{formatDateTime(summary?.startedAt)}</div>
+      <div className="px-5 pt-8 pb-10">
+        {/* 심플한 완료 메시지 (플랫 디자인 + 브랜드 컬러) */}
+        <div className="flex flex-col items-center justify-center text-center mb-8 mt-2">
+          <div className="w-[60px] h-[60px] bg-blue-50 text-main rounded-full flex items-center justify-center mb-4">
+            <CheckCircle2 size={32} strokeWidth={2.5} />
+          </div>
 
-          <div className="mt-3 text-sm text-gray-600">운동 종료</div>
-          <div className="font-bold">{formatDateTime(summary?.endedAt)}</div>
+          <h2 className="text-[22px] font-bold text-gray-900 mb-1.5 px-2">
+            운동을 완료했습니다
+          </h2>
+          <p className="text-gray-500 text-[15px] font-medium">
+            오늘 하루도 수고 많으셨습니다.
+          </p>
+        </div>
 
-          <div className="mt-3 text-sm text-gray-600">운동 시간</div>
-          <div className="font-bold">
-            {summary?.durationSeconds != null
-              ? formatDuration(Number(summary.durationSeconds))
-              : "-"}
+        {/* 핵심 요약 지표 (심플한 박스형) */}
+        <div className="bg-gray-50 rounded-2xl p-5 mb-10 border border-gray-100">
+          <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-200">
+            <div className="flex items-center gap-1.5 text-gray-500 text-sm font-medium">
+              <Clock size={16} strokeWidth={2} /> 총 시간
+            </div>
+            <div className="font-bold text-gray-900 text-lg">
+              {summary?.durationSeconds != null
+                ? formatDuration(Number(summary.durationSeconds))
+                : "-"}
+            </div>
+          </div>
+
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-1.5 text-gray-500 text-sm font-medium">
+              <Dumbbell size={16} strokeWidth={2} /> 총 볼륨
+            </div>
+            <div className="font-bold text-gray-900 text-lg">
+              {summary
+                ? summary.exercises
+                    .reduce((sum, ex) => sum + ex.volume, 0)
+                    .toLocaleString()
+                : "-"}
+              <span className="text-sm font-semibold text-gray-500 ml-1">
+                kg
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="mt-3 bg-white rounded-lg p-4">
-          <div className="font-bold mb-3">오늘 한 운동</div>
+        <div className="mb-4">
+          <h3 className="text-lg font-bold text-gray-900 mb-4 px-1">
+            운동 상세
+          </h3>
+
           {loading ? (
-            <div className="text-sm text-gray-600">불러오는 중...</div>
+            <div className="flex flex-col items-center justify-center py-10 opacity-60">
+              <div className="w-8 h-8 border-4 border-gray-100 border-t-main rounded-full animate-spin mb-4" />
+              <span className="text-sm font-medium text-gray-500">
+                기록을 불러오는 중...
+              </span>
+            </div>
           ) : error ? (
-            <div className="text-sm text-gray-600">{error}</div>
+            <div className="text-center py-6 text-sm font-medium text-red-500 bg-red-50 rounded-xl p-4">
+              {error}
+            </div>
           ) : summary ? (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-4">
               {summary.exercises.map((ex, idx) => (
-                <div key={`${ex.name}-${idx}`} className="text-sm">
-                  <div className="flex justify-between">
-                    <div className="text-gray-800 font-medium">{ex.name}</div>
-                    <div className="text-gray-600">
-                      {ex.completedSetsCount}/{ex.totalSetsCount} 세트 ·{" "}
-                      {Math.round(ex.volume)} kg
+                <div
+                  key={`${ex.name}-${idx}`}
+                  className="bg-white rounded-xl border border-gray-200 p-4"
+                >
+                  <div className="flex justify-between items-center mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-main" />
+                      <div className="font-bold text-gray-900 text-[15px]">
+                        {ex.name}
+                      </div>
+                    </div>
+                    <div className="text-xs font-bold text-main bg-blue-50 px-2 py-1 rounded-md">
+                      {ex.completedSetsCount} / {ex.totalSetsCount} 완료
                     </div>
                   </div>
-                  <div className="mt-2 flex flex-col gap-1">
-                    {ex.sets.map((s: any, sIdx: number) => (
-                      <div
-                        key={`${idx}-${sIdx}`}
-                        className="flex justify-between text-gray-700"
-                      >
-                        <div>
-                          {s.setOrder ?? sIdx + 1}세트{" "}
-                          {s.completed ? "(완료)" : ""}
+
+                  {ex.sets.length > 0 && (
+                    <div className="flex flex-col gap-2">
+                      {ex.sets.map((s: any, sIdx: number) => (
+                        <div
+                          key={`${idx}-${sIdx}`}
+                          className="flex justify-between items-center px-3 py-2 bg-gray-50 rounded-lg text-sm"
+                        >
+                          <span className="font-medium text-gray-500">
+                            {s.setOrder ?? sIdx + 1}세트
+                          </span>
+                          <span className="font-semibold text-gray-800">
+                            {s.weight ?? "-"}kg × {s.reps ?? "-"}회
+                          </span>
                         </div>
-                        <div className="text-gray-600">
-                          {s.weight ?? "-"}kg · {s.reps ?? "-"}회 · 휴식{" "}
-                          {s.restSeconds ?? "-"}s
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           ) : (
             <div className="text-sm text-gray-600">
-              요약 정보를 불러오지 못했습니다.
+              기록을 불러오지 못했습니다.
             </div>
           )}
         </div>
+      </div>
 
-        <div className="mt-3 flex gap-2">
+      {/* 하단 고정 버튼 영역 */}
+      <div className="fixed bottom-0 left-0 right-0 p-5 bg-white border-t border-gray-100 pb-[max(env(safe-area-inset-bottom),_20px)] z-40">
+        <div className="flex gap-3 max-w-xl mx-auto">
           <button
-            className="flex-1 h-[42px] rounded-lg bg-light-gray text-dark-gray"
-            onClick={() => router.push("/workout/programs")}
+            className="flex-1 h-[52px] rounded-xl bg-gray-100 text-gray-700 font-semibold active:scale-[0.98] transition-all text-[15px]"
+            onClick={() => router.push("/workout/calendar")}
           >
-            프로그램 목록
+            캘린더 보기
           </button>
           <button
-            className="flex-1 h-[42px] rounded-lg bg-main text-white"
-            onClick={() => router.push("/workout")}
+            className="flex-1 h-[52px] rounded-xl bg-main text-white font-semibold active:scale-[0.98] transition-all text-[15px]"
+            onClick={() => router.push("/")}
           >
-            운동 홈
+            홈으로 이동
           </button>
         </div>
       </div>
