@@ -508,9 +508,16 @@ export default function WorkoutCalendarPage() {
                                 </div>
 
                                 <div className="flex flex-wrap items-center gap-2 mt-1">
+                                  <div className="text-[12px] font-medium text-slate-500 bg-slate-50 px-2 py-0.5 rounded-md flex items-center gap-1">
+                                    <Clock size={12} />
+                                    <span>
+                                      {formatTime(s.startedAt)} -{" "}
+                                      {formatTime(s.endedAt)}
+                                    </span>
+                                  </div>
                                   <div className="text-[12px] font-medium text-slate-500 bg-slate-50 px-2 py-0.5 rounded-md">
-                                    {formatTime(s.startedAt)} -{" "}
-                                    {formatDuration(s.totalDurationSeconds)}
+                                    {formatDuration(s.totalDurationSeconds)}{" "}
+                                    소요
                                   </div>
                                   <div className="text-[12px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">
                                     {Math.round(
