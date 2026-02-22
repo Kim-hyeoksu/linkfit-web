@@ -47,6 +47,11 @@ const ProgramAddPage = () => {
   const [programTitle, setProgramTitle] = useState("");
   const [durationWeeks, setDurationWeeks] = useState(4);
   const [frequencyPerWeek, setFrequencyPerWeek] = useState(3);
+
+  // 임시 설정을 저장할 State 추가
+  const [tempDuration, setTempDuration] = useState(4);
+  const [tempFrequency, setTempFrequency] = useState(3);
+
   const [isFrequencyModalOpen, setIsFrequencyModalOpen] = useState(false);
   const [currentWeek, setCurrentWeek] = useState(1);
   const [isConfigured, setIsConfigured] = useState(false);
@@ -71,14 +76,24 @@ const ProgramAddPage = () => {
     loadExercises();
   }, []);
 
+  // 모달을 열 때 현재 값을 임시 값에 복사
+  const handleOpenFrequencyModal = () => {
+    setTempDuration(durationWeeks);
+    setTempFrequency(frequencyPerWeek);
+    setIsFrequencyModalOpen(true);
+  };
+
   const handleConfirmFrequency = () => {
+    // 확정 버튼을 눌렀을 때만 실제 State에 반영
+    setDurationWeeks(tempDuration);
+    setFrequencyPerWeek(tempFrequency);
     setIsFrequencyModalOpen(false);
     setIsConfigured(true);
 
     const newPlans: ProgramPlan[] = [];
     let dayOrderCounter = 1;
-    for (let w = 1; w <= durationWeeks; w++) {
-      for (let d = 1; d <= frequencyPerWeek; d++) {
+    for (let w = 1; w <= tempDuration; w++) {
+      for (let d = 1; d <= tempFrequency; d++) {
         newPlans.push({
           week: w,
           day: d,
@@ -92,7 +107,7 @@ const ProgramAddPage = () => {
     }
     setPlans(newPlans);
 
-    if (currentWeek > durationWeeks) {
+    if (currentWeek > tempDuration) {
       setCurrentWeek(1);
     }
   };
@@ -166,7 +181,7 @@ const ProgramAddPage = () => {
           </div>
 
           <div
-            onClick={() => setIsFrequencyModalOpen(true)}
+            onClick={handleOpenFrequencyModal}
             className="group bg-white border border-slate-200 rounded-2xl p-5 flex justify-between items-center cursor-pointer hover:border-main/30 hover:shadow-md transition-all active:scale-[0.98]"
           >
             <div className="flex items-center gap-4">
@@ -179,7 +194,7 @@ const ProgramAddPage = () => {
                 </span>
                 <span className="text-[13px] text-slate-400 font-medium font-outfit">
                   {isConfigured
-                    ? `${durationWeeks} Weeks • ${frequencyPerWeek} Days/Week`
+                    ? `${durationWeeks} W • ${frequencyPerWeek} D/W`
                     : "일정을 설정하고 플랜을 구성하세요"}
                 </span>
               </div>
@@ -290,8 +305,12 @@ const ProgramAddPage = () => {
                   type="number"
                   min="1"
                   max="12"
-                  value={durationWeeks}
-                  onChange={(e) => setDurationWeeks(Number(e.target.value))}
+                  value={tempDuration || ""}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    if (val > 0) setTempDuration(val);
+                    else if (e.target.value === "") setTempDuration(0);
+                  }}
                   className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 pr-12 text-center text-[18px] font-bold text-slate-800 focus:ring-2 focus:ring-main/20 focus:bg-white outline-none transition-all"
                 />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[14px]">
@@ -308,8 +327,12 @@ const ProgramAddPage = () => {
                   type="number"
                   min="1"
                   max="7"
-                  value={frequencyPerWeek}
-                  onChange={(e) => setFrequencyPerWeek(Number(e.target.value))}
+                  value={tempFrequency || ""}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    if (val > 0) setTempFrequency(val);
+                    else if (e.target.value === "") setTempFrequency(0);
+                  }}
                   className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 pr-12 text-center text-[18px] font-bold text-slate-800 focus:ring-2 focus:ring-main/20 focus:bg-white outline-none transition-all"
                 />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[14px]">
@@ -322,7 +345,7 @@ const ProgramAddPage = () => {
           <div className="bg-blue-50 rounded-2xl p-4 border border-blue-100 flex items-start gap-3">
             <Info size={18} className="text-main mt-0.5 flex-shrink-0" />
             <p className="text-[13px] text-blue-700 leading-relaxed font-medium">
-              설정하신 {durationWeeks}주 동안 매주 {frequencyPerWeek}번의 운동
+              설정하신 {tempDuration}주 동안 매주 {tempFrequency}번의 운동
               플랜을 구성하게 됩니다. 설정 완료 시 기존 계획이 초기화될 수
               있습니다.
             </p>
