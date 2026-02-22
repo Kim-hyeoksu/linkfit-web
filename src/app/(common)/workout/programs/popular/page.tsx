@@ -9,22 +9,34 @@ import Link from "next/link";
 export default function PopularProgramsPage() {
   const [programs, setPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [isLast, setIsLast] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true);
-        const data = await getPrograms();
-        setPrograms(data);
+        if (page === 0) setLoading(true);
+        else setIsLoadingMore(true);
+
+        const data = await getPrograms({ page, size: 10 });
+
+        if (page === 0) {
+          setPrograms(data.content);
+        } else {
+          setPrograms((prev) => [...prev, ...data.content]);
+        }
+        setIsLast(data.last);
       } catch (error) {
         console.error("추천 프로그램 로딩 실패:", error);
       } finally {
-        setLoading(false);
+        if (page === 0) setLoading(false);
+        else setIsLoadingMore(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [page]);
 
   if (loading) {
     return (
@@ -48,9 +60,20 @@ export default function PopularProgramsPage() {
             <ProgramCard key={program.id} {...program} />
           ))}
         </div>
+
+        {!isLast && (
+          <button
+            onClick={() => setPage((p) => p + 1)}
+            disabled={isLoadingMore}
+            className="mt-2 flex justify-center items-center gap-2 border border-blue-200 bg-blue-50 text-main rounded-xl w-full p-3 font-bold hover:bg-blue-100 active:scale-[0.98] transition-all disabled:opacity-50"
+          >
+            {isLoadingMore ? "불러오는 중..." : "더보기"}
+          </button>
+        )}
+
         <Link
           href={"/workout/programs/add"}
-          className="flex justify-center items-center gap-2 border border-[#d9d9d9] rounded-xl w-full p-3 text-[#666] font-medium hover:bg-gray-50 active:scale-95 transition-all"
+          className="mt-2 flex justify-center items-center gap-2 border border-[#d9d9d9] rounded-xl w-full p-3 text-[#666] font-medium hover:bg-gray-50 active:scale-95 transition-all"
         >
           <PlusCircle size={20} />
           <span>루틴 추가하기</span>

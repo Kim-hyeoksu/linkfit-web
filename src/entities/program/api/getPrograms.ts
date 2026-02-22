@@ -9,9 +9,12 @@ export const getPrograms = async ({
     const response = await api.get("/api/programs/popular", {
       params: { page, size },
     });
-    return (response.data.content || []) as Program[];
+    return {
+      content: (response.data.content || []) as Program[],
+      last: response.data.last ?? true,
+    };
   } catch (error) {
     console.error("프로그램 조회 실패:", error);
-    return [];
+    return { content: [], last: true };
   }
 };

@@ -11,22 +11,34 @@ import { Plus } from "lucide-react";
 export default function MyPlansPage() {
   const [plans, setPlans] = useState<PlanListItemResponse[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [isLast, setIsLast] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true);
-        const data = await getStandalonePlans();
-        setPlans(data);
+        if (page === 0) setLoading(true);
+        else setIsLoadingMore(true);
+
+        const data = await getStandalonePlans({ page, size: 10 });
+
+        if (page === 0) {
+          setPlans(data.content);
+        } else {
+          setPlans((prev) => [...prev, ...data.content]);
+        }
+        setIsLast(data.last);
       } catch (error) {
         console.error("나만의 플랜 로딩 실패:", error);
       } finally {
-        setLoading(false);
+        if (page === 0) setLoading(false);
+        else setIsLoadingMore(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [page]);
 
   if (loading) {
     return (
@@ -60,6 +72,16 @@ export default function MyPlansPage() {
               <StandalonePlanCard key={plan.id} plan={plan} />
             ))}
           </div>
+        )}
+
+        {plans.length > 0 && !isLast && (
+          <button
+            onClick={() => setPage((p) => p + 1)}
+            disabled={isLoadingMore}
+            className="mt-2 flex justify-center items-center gap-2 border border-blue-200 bg-blue-50 text-main rounded-xl w-full p-3 font-bold hover:bg-blue-100 active:scale-[0.98] transition-all disabled:opacity-50"
+          >
+            {isLoadingMore ? "불러오는 중..." : "더보기"}
+          </button>
         )}
       </div>
 

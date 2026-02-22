@@ -28,8 +28,8 @@ export default function ProgramsPage() {
           getPrograms({ page: 0, size: 3 }),
           getStandalonePlans({ page: 0, size: 3 }),
         ]);
-        setPrograms(programsData);
-        setStandalonePlans(plansData);
+        setPrograms(programsData.content);
+        setStandalonePlans(plansData.content);
       } catch (error) {
         console.error("데이터 로딩 실패:", error);
       } finally {
