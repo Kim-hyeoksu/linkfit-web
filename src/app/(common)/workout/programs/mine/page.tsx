@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { getMyPrograms, ProgramCard, Program } from "@/entities/program";
 import { Header } from "@/shared";
-import { Calendar, PlusCircle } from "lucide-react";
+import { Calendar, Plus, Dumbbell, ClipboardList, X } from "lucide-react";
 import Link from "next/link";
 
 export default function MyProgramsPage() {
@@ -47,7 +47,7 @@ export default function MyProgramsPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#F7F8F9]">
+    <div className="flex flex-col min-h-screen bg-[#F7F8F9] pb-20">
       <Header title="나의 운동" rightButtonIconUrl={"/workout/calendar"}>
         <Calendar
           size={24}
@@ -70,15 +70,14 @@ export default function MyProgramsPage() {
             {isLoadingMore ? "불러오는 중..." : "더보기"}
           </button>
         )}
-
-        <Link
-          href={"/workout/programs/add"}
-          className="mt-2 flex justify-center items-center gap-2 border border-[#d9d9d9] rounded-xl w-full p-3 text-[#666] font-medium hover:bg-gray-50 active:scale-95 transition-all"
-        >
-          <PlusCircle size={20} />
-          <span>루틴 추가하기</span>
-        </Link>
       </div>
+
+      <Link
+        href="/workout/programs/add"
+        className="fixed bottom-[88px] right-5 h-14 w-14 rounded-full bg-main text-white shadow-xl shadow-blue-500/30 flex items-center justify-center transition-all active:scale-95 pointer-events-auto z-50 hover:bg-main/90"
+      >
+        <Plus size={28} strokeWidth={2.5} />
+      </Link>
     </div>
   );
 }

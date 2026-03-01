@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import { getPopularPrograms, ProgramCard, Program } from "@/entities/program";
 import { Header } from "@/shared";
-import { Calendar, PlusCircle } from "lucide-react";
-import Link from "next/link";
+import { Calendar } from "lucide-react";
 
 export default function PopularProgramsPage() {
   const [programs, setPrograms] = useState<Program[]>([]);
@@ -70,14 +69,6 @@ export default function PopularProgramsPage() {
             {isLoadingMore ? "불러오는 중..." : "더보기"}
           </button>
         )}
-
-        <Link
-          href={"/workout/programs/add"}
-          className="mt-2 flex justify-center items-center gap-2 border border-[#d9d9d9] rounded-xl w-full p-3 text-[#666] font-medium hover:bg-gray-50 active:scale-95 transition-all"
-        >
-          <PlusCircle size={20} />
-          <span>루틴 추가하기</span>
-        </Link>
       </div>
     </div>
   );
