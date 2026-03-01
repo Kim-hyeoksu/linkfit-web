@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getPopularPrograms, ProgramList, Program } from "@/entities/program";
+import {
+  getPopularPrograms,
+  getMyPrograms,
+  ProgramList,
+  Program,
+} from "@/entities/program";
 import { getStandalonePlans } from "@/entities/plan/api";
 import { StandalonePlanList } from "@/entities/plan/ui/StandalonePlanList";
 import { PlanListItemResponse } from "@/entities/plan/model/types";
@@ -11,7 +16,8 @@ import { Header } from "@/shared";
 import { Calendar, Plus, Dumbbell, ClipboardList, X } from "lucide-react";
 
 export default function ProgramsPage() {
-  const [programs, setPrograms] = useState<Program[]>([]);
+  const [popularPrograms, setPopularPrograms] = useState<Program[]>([]);
+  const [myPrograms, setMyPrograms] = useState<Program[]>([]);
   const [standalonePlans, setStandalonePlans] = useState<
     PlanListItemResponse[]
   >([]);
@@ -25,11 +31,13 @@ export default function ProgramsPage() {
       }
 
       try {
-        const [programsData, plansData] = await Promise.all([
+        const [popularData, myData, plansData] = await Promise.all([
           getPopularPrograms({ page: 0, size: 3 }),
+          getMyPrograms({ page: 0, size: 3 }),
           getStandalonePlans({ page: 0, size: 3 }),
         ]);
-        setPrograms(programsData.content);
+        setPopularPrograms(popularData.content);
+        setMyPrograms(myData.content);
         setStandalonePlans(plansData.content);
       } catch (error) {
         console.error("데이터 로딩 실패:", error);
@@ -71,13 +79,13 @@ export default function ProgramsPage() {
         />
 
         <ProgramList
-          programs={programs}
+          programs={popularPrograms}
           title={"추천 프로그램"}
           moreLink="/workout/programs/popular"
           helpMessage="전문가들이 미리 구성해 둔 체계적인 운동 세트 조합이에요."
         />
         <ProgramList
-          programs={programs}
+          programs={myPrograms}
           title={"나의 프로그램"}
           moreLink="/workout/programs/mine"
           emptyMessage="아직 나만의 프로그램이 없어요"

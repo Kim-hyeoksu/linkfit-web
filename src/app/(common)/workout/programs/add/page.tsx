@@ -195,6 +195,7 @@ const ProgramAddPage = () => {
   };
 
   const handleCreateProgram = async () => {
+    if (loading) return;
     if (!programTitle) {
       showToast("프로그램 이름을 입력해주세요.", "error");
       return;
