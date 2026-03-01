@@ -16,6 +16,7 @@ import {
   X,
   Minus,
   Trash2,
+  Copy,
 } from "lucide-react";
 
 interface ProgramPlanSet {
@@ -64,6 +65,7 @@ const ProgramAddPage = () => {
   const [tempFrequency, setTempFrequency] = useState(3);
 
   const [isFrequencyModalOpen, setIsFrequencyModalOpen] = useState(false);
+  const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
   const [currentWeek, setCurrentWeek] = useState(1);
   const [isConfigured, setIsConfigured] = useState(false);
   const [plans, setPlans] = useState<ProgramPlan[]>([]);
@@ -166,6 +168,25 @@ const ProgramAddPage = () => {
       ),
     );
     setEditingPlan(null);
+  };
+
+  const handleCopyPlan = (sourcePlan: ProgramPlan) => {
+    if (!editingPlan) return;
+
+    // Deep copy exercises
+    const copiedExercises = sourcePlan.exercises.map((ex) => ({
+      ...ex,
+      sets: ex.sets.map((set) => ({ ...set })),
+    }));
+
+    setEditingPlan({
+      ...editingPlan,
+      exercises: copiedExercises,
+    });
+    setIsCopyModalOpen(false);
+    showToast(
+      `${sourcePlan.weekNumber}주차 ${sourcePlan.day}일차 운동을 불러왔습니다.`,
+    );
   };
 
   const handlePlanItemClick = (plan: ProgramPlan) => {
@@ -620,9 +641,25 @@ const ProgramAddPage = () => {
                   />
                 </div>
 
+                <div className="pt-2 mt-2 border-t border-slate-100 flex flex-col gap-3">
+                  <label className="text-[13px] font-bold text-slate-400 px-1 uppercase tracking-wider">
+                    편의 기능
+                  </label>
+                  <button
+                    onClick={() => setIsCopyModalOpen(true)}
+                    className="w-full h-[52px] bg-blue-50 text-main border border-blue-100 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors"
+                  >
+                    <Copy size={18} />
+                    기존 구성 불러오기 (복사)
+                  </button>
+                  <p className="text-[11px] text-slate-400 text-center px-2">
+                    다른 날짜에 구성해둔 플랜 목록을 그대로 복사합니다.
+                  </p>
+                </div>
+
                 <button
                   onClick={() => setStep(2)}
-                  className="w-full h-[56px] rounded-2xl bg-slate-800 text-white font-bold text-[15px] mt-4 shadow-lg shadow-slate-200 active:scale-95 transition-all flex items-center justify-center gap-2"
+                  className="w-full h-[56px] rounded-2xl bg-slate-800 text-white font-bold text-[15px] mt-2 shadow-lg shadow-slate-200 active:scale-95 transition-all flex items-center justify-center gap-2"
                 >
                   운동 구성하러 가기
                   <ArrowRight size={18} />
@@ -862,6 +899,88 @@ const ProgramAddPage = () => {
               onSelect={handleAddExercise}
             />
           </div>
+        </div>
+      </Modal>
+
+      {/* 플랜 복사 모달 */}
+      <Modal
+        isOpen={isCopyModalOpen}
+        onClose={() => setIsCopyModalOpen(false)}
+        title="기존 구성 불러오기"
+      >
+        <div className="flex flex-col gap-4 py-2">
+          {editingPlan && (
+            <p className="text-[13px] text-slate-500 font-medium px-1">
+              현재{" "}
+              <span className="font-bold text-slate-800">
+                {editingPlan.weekNumber}주차 {editingPlan.day}일차
+              </span>
+              에 덮어씌울 플랜을 선택해주세요.
+            </p>
+          )}
+          <div className="max-h-[400px] overflow-y-auto scrollbar-hide flex flex-col gap-3">
+            {editingPlan &&
+            plans.filter(
+              (p) =>
+                p.exercises.length > 0 && p.dayOrder !== editingPlan.dayOrder,
+            ).length > 0 ? (
+              plans
+                .filter(
+                  (p) =>
+                    p.exercises.length > 0 &&
+                    p.dayOrder !== editingPlan.dayOrder,
+                )
+                .map((p) => (
+                  <button
+                    key={p.dayOrder}
+                    onClick={() => handleCopyPlan(p)}
+                    className="flex flex-col text-left p-4 rounded-2xl bg-white border border-slate-200 shadow-sm hover:border-main focus:ring-2 focus:ring-main/20 transition-all active:scale-[0.98]"
+                  >
+                    <div className="flex items-center gap-3 w-full">
+                      <div className="w-10 h-10 rounded-[12px] bg-slate-50 flex flex-col items-center justify-center text-slate-400 flex-shrink-0">
+                        <span className="text-[10px] font-bold uppercase tracking-wider -mb-0.5">
+                          W{p.weekNumber}
+                        </span>
+                        <span className="text-[14px] font-black text-slate-700">
+                          {p.day}
+                        </span>
+                      </div>
+                      <div className="flex flex-col flex-1 truncate">
+                        <span className="text-[15px] font-bold text-slate-800 truncate">
+                          {p.title || `${p.weekNumber}주차 ${p.day}일차 운동`}
+                        </span>
+                        <span className="text-[13px] text-slate-400 font-medium mt-0.5">
+                          총 {p.exercises.length}개의 운동 •{" "}
+                          {p.exercises.reduce(
+                            (acc, ex) => acc + ex.sets.length,
+                            0,
+                          )}{" "}
+                          세트
+                        </span>
+                      </div>
+                      <div className="w-8 h-8 rounded-full bg-blue-50 text-main flex items-center justify-center flex-shrink-0">
+                        <Copy size={16} />
+                      </div>
+                    </div>
+                  </button>
+                ))
+            ) : (
+              <div className="flex flex-col items-center justify-center py-12 text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                <span className="text-[13px] font-medium">
+                  복사할 수 있는 기존 플랜이 없습니다.
+                </span>
+                <span className="text-[11px] mt-1">
+                  먼저 다른 플랜에 운동을 추가해주세요.
+                </span>
+              </div>
+            )}
+          </div>
+          <button
+            onClick={() => setIsCopyModalOpen(false)}
+            className="w-full h-[56px] rounded-2xl bg-slate-100 text-slate-500 font-bold hover:bg-slate-200 transition-all mt-2"
+          >
+            취소
+          </button>
         </div>
       </Modal>
     </div>
