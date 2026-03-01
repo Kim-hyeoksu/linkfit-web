@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getPrograms, ProgramList, Program } from "@/entities/program";
+import { getPopularPrograms, ProgramList, Program } from "@/entities/program";
 import { getStandalonePlans } from "@/entities/plan/api";
 import { StandalonePlanList } from "@/entities/plan/ui/StandalonePlanList";
 import { PlanListItemResponse } from "@/entities/plan/model/types";
@@ -26,7 +26,7 @@ export default function ProgramsPage() {
 
       try {
         const [programsData, plansData] = await Promise.all([
-          getPrograms({ page: 0, size: 3 }),
+          getPopularPrograms({ page: 0, size: 3 }),
           getStandalonePlans({ page: 0, size: 3 }),
         ]);
         setPrograms(programsData.content);

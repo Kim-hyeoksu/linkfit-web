@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getPrograms, ProgramCard, Program } from "@/entities/program";
+import { getMyPrograms, ProgramCard, Program } from "@/entities/program";
 import { Header } from "@/shared";
 import { Calendar, PlusCircle } from "lucide-react";
 import Link from "next/link";
@@ -19,7 +19,7 @@ export default function MyProgramsPage() {
         if (page === 0) setLoading(true);
         else setIsLoadingMore(true);
 
-        const data = await getPrograms({ page, size: 10 });
+        const data = await getMyPrograms({ page, size: 10 });
 
         if (page === 0) {
           setPrograms(data.content);
