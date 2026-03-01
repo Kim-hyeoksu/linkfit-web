@@ -14,6 +14,8 @@ import {
   ArrowRight,
   Info,
   X,
+  Minus,
+  Trash2,
 } from "lucide-react";
 
 interface ProgramPlanSet {
@@ -69,6 +71,11 @@ const ProgramAddPage = () => {
   const [step, setStep] = useState(1);
   const [isExerciseSelectorOpen, setIsExerciseSelectorOpen] = useState(false);
   const [availableExercises, setAvailableExercises] = useState<Exercise[]>([]);
+  const [focusedField, setFocusedField] = useState<{
+    index: number;
+    setIndex?: number;
+    field: string;
+  } | null>(null);
 
   useEffect(() => {
     const loadExercises = async () => {
@@ -143,22 +150,110 @@ const ProgramAddPage = () => {
 
   const handleAddExercise = (exercise: Exercise) => {
     if (!editingPlan) return;
+    const defaultSetsCount = exercise.defaultSets || 3;
+    const defaultReps = exercise.defaultReps || 10;
+    const defaultWeight = exercise.defaultWeight || 0;
+    const defaultRestSeconds = exercise.defaultRestSeconds || 60;
+
     const newExercise: ProgramPlanExercise = {
       exerciseId: exercise.id,
       name: exercise.name,
       bodyPart: exercise.bodyPart,
       orderIndex: editingPlan.exercises.length + 1,
-      defaultSets: 3,
-      defaultReps: 10,
-      defaultWeight: 20,
-      defaultRestSeconds: 60,
-      sets: [],
+      defaultSets: defaultSetsCount,
+      defaultReps: defaultReps,
+      defaultWeight: defaultWeight,
+      defaultRestSeconds: defaultRestSeconds,
+      sets: Array.from({ length: defaultSetsCount }, (_, i) => ({
+        setOrder: i + 1,
+        reps: defaultReps,
+        weight: defaultWeight,
+        restSeconds: defaultRestSeconds,
+      })),
     };
     setEditingPlan({
       ...editingPlan,
       exercises: [...editingPlan.exercises, newExercise],
     });
     setIsExerciseSelectorOpen(false);
+  };
+
+  const handleUpdateExercise = (
+    index: number,
+    field: keyof ProgramPlanExercise,
+    value: number,
+  ) => {
+    if (!editingPlan) return;
+    setEditingPlan({
+      ...editingPlan,
+      exercises: editingPlan.exercises.map((ex, i) =>
+        i === index ? { ...ex, [field]: value } : ex,
+      ),
+    });
+  };
+
+  const handleUpdateSet = (
+    exerciseIndex: number,
+    setIndex: number,
+    field: keyof ProgramPlanSet,
+    value: number,
+  ) => {
+    if (!editingPlan) return;
+    setEditingPlan({
+      ...editingPlan,
+      exercises: editingPlan.exercises.map((ex, i) => {
+        if (i !== exerciseIndex) return ex;
+        const newSets = ex.sets.map((s, si) =>
+          si === setIndex ? { ...s, [field]: value } : s,
+        );
+        return { ...ex, sets: newSets };
+      }),
+    });
+  };
+
+  const handleAddSet = (exerciseIndex: number) => {
+    if (!editingPlan) return;
+    setEditingPlan({
+      ...editingPlan,
+      exercises: editingPlan.exercises.map((ex, i) => {
+        if (i !== exerciseIndex) return ex;
+        const lastSet = ex.sets[ex.sets.length - 1] || {
+          setOrder: 1,
+          reps: ex.defaultReps,
+          weight: ex.defaultWeight,
+          restSeconds: ex.defaultRestSeconds,
+        };
+        return {
+          ...ex,
+          sets: [...ex.sets, { ...lastSet, setOrder: ex.sets.length + 1 }],
+        };
+      }),
+    });
+  };
+
+  const handleDeleteSet = (exerciseIndex: number, setIndex: number) => {
+    if (!editingPlan) return;
+    setEditingPlan({
+      ...editingPlan,
+      exercises: editingPlan.exercises.map((ex, i) => {
+        if (i !== exerciseIndex) return ex;
+        const newSets = ex.sets
+          .filter((_, si) => si !== setIndex)
+          .map((s, idx) => ({ ...s, setOrder: idx + 1 }));
+        return {
+          ...ex,
+          sets: newSets,
+        };
+      }),
+    });
+  };
+
+  const handleRemoveExercise = (index: number) => {
+    if (!editingPlan) return;
+    setEditingPlan({
+      ...editingPlan,
+      exercises: editingPlan.exercises.filter((_, i) => i !== index),
+    });
   };
 
   return (
@@ -518,40 +613,183 @@ const ProgramAddPage = () => {
                   운동 추가하기
                 </button>
 
-                <div className="max-h-[300px] overflow-y-auto pr-1 scrollbar-hide">
+                <div className="max-h-[500px] overflow-y-auto pr-1 scrollbar-hide py-2">
                   {editingPlan.exercises.length > 0 ? (
-                    <div className="flex flex-col gap-3">
-                      {editingPlan.exercises.map((e, idx) => (
+                    <div className="flex flex-col gap-5">
+                      {editingPlan.exercises.map((exercise, index) => (
                         <div
-                          key={idx}
-                          className="flex items-center gap-3 bg-white p-3.5 rounded-2xl border border-slate-100 shadow-sm"
+                          key={index}
+                          className="bg-white p-5 rounded-[24px] border border-slate-200 shadow-sm flex flex-col gap-4 relative"
                         >
-                          <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-[12px] font-bold text-slate-400">
-                            {idx + 1}
-                          </div>
-                          <div className="flex flex-col grow">
-                            <span className="text-[14px] font-bold text-slate-800">
-                              {e.name}
-                            </span>
-                            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-tighter">
-                              {e.bodyPart}
-                            </span>
-                          </div>
                           <button
-                            className="p-2 text-slate-300 hover:text-red-400 transition-colors"
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              const newExercises = editingPlan.exercises.filter(
-                                (_, i) => i !== idx,
-                              );
-                              setEditingPlan({
-                                ...editingPlan,
-                                exercises: newExercises,
-                              });
-                            }}
+                            onClick={() => handleRemoveExercise(index)}
+                            className="absolute top-5 right-5 text-slate-300 hover:text-red-400 transition-colors p-1"
                           >
-                            <X size={18} />
+                            <Trash2 size={20} />
                           </button>
+
+                          <div className="pr-10">
+                            <h3 className="text-[16px] font-extrabold text-slate-800">
+                              {exercise.name}
+                            </h3>
+                            <div className="flex gap-2 items-center mt-1">
+                              <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-500 uppercase">
+                                {exercise.bodyPart}
+                              </span>
+                              <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-main uppercase">
+                                {exercise.sets.length} SETS
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col gap-2 mt-2">
+                            {/* Header for sets */}
+                            <div className="grid grid-cols-12 gap-2 text-[10px] text-slate-400 font-black px-3 uppercase tracking-wider">
+                              <div className="col-span-1"></div>
+                              <div className="col-span-2 text-center">SET</div>
+                              <div className="col-span-4 text-center">
+                                WEIGHT (kg)
+                              </div>
+                              <div className="col-span-4 text-center">
+                                REPS (회)
+                              </div>
+                              <div className="col-span-1"></div>
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                              {exercise.sets.map((set, setIndex) => (
+                                <div
+                                  key={setIndex}
+                                  className="grid grid-cols-12 gap-2 items-center p-2.5 rounded-[16px] bg-slate-50 border border-transparent hover:border-slate-200 transition-all"
+                                >
+                                  <div className="col-span-1"></div>
+                                  <div className="col-span-2 text-center text-sm font-black text-slate-700">
+                                    {setIndex + 1}
+                                  </div>
+
+                                  <div className="col-span-4 flex justify-center">
+                                    <input
+                                      type="number"
+                                      className="w-16 h-8 bg-white border border-slate-200 text-center rounded-md font-bold focus:ring-2 focus:ring-blue-100 outline-none text-[13px]"
+                                      value={
+                                        focusedField?.index === index &&
+                                        focusedField?.setIndex === setIndex &&
+                                        focusedField?.field === "weight" &&
+                                        set.weight === 0
+                                          ? ""
+                                          : set.weight
+                                      }
+                                      onFocus={() =>
+                                        setFocusedField({
+                                          index,
+                                          setIndex,
+                                          field: "weight",
+                                        })
+                                      }
+                                      onBlur={() => setFocusedField(null)}
+                                      onChange={(e) =>
+                                        handleUpdateSet(
+                                          index,
+                                          setIndex,
+                                          "weight",
+                                          Number(e.target.value),
+                                        )
+                                      }
+                                    />
+                                  </div>
+
+                                  <div className="col-span-4 flex justify-center">
+                                    <input
+                                      type="number"
+                                      className="w-16 h-8 bg-white border border-slate-200 text-center rounded-md font-bold focus:ring-2 focus:ring-blue-100 outline-none text-[13px]"
+                                      value={
+                                        focusedField?.index === index &&
+                                        focusedField?.setIndex === setIndex &&
+                                        focusedField?.field === "reps" &&
+                                        set.reps === 0
+                                          ? ""
+                                          : set.reps
+                                      }
+                                      onFocus={() =>
+                                        setFocusedField({
+                                          index,
+                                          setIndex,
+                                          field: "reps",
+                                        })
+                                      }
+                                      onBlur={() => setFocusedField(null)}
+                                      onChange={(e) =>
+                                        handleUpdateSet(
+                                          index,
+                                          setIndex,
+                                          "reps",
+                                          Number(e.target.value),
+                                        )
+                                      }
+                                    />
+                                  </div>
+
+                                  <div className="col-span-1 flex justify-center">
+                                    <button
+                                      onClick={() =>
+                                        handleDeleteSet(index, setIndex)
+                                      }
+                                      className="p-1 text-slate-300 hover:text-red-400 transition-colors"
+                                    >
+                                      <Minus size={14} strokeWidth={3} />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+
+                            <button
+                              onClick={() => handleAddSet(index)}
+                              className="w-full mt-2 py-3 border border-dashed border-slate-200 rounded-xl text-slate-400 font-bold text-[12px] hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
+                            >
+                              <PlusCircle size={14} />
+                              세트 추가하기
+                            </button>
+                          </div>
+
+                          {/* Rest Seconds setting for the exercise */}
+                          <div className="mt-2 pt-4 border-t border-slate-100 flex items-center justify-between">
+                            <span className="text-[12px] font-bold text-slate-400">
+                              휴식 시간 (초)
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="number"
+                                step="10"
+                                className="w-16 h-8 bg-slate-50 border border-slate-200 text-center rounded-md font-bold text-[12px] focus:ring-2 focus:ring-blue-100 outline-none"
+                                value={
+                                  focusedField?.index === index &&
+                                  focusedField?.field ===
+                                    "defaultRestSeconds" &&
+                                  exercise.defaultRestSeconds === 0
+                                    ? ""
+                                    : exercise.defaultRestSeconds
+                                }
+                                onFocus={() =>
+                                  setFocusedField({
+                                    index,
+                                    field: "defaultRestSeconds",
+                                  })
+                                }
+                                onBlur={() => setFocusedField(null)}
+                                onChange={(e) =>
+                                  handleUpdateExercise(
+                                    index,
+                                    "defaultRestSeconds",
+                                    Number(e.target.value),
+                                  )
+                                }
+                              />
+                              <span className="text-[10px] font-bold text-slate-400">
+                                SEC
+                              </span>
+                            </div>
+                          </div>
                         </div>
                       ))}
                     </div>
