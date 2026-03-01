@@ -69,7 +69,10 @@ export default function MyPage() {
 
         {/* 메뉴 리스트 */}
         <section className="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 divide-y divide-gray-50">
-          <MenuItem label="내 정보 수정" onClick={() => {}} />
+          <MenuItem
+            label="내 정보 수정"
+            onClick={() => router.push("/onboarding?mode=edit")}
+          />
           <MenuItem label="알림 설정" onClick={() => {}} />
         </section>
 
