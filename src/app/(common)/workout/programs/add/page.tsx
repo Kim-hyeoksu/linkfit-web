@@ -135,6 +135,31 @@ const ProgramAddPage = () => {
 
   const handleSavePlan = () => {
     if (!editingPlan) return;
+
+    let hasInvalid = false;
+    for (const ex of editingPlan.exercises) {
+      if (ex.defaultRestSeconds < 0) {
+        showToast("휴식 시간은 0초 이상이어야 합니다.", "error");
+        hasInvalid = true;
+        break;
+      }
+      for (const set of ex.sets) {
+        if (set.reps <= 0) {
+          showToast("반복 횟수(REPS)는 최소 1 이상이어야 합니다.", "error");
+          hasInvalid = true;
+          break;
+        }
+        if (set.weight <= 0) {
+          showToast("무게(WEIGHT)는 0 초과이어야 합니다.", "error");
+          hasInvalid = true;
+          break;
+        }
+      }
+      if (hasInvalid) break;
+    }
+
+    if (hasInvalid) return;
+
     setPlans((prevPlans) =>
       prevPlans.map((p) =>
         p.dayOrder === editingPlan.dayOrder ? editingPlan : p,
@@ -184,10 +209,11 @@ const ProgramAddPage = () => {
     value: number,
   ) => {
     if (!editingPlan) return;
+    const safeValue = value < 0 ? 0 : value;
     setEditingPlan({
       ...editingPlan,
       exercises: editingPlan.exercises.map((ex, i) =>
-        i === index ? { ...ex, [field]: value } : ex,
+        i === index ? { ...ex, [field]: safeValue } : ex,
       ),
     });
   };
@@ -199,12 +225,13 @@ const ProgramAddPage = () => {
     value: number,
   ) => {
     if (!editingPlan) return;
+    const safeValue = value < 0 ? 0 : value;
     setEditingPlan({
       ...editingPlan,
       exercises: editingPlan.exercises.map((ex, i) => {
         if (i !== exerciseIndex) return ex;
         const newSets = ex.sets.map((s, si) =>
-          si === setIndex ? { ...s, [field]: value } : s,
+          si === setIndex ? { ...s, [field]: safeValue } : s,
         );
         return { ...ex, sets: newSets };
       }),
