@@ -6,15 +6,25 @@ import { useAddProgram } from "../";
 export const AddProgramForm = ({ onAdded }: { onAdded: () => void }) => {
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
-  const [level, setLevel] = useState("beginner");
+  const [level, setLevel] = useState<"BEGINNER" | "INTERMEDIATE" | "ADVANCED">(
+    "BEGINNER",
+  );
   const { handleAddProgram, loading } = useAddProgram();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await handleAddProgram({ title, description: desc, level });
+    await handleAddProgram({
+      categoryId: 0,
+      programName: title,
+      description: desc,
+      level,
+      programType: "PERSONAL",
+      status: "DRAFT",
+      plans: [],
+    });
     setTitle("");
     setDesc("");
-    setLevel("beginner");
+    setLevel("BEGINNER");
     onAdded(); // 리스트 갱신 트리거
   };
 
@@ -37,12 +47,14 @@ export const AddProgramForm = ({ onAdded }: { onAdded: () => void }) => {
       />
       <select
         value={level}
-        onChange={(e) => setLevel(e.target.value)}
+        onChange={(e) =>
+          setLevel(e.target.value as "BEGINNER" | "INTERMEDIATE" | "ADVANCED")
+        }
         className="border p-2 rounded"
       >
-        <option value="beginner">Beginner</option>
-        <option value="intermediate">Intermediate</option>
-        <option value="advanced">Advanced</option>
+        <option value="BEGINNER">Beginner</option>
+        <option value="INTERMEDIATE">Intermediate</option>
+        <option value="ADVANCED">Advanced</option>
       </select>
 
       <button type="submit" disabled={loading}>

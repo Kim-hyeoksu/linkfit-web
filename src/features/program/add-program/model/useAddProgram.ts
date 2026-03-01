@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { addProgram } from "@/entities/program";
-import { Program } from "@/entities/program";
+import { Program, ProgramCreateRequest } from "@/entities/program";
 
 export const useAddProgram = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const handleAddProgram = async (program: Omit<Program, "id">) => {
+  const handleAddProgram = async (program: ProgramCreateRequest) => {
     setLoading(true);
     setError(null);
     try {

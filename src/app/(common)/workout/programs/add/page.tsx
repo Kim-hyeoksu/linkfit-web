@@ -36,11 +36,10 @@ interface ProgramPlanExercise {
 }
 
 interface ProgramPlan {
-  week: number;
+  weekNumber: number;
   day: number;
   dayOrder: number;
   title: string;
-  weekDay: number; // 1: 월요일 ~ 7: 일요일
   description: string;
   exercises: ProgramPlanExercise[];
 }
@@ -70,8 +69,6 @@ const ProgramAddPage = () => {
   const [step, setStep] = useState(1);
   const [isExerciseSelectorOpen, setIsExerciseSelectorOpen] = useState(false);
   const [availableExercises, setAvailableExercises] = useState<Exercise[]>([]);
-
-  const weekDays = ["월", "화", "수", "목", "금", "토", "일"];
 
   useEffect(() => {
     const loadExercises = async () => {
@@ -113,11 +110,10 @@ const ProgramAddPage = () => {
     for (let w = 1; w <= tempDuration; w++) {
       for (let d = 1; d <= tempFrequency; d++) {
         newPlans.push({
-          week: w,
+          weekNumber: w,
           day: d,
           dayOrder: dayOrderCounter++,
           title: `${w}주차 ${d}일차`,
-          weekDay: 1,
           description: "",
           exercises: [],
         });
@@ -325,7 +321,7 @@ const ProgramAddPage = () => {
             {/* 일차별 리스트 */}
             <div className="flex flex-col gap-3">
               {plans
-                .filter((plan) => plan.week === currentWeek)
+                .filter((plan) => plan.weekNumber === currentWeek)
                 .map((plan) => {
                   const hasExercises = plan.exercises.length > 0;
                   return (
@@ -483,35 +479,6 @@ const ProgramAddPage = () => {
                     className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-[15px] font-bold text-slate-800 focus:ring-2 focus:ring-main/20 focus:bg-white outline-none transition-all"
                     placeholder="운동 이름을 입력하세요 (예: 가슴 폭발)"
                   />
-                </div>
-
-                <div className="flex flex-col gap-2.5">
-                  <label className="text-[13px] font-bold text-slate-400 px-1 uppercase tracking-wider">
-                    주요 요일
-                  </label>
-                  <div className="grid grid-cols-7 gap-1.5">
-                    {weekDays.map((day, index) => {
-                      const isSelected = editingPlan.weekDay === index + 1;
-                      return (
-                        <button
-                          key={day}
-                          onClick={() =>
-                            setEditingPlan({
-                              ...editingPlan,
-                              weekDay: index + 1,
-                            })
-                          }
-                          className={`h-11 rounded-xl text-[13px] font-bold transition-all border ${
-                            isSelected
-                              ? "bg-main text-white border-main shadow-md shadow-blue-500/20"
-                              : "bg-white text-slate-400 border-slate-200 hover:border-slate-300"
-                          }`}
-                        >
-                          {day}
-                        </button>
-                      );
-                    })}
-                  </div>
                 </div>
 
                 <div className="flex flex-col gap-2.5">
