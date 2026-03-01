@@ -2,8 +2,10 @@
 
 import { Header, Modal, useToast } from "@/shared";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAtomValue } from "jotai";
 import { userState } from "@/entities/user/model/userState";
+import { useAddProgram } from "@/features/program/add-program";
 import { ExerciseList, type Exercise, getExercises } from "@/entities/exercise";
 import {
   ChevronRight,
@@ -50,6 +52,7 @@ interface ProgramPlan {
 const ProgramAddPage = () => {
   const user = useAtomValue(userState);
   const { showToast } = useToast();
+  const router = useRouter();
   const [programTitle, setProgramTitle] = useState("");
   const [programDescription, setProgramDescription] = useState("");
   const [programLevel, setProgramLevel] = useState<
@@ -78,6 +81,8 @@ const ProgramAddPage = () => {
     setIndex?: number;
     field: string;
   } | null>(null);
+
+  const { handleAddProgram, loading } = useAddProgram();
 
   useEffect(() => {
     const loadExercises = async () => {
@@ -187,6 +192,62 @@ const ProgramAddPage = () => {
     showToast(
       `${sourcePlan.weekNumber}주차 ${sourcePlan.day}일차 운동을 불러왔습니다.`,
     );
+  };
+
+  const handleCreateProgram = async () => {
+    if (!programTitle) {
+      showToast("프로그램 이름을 입력해주세요.", "error");
+      return;
+    }
+
+    if (!isConfigured || plans.length === 0) {
+      showToast("운동 일정을 먼저 설정해주세요.", "error");
+      return;
+    }
+
+    try {
+      // 1. 데이터 형식 변환 (API 스펙에 맞게)
+      const mappedPlans = plans.map((p) => ({
+        title: p.title || `${p.weekNumber}주차 ${p.day}일차`,
+        dayOrder: p.dayOrder,
+        weekNumber: p.weekNumber,
+        description: p.description,
+        exercises: p.exercises.map((ex) => ({
+          exerciseId: ex.exerciseId,
+          orderIndex: ex.orderIndex,
+          defaultSets: ex.sets.length,
+          defaultReps: ex.sets[0]?.reps || 10,
+          defaultWeight: ex.sets[0]?.weight || 0,
+          defaultRestSeconds: ex.defaultRestSeconds,
+          sets: ex.sets.map((s) => ({
+            setOrder: s.setOrder,
+            reps: s.reps,
+            weight: s.weight,
+            restSeconds: s.restSeconds,
+          })),
+        })),
+      }));
+
+      const requestData = {
+        categoryId: programCategory || 1, // 미선택시 기본값 1
+        programName: programTitle,
+        description: programDescription,
+        level: (programLevel as any) || "BEGINNER",
+        programType: "PERSONAL" as const,
+        status: "DRAFT" as const,
+        plans: mappedPlans,
+      };
+
+      // 2. API 호출
+      await handleAddProgram(requestData);
+
+      showToast("프로그램이 성공적으로 생성되었습니다!");
+      // 3. 목록 페이지로 이동
+      router.push("/workout/programs/mine");
+    } catch (error) {
+      console.error("프로그램 생성 실패:", error);
+      showToast("프로그램 생성 중 오류가 발생했습니다.", "error");
+    }
   };
 
   const handlePlanItemClick = (plan: ProgramPlan) => {
@@ -309,14 +370,15 @@ const ProgramAddPage = () => {
       <Header title="프로그램 생성" showBackButton={true}>
         {isConfigured && (
           <button
-            disabled={!programTitle}
+            disabled={!programTitle || loading}
+            onClick={handleCreateProgram}
             className={`font-bold text-[14px] px-3 py-1.5 rounded-xl transition-all ${
-              programTitle
+              programTitle && !loading
                 ? "text-main bg-blue-50 active:scale-95"
                 : "text-slate-300 bg-slate-100 cursor-not-allowed"
             }`}
           >
-            저장
+            {loading ? "저장 중..." : "저장"}
           </button>
         )}
       </Header>
@@ -381,8 +443,8 @@ const ProgramAddPage = () => {
                   { id: 1, label: "다이어트" },
                   { id: 2, label: "벌크업" },
                   { id: 3, label: "체력증진" },
-                  { id: 4, label: "바디프로필" },
-                  { id: 5, label: "재활/교정" },
+                  { id: 4, label: "재활/교정" },
+                  { id: 5, label: "스트렝스" },
                 ].map((cat) => {
                   const isSelected = programCategory === cat.id;
                   return (
