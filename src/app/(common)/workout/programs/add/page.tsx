@@ -206,6 +206,15 @@ const ProgramAddPage = () => {
       return;
     }
 
+    const hasAnyExercise = plans.some((p) => p.exercises.length > 0);
+    if (!hasAnyExercise) {
+      showToast(
+        "최소 한 개 이상의 운동을 등록해야 저장이 가능합니다.",
+        "error",
+      );
+      return;
+    }
+
     try {
       // 1. 데이터 형식 변환 (API 스펙에 맞게)
       const mappedPlans = plans.map((p) => ({
