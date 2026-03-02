@@ -142,7 +142,9 @@ export const OnboardingFunnel = ({ initialData, mode = "signup" }: Props) => {
               onNext={nextStep}
             />
           )}
-          {step === 4 && <CompleteStep key="complete" onNext={nextStep} />}
+          {step === 4 && (
+            <CompleteStep key="complete" onNext={nextStep} mode={mode} />
+          )}
         </AnimatePresence>
       </div>
     </div>
