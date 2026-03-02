@@ -1,5 +1,6 @@
 import { OnboardingData } from "../../model/types";
 import { StepLayout } from "./StepLayout";
+import { AnimatedLottie } from "../AnimatedLottie";
 
 interface Props {
   data: OnboardingData;
@@ -16,6 +17,13 @@ export const ProfileStep = ({ data, updateData, onNext }: Props) => {
         <div>
           <h2 className="text-2xl font-bold text-slate-800">이름과 성별을</h2>
           <h2 className="text-2xl font-bold text-slate-800">알려주세요</h2>
+        </div>
+
+        <div className="flex justify-center -mx-5 -my-4">
+          <AnimatedLottie
+            url="https://lottie.host/d860a8d7-3cc3-4f31-a6bc-a8193a2eceb0/OQJJYUs9Iy.json"
+            className="w-full h-auto"
+          />
         </div>
 
         <div className="flex flex-col gap-8 mt-4">
@@ -60,7 +68,7 @@ export const ProfileStep = ({ data, updateData, onNext }: Props) => {
         </div>
       </div>
 
-      <div className="mt-auto">
+      <div className="mt-auto pt-10">
         <button
           onClick={onNext}
           disabled={!isComplete}

@@ -27,7 +27,7 @@ export const CompleteStep = ({ onNext }: Props) => {
         </div>
       </div>
 
-      <div className="mt-auto">
+      <div className="mt-auto pt-10">
         <button
           onClick={onNext}
           className="w-full bg-main text-white py-4 rounded-xl font-bold text-[17px] active:scale-[0.98] transition-all shadow-lg shadow-blue-500/30"

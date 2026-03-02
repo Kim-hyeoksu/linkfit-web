@@ -1,6 +1,6 @@
 import { OnboardingData } from "../../model/types";
 import { StepLayout } from "./StepLayout";
-import { Dumbbell, Target, Zap } from "lucide-react";
+import { AnimatedLottie } from "../AnimatedLottie";
 
 interface Props {
   data: OnboardingData;
@@ -16,19 +16,16 @@ export const ExerciseLevelStep = ({ data, updateData, onNext }: Props) => {
       id: "LOW",
       title: "초보자",
       desc: "운동을 이제 막 시작했어요",
-      icon: <Target className="text-blue-500" size={28} />,
     },
     {
       id: "MIDDLE",
       title: "중급자",
       desc: "꾸준히 운동을 하고 있어요",
-      icon: <Dumbbell className="text-indigo-500" size={28} />,
     },
     {
       id: "HIGH",
       title: "고급자",
       desc: "전문적으로 강도 높게 운동해요",
-      icon: <Zap className="text-amber-500" size={28} />,
     },
   ] as const;
 
@@ -44,6 +41,13 @@ export const ExerciseLevelStep = ({ data, updateData, onNext }: Props) => {
           </h2>
         </div>
 
+        <div className="flex justify-center -mx-5 -my-6">
+          <AnimatedLottie
+            url="https://lottie.host/8c37905c-7fa8-47ea-b5c2-dba2c81ccf93/l0z2HaSBwO.json"
+            className="w-full h-auto"
+          />
+        </div>
+
         <div className="flex flex-col gap-3 mt-4">
           {levels.map((level) => (
             <button
@@ -55,13 +59,6 @@ export const ExerciseLevelStep = ({ data, updateData, onNext }: Props) => {
                   : "border-slate-200 bg-white hover:bg-slate-50"
               }`}
             >
-              <div
-                className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                  data.exercise_level === level.id ? "bg-white" : "bg-slate-100"
-                }`}
-              >
-                {level.icon}
-              </div>
               <div className="flex flex-col">
                 <span
                   className={`font-bold text-[17px] ${data.exercise_level === level.id ? "text-main" : "text-slate-800"}`}
@@ -77,7 +74,7 @@ export const ExerciseLevelStep = ({ data, updateData, onNext }: Props) => {
         </div>
       </div>
 
-      <div className="mt-auto">
+      <div className="mt-auto pt-10">
         <button
           onClick={onNext}
           disabled={!isComplete}

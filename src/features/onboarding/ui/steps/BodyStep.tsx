@@ -1,5 +1,6 @@
 import { OnboardingData } from "../../model/types";
 import { StepLayout } from "./StepLayout";
+import { AnimatedLottie } from "../AnimatedLottie";
 
 interface Props {
   data: OnboardingData;
@@ -25,6 +26,13 @@ export const BodyStep = ({ data, updateData, onNext }: Props) => {
           <h2 className="text-2xl font-bold text-slate-800">
             신체 정보를 입력해 주세요
           </h2>
+        </div>
+
+        <div className="flex justify-center -mx-5 -my-4">
+          <AnimatedLottie
+            url="https://lottie.host/6f44310f-8e56-46ba-8044-af60799fa22c/OJu4TaqU0E.json"
+            className="w-full h-auto"
+          />
         </div>
 
         <div className="flex flex-col gap-8 mt-4">
@@ -71,7 +79,7 @@ export const BodyStep = ({ data, updateData, onNext }: Props) => {
         </div>
       </div>
 
-      <div className="mt-auto">
+      <div className="mt-auto pt-10">
         <button
           onClick={onNext}
           disabled={!isComplete}
