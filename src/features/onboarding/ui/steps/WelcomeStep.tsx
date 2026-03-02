@@ -19,10 +19,10 @@ export const WelcomeStep = ({ onNext }: Props) => {
         </p>
 
         <div className="flex-1 max-w-[280px] w-full flex items-center justify-center">
-          {/* Lottie JSON 임시 URL: 걷거나 운동하는 사람 로티를 나중에 연동하세요 */}
+          {/* 환영 로티 애니메이션 */}
           <AnimatedLottie
-            url="https://assets2.lottiefiles.com/packages/lf20_5n8oxcpv.json"
-            className="w-full h-auto"
+            url="/images/welcome.json"
+            className="w-[200px] h-[200px]"
           />
         </div>
       </div>

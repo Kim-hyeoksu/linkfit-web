@@ -19,10 +19,10 @@ export const CompleteStep = ({ onNext }: Props) => {
         </p>
 
         <div className="flex-1 max-w-[280px] w-full flex items-center justify-center">
-          {/* Lottie JSON 임시 URL: 성공/체크박스 애니메이션으로 교체 시 더 좋습니다. */}
+          {/* 완료 로티 애니메이션 */}
           <AnimatedLottie
-            url="https://assets2.lottiefiles.com/packages/lf20_q5pk6p1k.json"
-            className="w-full h-auto scale-110"
+            url="/images/success.json"
+            className="w-[200px] h-[200px]"
           />
         </div>
       </div>

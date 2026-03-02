@@ -39,8 +39,8 @@ export const OnboardingFunnel = ({ initialData, mode = "signup" }: Props) => {
   };
 
   const nextStep = () => {
-    // 마지막 완료 단계
-    if (step === 4 || (mode === "edit" && step === 3)) {
+    // 마지막 완료 단계 (어떤 모드든 4단계까지 도달하도록 수정)
+    if (step === 4) {
       submitData();
       return;
     }
