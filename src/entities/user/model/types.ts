@@ -9,7 +9,7 @@ export interface User {
   gender: "MALE" | "FEMALE";
   height: number;
   weight: number;
-  exerciseLevel: "LOW" | "MEDIUM" | "HIGH";
+  exerciseLevel: "LOW" | "MIDDLE" | "HIGH";
   profileImage: string;
   userType: "TRAINER" | "NORMAL"; // TODO: 실제 타입 확인 필요
   status: "ACTIVE" | "INACTIVE"; // TODO: 실제 타입 확인 필요

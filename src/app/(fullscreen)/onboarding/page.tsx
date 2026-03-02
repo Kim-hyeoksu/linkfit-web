@@ -1,29 +1,41 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import { useAtomValue } from "jotai";
 import { OnboardingFunnel } from "@/features/onboarding/ui/OnboardingFunnel";
+import { userState } from "@/entities/user/model/userState";
 
 export default function OnboardingPage() {
   const searchParams = useSearchParams();
+  const user = useAtomValue(userState);
   const mode = searchParams.get("mode") as "signup" | "edit" | null;
 
-  // 임시 데이터. Edit 모드인 경우 서버에서 기존 정보를 가져와서 넣어주면 됩니다.
-  const tempInitialData =
-    mode === "edit"
+  // Edit 모드인 경우 서버에서 가져온 사용자 정보를 맵핑합니다.
+  const initialData =
+    mode === "edit" && user
       ? {
-          name: "김혁수",
-          gender: "MALE" as const,
-          birth_date: "1995-05-15",
-          height: 180,
-          weight: 75,
-          exercise_level: "MIDDLE" as const,
+          name: user.name,
+          gender: user.gender,
+          birth_date: user.birthDate,
+          height: user.height,
+          weight: user.weight,
+          exercise_level: user.exerciseLevel,
         }
       : undefined;
+
+  // 수정 모드일 때 유저 정보가 아직 로딩되지 않았다면 로딩 스피너 등을 보여줄 수 있습니다.
+  if (mode === "edit" && !user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-main"></div>
+      </div>
+    );
+  }
 
   return (
     <OnboardingFunnel
       mode={mode === "edit" ? "edit" : "signup"}
-      initialData={tempInitialData}
+      initialData={initialData}
     />
   );
 }

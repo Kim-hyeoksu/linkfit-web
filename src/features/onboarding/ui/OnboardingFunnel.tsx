@@ -11,6 +11,11 @@ import { ExerciseLevelStep } from "./steps/ExerciseLevelStep";
 import { CompleteStep } from "./steps/CompleteStep";
 import { Header } from "@/shared/ui";
 import { useRouter } from "next/navigation";
+import {
+  updateMyInfo,
+  UpdateUserRequest,
+} from "@/entities/user/api/updateMyInfo";
+import { useToast } from "@/shared/ui/toast";
 
 interface Props {
   initialData?: Partial<OnboardingData>;
@@ -19,6 +24,7 @@ interface Props {
 
 export const OnboardingFunnel = ({ initialData, mode = "signup" }: Props) => {
   const router = useRouter();
+  const { showToast } = useToast();
 
   // 전체 스텝: Welcome(0) -> Profile(1) -> Body(2) -> ExerciseLevel(3) -> Complete(4)
   // Edit 모드일 땐 Welcome(0)이랑 Complete(4) 스킵하고 바로 Profile(1)부터 시작해도 좋습니다.
@@ -38,7 +44,29 @@ export const OnboardingFunnel = ({ initialData, mode = "signup" }: Props) => {
     setData((prev) => ({ ...prev, ...fields }));
   };
 
-  const nextStep = () => {
+  const nextStep = async () => {
+    // 3단계(ExerciseLevelStep)에서 다음으로 넘어갈 때 API 연동
+    if (step === 3) {
+      const requestData: UpdateUserRequest = {
+        name: data.name,
+        gender: data.gender as "MALE" | "FEMALE",
+        birthDate: data.birth_date,
+        height: Number(data.height),
+        weight: Number(data.weight),
+        exerciseLevel: data.exercise_level as "LOW" | "MIDDLE" | "HIGH",
+      };
+
+      const result = await updateMyInfo(requestData);
+      if (result) {
+        // 성공 시 4단계로 전환
+        setStep(4);
+      } else {
+        // 실패 시 Toast 띄우기
+        showToast("정보 저장에 실패했습니다. 다시 시도해 주세요.", "error");
+      }
+      return;
+    }
+
     // 마지막 완료 단계 (어떤 모드든 4단계까지 도달하도록 수정)
     if (step === 4) {
       submitData();
@@ -48,21 +76,21 @@ export const OnboardingFunnel = ({ initialData, mode = "signup" }: Props) => {
   };
 
   const prevStep = () => {
+    // 수정 모드에서 첫 단계(ProfileStep)일 때 뒤로가기 누르면 마이페이지로
+    if (mode === "edit" && step === 1) {
+      router.push("/mypage");
+      return;
+    }
+
     if (step > 0) setStep((prev) => prev - 1);
   };
 
-  const submitData = async () => {
-    try {
-      // TODO: 여기서 실제 API 서버 연동 (await saveUserData(data))
-      console.log("Saving onboarding data:", data);
-
-      if (mode === "edit") {
-        router.push("/mypage"); // 수정 모드면 마이페이지로
-      } else {
-        router.replace("/workout/programs"); // 가입 직후면 메인 피드로
-      }
-    } catch (error) {
-      console.error("데이터 저장 실패", error);
+  const submitData = () => {
+    // 이미 step 3에서 데이터를 저장했으므로 화면 전환만 수행
+    if (mode === "edit") {
+      router.push("/mypage"); // 수정 모드면 마이페이지로
+    } else {
+      router.replace("/workout/programs"); // 가입 직후면 메인 피드로
     }
   };
 
