@@ -14,39 +14,16 @@ import {
 import { getBodyMetrics } from "@/entities/user/api/getBodyMetrics";
 import { BodyMetric } from "@/entities/user/model/types";
 
-export const BodyMetricsChart = () => {
-  const [metrics, setMetrics] = useState<BodyMetric[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchMetrics = async () => {
-      try {
-        const data = await getBodyMetrics();
-        if (data && data.length > 0) {
-          // 최신순으로 올 수도 있으므로 날짜 과거순으로 오름차순 정렬
-          const sortedData = [...data].sort(
-            (a, b) =>
-              new Date(a.measuredDate).getTime() -
-              new Date(b.measuredDate).getTime(),
-          );
-          setMetrics(sortedData);
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchMetrics();
-  }, []);
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center py-10 h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-main"></div>
-      </div>
-    );
-  }
-
-  if (metrics.length === 0) {
+export const BodyMetricsChart = ({
+  data,
+  activeMetrics = ["weight", "skeletalMuscleMass", "bodyFatPercentage"],
+  hideUnitLabels = false,
+}: {
+  data: BodyMetric[];
+  activeMetrics?: string[];
+  hideUnitLabels?: boolean;
+}) => {
+  if (!data || data.length === 0) {
     return (
       <div className="py-8 h-64 flex items-center justify-center text-center text-gray-500 text-sm">
         기록된 변화 추이가 없어요.
@@ -54,13 +31,25 @@ export const BodyMetricsChart = () => {
     );
   }
 
+  // 데이터 날짜순 정렬
+  const sortedData = [...data].sort(
+    (a, b) =>
+      new Date(a.measuredDate).getTime() - new Date(b.measuredDate).getTime(),
+  );
+
   return (
-    <div className="w-full h-72 mt-2 text-xs font-sans flex flex-col [&_.recharts-wrapper]:!outline-none [&_.recharts-surface]:!outline-none">
+    <div className="w-full h-full text-xs font-sans flex flex-col [&_.recharts-wrapper]:!outline-none [&_.recharts-surface]:!outline-none">
       {/* 축 정보 안내표시 */}
-      <div className="flex justify-between text-[10px] text-gray-400 px-2 z-10 w-full relative top-2">
-        <span>단위: kg</span>
-        <span>단위: %</span>
-      </div>
+      {!hideUnitLabels && (
+        <div className="flex justify-between text-[10px] text-gray-400 px-2 z-10 w-full relative top-2">
+          {activeMetrics.some(
+            (m) => m === "weight" || m === "skeletalMuscleMass",
+          ) && <span>단위: kg</span>}
+          {activeMetrics.includes("bodyFatPercentage") && (
+            <span className="ml-auto">단위: %</span>
+          )}
+        </div>
+      )}
       <div className="flex-1 w-full relative">
         <ResponsiveContainer
           width="100%"
@@ -68,8 +57,13 @@ export const BodyMetricsChart = () => {
           className="focus:outline-none"
         >
           <LineChart
-            data={metrics}
-            margin={{ top: 15, right: -15, left: -35, bottom: 0 }}
+            data={sortedData}
+            margin={{
+              top: 15,
+              right: activeMetrics.includes("bodyFatPercentage") ? -25 : 0,
+              left: -35,
+              bottom: 0,
+            }}
             style={{ outline: "none" }}
           >
             <CartesianGrid
@@ -79,9 +73,9 @@ export const BodyMetricsChart = () => {
             />
             <XAxis
               dataKey="measuredDate"
+              padding={{ left: 10, right: 10 }}
               tick={{ fill: "#9ca3af" }}
               tickFormatter={(tick) => {
-                // "YYYY-MM-DD" 형식을 "MM.DD"로 변환
                 if (!tick) return "";
                 const date = new Date(tick);
                 return `${date.getMonth() + 1}.${date.getDate()}`;
@@ -90,21 +84,26 @@ export const BodyMetricsChart = () => {
               tickLine={false}
               dy={10}
             />
-            <YAxis
-              yAxisId="weight"
-              domain={["auto", "auto"]}
-              tick={{ fill: "#9ca3af" }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <YAxis
-              yAxisId="percent"
-              orientation="right"
-              domain={["auto", "auto"]}
-              tick={{ fill: "#9ca3af" }}
-              axisLine={false}
-              tickLine={false}
-            />
+            {(activeMetrics.includes("weight") ||
+              activeMetrics.includes("skeletalMuscleMass")) && (
+              <YAxis
+                yAxisId="weight"
+                domain={["auto", "auto"]}
+                tick={{ fill: "#9ca3af" }}
+                axisLine={false}
+                tickLine={false}
+              />
+            )}
+            {activeMetrics.includes("bodyFatPercentage") && (
+              <YAxis
+                yAxisId="percent"
+                orientation="right"
+                domain={["auto", "auto"]}
+                tick={{ fill: "#9ca3af" }}
+                axisLine={false}
+                tickLine={false}
+              />
+            )}
             <Tooltip
               contentStyle={{
                 borderRadius: "12px",
@@ -123,41 +122,44 @@ export const BodyMetricsChart = () => {
               iconType="circle"
               iconSize={8}
             />
-            {/* 체중 선 */}
-            <Line
-              yAxisId="weight"
-              type="monotone"
-              dataKey="weight"
-              name="체중(kg)"
-              stroke="#3b82f6"
-              strokeWidth={3}
-              dot={{ r: 4, fill: "#3b82f6", strokeWidth: 2, stroke: "#fff" }}
-              activeDot={{ r: 6, stroke: "#fff", strokeWidth: 2 }}
-            />
-            {/* 골격근량 선 (없는 경우 이어주도록 connectNulls 설정) */}
-            <Line
-              yAxisId="weight"
-              type="monotone"
-              dataKey="skeletalMuscleMass"
-              name="골격근량(kg)"
-              stroke="#ef4444"
-              strokeWidth={3}
-              connectNulls
-              dot={{ r: 4, fill: "#ef4444", strokeWidth: 2, stroke: "#fff" }}
-              activeDot={{ r: 6, stroke: "#fff", strokeWidth: 2 }}
-            />
-            {/* 체지방률 선 */}
-            <Line
-              yAxisId="percent"
-              type="monotone"
-              dataKey="bodyFatPercentage"
-              name="체지방률(%)"
-              stroke="#10b981"
-              strokeWidth={3}
-              connectNulls
-              dot={{ r: 4, fill: "#10b981", strokeWidth: 2, stroke: "#fff" }}
-              activeDot={{ r: 6, stroke: "#fff", strokeWidth: 2 }}
-            />
+            {activeMetrics.includes("weight") && (
+              <Line
+                yAxisId="weight"
+                type="monotone"
+                dataKey="weight"
+                name="체중(kg)"
+                stroke="#3b82f6"
+                strokeWidth={3}
+                dot={{ r: 4, fill: "#3b82f6", strokeWidth: 2, stroke: "#fff" }}
+                activeDot={{ r: 6, stroke: "#fff", strokeWidth: 2 }}
+              />
+            )}
+            {activeMetrics.includes("skeletalMuscleMass") && (
+              <Line
+                yAxisId="weight"
+                type="monotone"
+                dataKey="skeletalMuscleMass"
+                name="골격근량(kg)"
+                stroke="#ef4444"
+                strokeWidth={3}
+                connectNulls
+                dot={{ r: 4, fill: "#ef4444", strokeWidth: 2, stroke: "#fff" }}
+                activeDot={{ r: 6, stroke: "#fff", strokeWidth: 2 }}
+              />
+            )}
+            {activeMetrics.includes("bodyFatPercentage") && (
+              <Line
+                yAxisId="percent"
+                type="monotone"
+                dataKey="bodyFatPercentage"
+                name="체지방률(%)"
+                stroke="#10b981"
+                strokeWidth={3}
+                connectNulls
+                dot={{ r: 4, fill: "#10b981", strokeWidth: 2, stroke: "#fff" }}
+                activeDot={{ r: 6, stroke: "#fff", strokeWidth: 2 }}
+              />
+            )}
           </LineChart>
         </ResponsiveContainer>
       </div>

@@ -9,6 +9,7 @@ import { accessTokenState } from "@/features/auth/model/accessTokenState";
 import { Header } from "@/shared";
 import { User, LogOut, ChevronRight, Settings } from "lucide-react";
 import { getLatestBodyMetric } from "@/entities/user/api/getLatestBodyMetric";
+import { getBodyMetrics } from "@/entities/user/api/getBodyMetrics";
 import { BodyMetric } from "@/entities/user/model/types";
 import { BodyMetricsChart } from "@/widgets/user";
 
@@ -19,15 +20,20 @@ export default function MyPage() {
   const router = useRouter();
 
   const [bodyMetric, setBodyMetric] = useState<BodyMetric | null>(null);
+  const [allMetrics, setAllMetrics] = useState<BodyMetric[]>([]);
 
   useEffect(() => {
-    const fetchBodyMetric = async () => {
+    const fetchData = async () => {
       if (user) {
-        const data = await getLatestBodyMetric();
-        setBodyMetric(data);
+        const [latest, all] = await Promise.all([
+          getLatestBodyMetric(),
+          getBodyMetrics(),
+        ]);
+        setBodyMetric(latest);
+        if (all) setAllMetrics(all);
       }
     };
-    fetchBodyMetric();
+    fetchData();
   }, [user]);
 
   const handleLogout = () => {
@@ -93,11 +99,19 @@ export default function MyPage() {
         <section className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <h3 className="font-bold text-gray-800">최근 신체 기록</h3>
-            {bodyMetric && (
-              <span className="text-xs text-gray-400">
-                {bodyMetric.measuredDate} 업데이트
-              </span>
-            )}
+            <div className="flex items-center gap-2">
+              {bodyMetric && (
+                <span className="text-xs text-gray-400">
+                  {bodyMetric.measuredDate} 업데이트
+                </span>
+              )}
+              <button
+                onClick={() => router.push("/body-metrics/history")}
+                className="text-xs text-blue-500 font-medium flex items-center"
+              >
+                상세보기 <ChevronRight size={14} />
+              </button>
+            </div>
           </div>
 
           {bodyMetric ? (
@@ -121,8 +135,10 @@ export default function MyPage() {
             </div>
           )}
 
-          {/* 추이 차트 추가 */}
-          {bodyMetric && <BodyMetricsChart />}
+          {/* 추이 차트 추가 (마이페이지에서는 최근 7회만) */}
+          {bodyMetric && allMetrics.length > 0 && (
+            <BodyMetricsChart data={allMetrics.slice(-7)} />
+          )}
 
           <button
             onClick={() => router.push("/body-metrics/add")}
