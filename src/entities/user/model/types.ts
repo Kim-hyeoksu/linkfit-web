@@ -7,8 +7,6 @@ export interface User {
   phoneVerified: boolean;
   birthDate: string;
   gender: "MALE" | "FEMALE";
-  height: number;
-  weight: number;
   exerciseLevel: "LOW" | "MIDDLE" | "HIGH";
   profileImage: string;
   userType: "TRAINER" | "NORMAL"; // TODO: 실제 타입 확인 필요
@@ -19,4 +17,13 @@ export interface User {
   lastLoginIp: string;
   loginAttemptCount: number;
   accountLockedUntil: string;
+}
+
+export interface BodyMetric {
+  id: number;
+  measuredDate: string;
+  height: number;
+  weight: number;
+  skeletalMuscleMass: number;
+  bodyFatPercentage: number;
 }
