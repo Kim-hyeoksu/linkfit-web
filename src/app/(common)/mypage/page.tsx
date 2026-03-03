@@ -10,6 +10,7 @@ import { Header } from "@/shared";
 import { User, LogOut, ChevronRight, Settings } from "lucide-react";
 import { getLatestBodyMetric } from "@/entities/user/api/getLatestBodyMetric";
 import { BodyMetric } from "@/entities/user/model/types";
+import { BodyMetricsChart } from "@/widgets/user";
 
 export default function MyPage() {
   const user = useAtomValue(userState);
@@ -119,6 +120,9 @@ export default function MyPage() {
               아직 기록된 신체 정보가 없어요.
             </div>
           )}
+
+          {/* 추이 차트 추가 */}
+          {bodyMetric && <BodyMetricsChart />}
 
           <button
             onClick={() => router.push("/body-metrics/add")}
