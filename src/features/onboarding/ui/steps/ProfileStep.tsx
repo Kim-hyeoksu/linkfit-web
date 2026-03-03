@@ -20,17 +20,15 @@ export const ProfileStep = ({ data, updateData, onNext }: Props) => {
     fileInputRef.current?.click();
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // 실제 프로젝트에서는 여기서 파일을 서버에 업로드하고 URL을 받거나,
-      // base64로 변환하여 임시 저장할 수 있습니다.
-      // 현재는 로컬 미리보기 URL을 생성하여 저장하는 방식을 시뮬레이션합니다.
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        updateData({ profileImage: reader.result as string });
-      };
-      reader.readAsDataURL(file);
+      const base64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+      });
+      updateData({ profileImage: base64 });
     }
   };
 

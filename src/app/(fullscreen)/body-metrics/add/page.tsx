@@ -23,8 +23,9 @@ export default function AddBodyMetricsPage() {
   });
 
   useEffect(() => {
-    getLatestBodyMetric()
-      .then((metric) => {
+    const fetchMetric = async () => {
+      try {
+        const metric = await getLatestBodyMetric();
         if (metric) {
           setFormData((prev) => ({
             ...prev,
@@ -38,8 +39,11 @@ export default function AddBodyMetricsPage() {
               : "",
           }));
         }
-      })
-      .finally(() => setIsLoading(false));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchMetric();
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

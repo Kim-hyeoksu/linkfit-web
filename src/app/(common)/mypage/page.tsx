@@ -20,9 +20,13 @@ export default function MyPage() {
   const [bodyMetric, setBodyMetric] = useState<BodyMetric | null>(null);
 
   useEffect(() => {
-    if (user) {
-      getLatestBodyMetric().then((data) => setBodyMetric(data));
-    }
+    const fetchBodyMetric = async () => {
+      if (user) {
+        const data = await getLatestBodyMetric();
+        setBodyMetric(data);
+      }
+    };
+    fetchBodyMetric();
   }, [user]);
 
   const handleLogout = () => {
