@@ -4,5 +4,8 @@ export interface OnboardingData {
   gender: "MALE" | "FEMALE" | "";
   height: number | "";
   weight: number | "";
+  skeletalMuscleMass?: number | "";
+  bodyFatPercentage?: number | "";
   exercise_level: "LOW" | "MIDDLE" | "HIGH" | "";
+  profileImage?: string;
 }

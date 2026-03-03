@@ -10,11 +10,10 @@ interface Props {
 
 export const BodyStep = ({ data, updateData, onNext }: Props) => {
   const isComplete =
-    data.birth_date !== "" &&
     data.height !== "" &&
-    data.height > 0 &&
+    Number(data.height) > 0 &&
     data.weight !== "" &&
-    data.weight > 0;
+    Number(data.weight) > 0;
 
   return (
     <StepLayout>
@@ -35,21 +34,12 @@ export const BodyStep = ({ data, updateData, onNext }: Props) => {
           />
         </div>
 
-        <div className="flex flex-col gap-8 mt-4">
-          <div className="flex flex-col gap-3">
-            <label className="text-sm font-bold text-slate-600">생년월일</label>
-            <input
-              type="date"
-              value={data.birth_date}
-              onChange={(e) => updateData({ birth_date: e.target.value })}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-[16px] text-slate-800 focus:outline-none focus:border-main focus:bg-white transition-all"
-            />
-          </div>
-
+        <div className="flex flex-col gap-6 mt-4">
+          {/* 키 & 몸무게 (필수) */}
           <div className="flex gap-4">
             <div className="flex-1 flex flex-col gap-3">
               <label className="text-sm font-bold text-slate-600">
-                키 (cm)
+                키 (cm) <span className="text-red-500">*</span>
               </label>
               <input
                 type="number"
@@ -57,13 +47,13 @@ export const BodyStep = ({ data, updateData, onNext }: Props) => {
                 onChange={(e) =>
                   updateData({ height: Number(e.target.value) || "" })
                 }
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-[16px] text-slate-800 focus:outline-none focus:border-main focus:bg-white transition-all text-center"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-[16px] text-slate-800 focus:outline-none focus:border-main focus:bg-white transition-all text-center font-semibold"
                 placeholder="170"
               />
             </div>
             <div className="flex-1 flex flex-col gap-3">
               <label className="text-sm font-bold text-slate-600">
-                몸무게 (kg)
+                몸무게 (kg) <span className="text-red-500">*</span>
               </label>
               <input
                 type="number"
@@ -71,9 +61,56 @@ export const BodyStep = ({ data, updateData, onNext }: Props) => {
                 onChange={(e) =>
                   updateData({ weight: Number(e.target.value) || "" })
                 }
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-[16px] text-slate-800 focus:outline-none focus:border-main focus:bg-white transition-all text-center"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-[16px] text-slate-800 focus:outline-none focus:border-main focus:bg-white transition-all text-center font-semibold"
                 placeholder="65"
               />
+            </div>
+          </div>
+
+          {/* 인바디 상세 (선택) */}
+          <div className="mt-2 pt-6 border-t border-slate-100 flex flex-col gap-6">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-slate-800">
+                상세 체성분
+              </span>
+              <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-1 rounded-md font-semibold">
+                선택
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-3">
+                <label className="text-xs font-bold text-slate-500 leading-tight">
+                  골격근량 (kg)
+                </label>
+                <input
+                  type="number"
+                  value={data.skeletalMuscleMass}
+                  onChange={(e) =>
+                    updateData({
+                      skeletalMuscleMass: Number(e.target.value) || "",
+                    })
+                  }
+                  placeholder="0.0"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-800 focus:outline-none focus:border-main focus:bg-white transition-all text-center"
+                />
+              </div>
+              <div className="flex flex-col gap-3">
+                <label className="text-xs font-bold text-slate-500 leading-tight">
+                  체지방률 (%)
+                </label>
+                <input
+                  type="number"
+                  value={data.bodyFatPercentage}
+                  onChange={(e) =>
+                    updateData({
+                      bodyFatPercentage: Number(e.target.value) || "",
+                    })
+                  }
+                  placeholder="0.0"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-800 focus:outline-none focus:border-main focus:bg-white transition-all text-center"
+                />
+              </div>
             </div>
           </div>
         </div>

@@ -17,9 +17,8 @@ export default function OnboardingPage() {
           name: user.name,
           gender: user.gender,
           birth_date: user.birthDate,
-          height: user.height,
-          weight: user.weight,
           exercise_level: user.exerciseLevel,
+          profileImage: user.profileImage,
         }
       : undefined;
 
