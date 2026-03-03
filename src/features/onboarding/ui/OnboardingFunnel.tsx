@@ -16,6 +16,7 @@ import {
   UpdateUserRequest,
 } from "@/entities/user/api/updateMyInfo";
 import { useToast } from "@/shared/ui/toast";
+import { saveBodyMetric } from "@/entities/user/api/saveBodyMetric";
 
 interface Props {
   initialData?: Partial<OnboardingData>;
@@ -47,22 +48,38 @@ export const OnboardingFunnel = ({ initialData, mode = "signup" }: Props) => {
   const nextStep = async () => {
     // 3단계(ExerciseLevelStep)에서 다음으로 넘어갈 때 API 연동
     if (step === 3) {
-      const requestData: UpdateUserRequest = {
+      const today = new Date().toISOString().split("T")[0];
+
+      // 계정 설정 및 프로필
+      const userInfoRequest: UpdateUserRequest = {
         name: data.name,
         gender: data.gender as "MALE" | "FEMALE",
         birthDate: data.birth_date,
-        height: Number(data.height),
-        weight: Number(data.weight),
         exerciseLevel: data.exercise_level as "LOW" | "MIDDLE" | "HIGH",
       };
 
-      const result = await updateMyInfo(requestData);
-      if (result) {
-        // 성공 시 4단계로 전환
-        setStep(4);
-      } else {
-        // 실패 시 Toast 띄우기
-        showToast("정보 저장에 실패했습니다. 다시 시도해 주세요.", "error");
+      // 시계열 신체 매트릭 데이터
+      const bodyMetricRequest = {
+        measuredDate: today,
+        height: Number(data.height),
+        weight: Number(data.weight),
+      };
+
+      try {
+        const [userInfoResult, bodyMetricResult] = await Promise.all([
+          updateMyInfo(userInfoRequest),
+          saveBodyMetric(bodyMetricRequest),
+        ]);
+
+        if (userInfoResult && bodyMetricResult) {
+          // 성공 시 4단계로 전환
+          setStep(4);
+        } else {
+          // 실패 시 Toast 띄우기
+          showToast("정보 저장에 실패했습니다. 다시 시도해 주세요.", "error");
+        }
+      } catch (error) {
+        showToast("오류가 발생했습니다. 잠시 후 다시 시도해 주세요.", "error");
       }
       return;
     }

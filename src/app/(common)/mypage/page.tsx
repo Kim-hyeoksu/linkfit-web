@@ -1,18 +1,29 @@
 "use client";
 
+import React, { useEffect, useState } from "react";
 import { useAtomValue, useSetAtom } from "jotai";
 import { userState } from "@/entities/user/model/userState";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { accessTokenState } from "@/features/auth/model/accessTokenState";
 import { Header } from "@/shared";
-import { User, LogOut, ChevronRight } from "lucide-react";
+import { User, LogOut, ChevronRight, Settings } from "lucide-react";
+import { getLatestBodyMetric } from "@/entities/user/api/getLatestBodyMetric";
+import { BodyMetric } from "@/entities/user/model/types";
 
 export default function MyPage() {
   const user = useAtomValue(userState);
   const setAccessToken = useSetAtom(accessTokenState);
   const setUser = useSetAtom(userState);
   const router = useRouter();
+
+  const [bodyMetric, setBodyMetric] = useState<BodyMetric | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      getLatestBodyMetric().then((data) => setBodyMetric(data));
+    }
+  }, [user]);
 
   const handleLogout = () => {
     if (confirm("정말 로그아웃 하시겠습니까?")) {
@@ -38,7 +49,13 @@ export default function MyPage() {
 
       <main className="px-5 pt-4 flex flex-col gap-6">
         {/* 프로필 카드 */}
-        <section className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex items-center gap-4">
+        <section className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex items-center gap-4 relative">
+          <button
+            onClick={() => router.push("/onboarding?mode=edit")}
+            className="absolute top-4 right-4 text-gray-400 p-2"
+          >
+            <Settings size={20} />
+          </button>
           <div className="relative w-16 h-16 rounded-full overflow-hidden bg-gray-100 border border-gray-200">
             {user.profileImage ? (
               <Image
@@ -67,12 +84,48 @@ export default function MyPage() {
           </div>
         </section>
 
+        {/* 신체 기록 대시보드 */}
+        <section className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-gray-800">최근 신체 기록</h3>
+            {bodyMetric && (
+              <span className="text-xs text-gray-400">
+                {bodyMetric.measuredDate} 업데이트
+              </span>
+            )}
+          </div>
+
+          {bodyMetric ? (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-slate-50 p-4 rounded-2xl flex flex-col items-center">
+                <span className="text-sm text-gray-500">체중</span>
+                <span className="text-xl font-bold text-gray-800">
+                  {bodyMetric.weight}kg
+                </span>
+              </div>
+              <div className="bg-slate-50 p-4 rounded-2xl flex flex-col items-center">
+                <span className="text-sm text-gray-500">키</span>
+                <span className="text-xl font-bold text-gray-800">
+                  {bodyMetric.height}cm
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="py-8 text-center text-gray-500 text-sm">
+              아직 기록된 신체 정보가 없어요.
+            </div>
+          )}
+
+          <button
+            onClick={() => router.push("/body-metrics/add")}
+            className="w-full mt-2 py-3 rounded-xl bg-blue-50 text-main font-semibold text-sm active:bg-blue-100 transition-colors"
+          >
+            {bodyMetric ? "오늘의 신체 정보 기록하기" : "첫 신체 정보 입력하기"}
+          </button>
+        </section>
+
         {/* 메뉴 리스트 */}
         <section className="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 divide-y divide-gray-50">
-          <MenuItem
-            label="내 정보 수정"
-            onClick={() => router.push("/onboarding?mode=edit")}
-          />
           <MenuItem label="알림 설정" onClick={() => {}} />
         </section>
 

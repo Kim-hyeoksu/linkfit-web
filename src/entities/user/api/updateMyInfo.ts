@@ -5,8 +5,6 @@ export interface UpdateUserRequest {
   name?: string;
   birthDate?: string;
   gender?: "MALE" | "FEMALE";
-  height?: number;
-  weight?: number;
   exerciseLevel?: "LOW" | "MIDDLE" | "HIGH";
   profileImage?: string;
 }
