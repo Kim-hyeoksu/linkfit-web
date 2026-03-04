@@ -151,6 +151,7 @@ export default function MyPage() {
         {/* 메뉴 리스트 */}
         <section className="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 divide-y divide-gray-50">
           <MenuItem label="알림 설정" onClick={() => {}} />
+          <MenuItem label="운동 설정" onClick={() => {}} />
         </section>
 
         <section className="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 divide-y divide-gray-50">
