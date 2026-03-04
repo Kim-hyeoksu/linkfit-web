@@ -7,12 +7,22 @@ import { getBodyMetrics } from "@/entities/user/api/getBodyMetrics";
 import { BodyMetric } from "@/entities/user/model/types";
 import { TrendingDown, TrendingUp, Minus } from "lucide-react";
 
-type TimeRange = "1m" | "3m" | "6m" | "all";
+type TimeRange = "1w" | "1m" | "3m" | "all" | "custom";
+
+const rangeLabels: Record<TimeRange, string> = {
+  "1w": "1주",
+  "1m": "1개월",
+  "3m": "3개월",
+  all: "전체",
+  custom: "직접 설정",
+};
 
 export default function BodyMetricsHistoryPage() {
   const [metrics, setMetrics] = useState<BodyMetric[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<TimeRange>("all");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [activeMetrics, setActiveMetrics] = useState<string[]>([
     "weight",
     "skeletalMuscleMass",
@@ -43,16 +53,31 @@ export default function BodyMetricsHistoryPage() {
   const filteredData = useMemo(() => {
     if (timeRange === "all") return [...metrics].reverse(); // 차트는 과거순
 
+    if (timeRange === "custom") {
+      if (!startDate && !endDate) return [...metrics].reverse();
+      return metrics
+        .filter((m) => {
+          const mDate = new Date(m.measuredDate);
+          const start = startDate ? new Date(startDate) : new Date(0);
+          const end = endDate ? new Date(endDate) : new Date();
+          // 날짜 비교를 위해 시간 제거
+          start.setHours(0, 0, 0, 0);
+          end.setHours(23, 59, 59, 999);
+          return mDate >= start && mDate <= end;
+        })
+        .reverse();
+    }
+
     const now = new Date();
     const limitDate = new Date();
-    if (timeRange === "1m") limitDate.setMonth(now.getMonth() - 1);
+    if (timeRange === "1w") limitDate.setDate(now.getDate() - 7);
+    else if (timeRange === "1m") limitDate.setMonth(now.getMonth() - 1);
     else if (timeRange === "3m") limitDate.setMonth(now.getMonth() - 3);
-    else if (timeRange === "6m") limitDate.setMonth(now.getMonth() - 6);
 
     return metrics
       .filter((m) => new Date(m.measuredDate) >= limitDate)
       .reverse();
-  }, [metrics, timeRange]);
+  }, [metrics, timeRange, startDate, endDate]);
 
   // 인사이트 데이터 계산 (현재 수치 및 증감)
   const insights = useMemo(() => {
@@ -114,20 +139,44 @@ export default function BodyMetricsHistoryPage() {
 
       <main className="px-5 pt-4 flex flex-col gap-6">
         {/* 기간 필터 탭 */}
-        <div className="flex bg-white p-1 rounded-2xl shadow-sm border border-gray-100">
-          {(["1m", "3m", "6m", "all"] as TimeRange[]).map((range) => (
-            <button
-              key={range}
-              onClick={() => setTimeRange(range)}
-              className={`flex-1 py-2 text-sm font-semibold rounded-xl transition-all ${
-                timeRange === range
-                  ? "bg-main text-white shadow-md shadow-blue-200"
-                  : "text-gray-400 hover:text-gray-600"
-              }`}
-            >
-              {range === "all" ? "전체" : range.replace("m", "개월")}
-            </button>
-          ))}
+        <div className="flex flex-col gap-3">
+          <div className="flex bg-white p-1 rounded-2xl shadow-sm border border-gray-100">
+            {(["1w", "1m", "3m", "all", "custom"] as TimeRange[]).map(
+              (range) => (
+                <button
+                  key={range}
+                  onClick={() => setTimeRange(range)}
+                  className={`flex-1 py-2 text-[13px] font-semibold rounded-xl transition-all ${
+                    timeRange === range
+                      ? "bg-main text-white shadow-md shadow-blue-200"
+                      : "text-gray-400 hover:text-gray-600"
+                  }`}
+                >
+                  {rangeLabels[range]}
+                </button>
+              ),
+            )}
+          </div>
+
+          {timeRange === "custom" && (
+            <div className="flex items-center gap-2 animate-in fade-in slide-in-from-top-1 duration-200">
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="flex-1 bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-700 outline-none focus:border-main transition-colors"
+                placeholder="시작일"
+              />
+              <span className="text-gray-400">~</span>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="flex-1 bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-700 outline-none focus:border-main transition-colors"
+                placeholder="종료일"
+              />
+            </div>
+          )}
         </div>
 
         {/* 지표 요약 카드 */}
@@ -180,7 +229,9 @@ export default function BodyMetricsHistoryPage() {
             <span className="text-[10px] text-gray-400 bg-gray-50 px-2 py-1 rounded-lg">
               {timeRange === "all"
                 ? "전체 기간"
-                : `최근 ${timeRange.replace("m", "개월")}`}
+                : timeRange === "custom"
+                  ? `${startDate || "시작"} ~ ${endDate || "종료"}`
+                  : `최근 ${rangeLabels[timeRange]}`}
             </span>
           </div>
           <div className="w-full h-72">
