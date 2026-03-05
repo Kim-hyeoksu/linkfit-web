@@ -135,6 +135,14 @@ export const useSessionLogic = (
     const reps = set.reps || set.targetReps || 0;
     const weight = set.weight || set.targetWeight || 0;
 
+    // 현재 완료 시각(completedAt) 유무에 따라 토글 분기
+    const isCurrentlyCompleted =
+      !!set.completedAt || set.status === "COMPLETED";
+    const newStatus = isCurrentlyCompleted ? "IN_PROGRESS" : "COMPLETED";
+    const newCompletedAt = isCurrentlyCompleted
+      ? null
+      : new Date().toISOString();
+
     let updatedSet;
 
     if (set.id && Number(set.id) > 0) {
@@ -144,8 +152,8 @@ export const useSessionLogic = (
         weight,
         rpe: set.rpe,
         restSeconds: set.restSeconds,
-        status: set.status,
-        completedAt: new Date().toISOString(),
+        status: newStatus,
+        completedAt: newCompletedAt,
       };
       updatedSet = await updateSessionSet(set.id, body);
     } else {
@@ -156,6 +164,8 @@ export const useSessionLogic = (
         reps,
         weight,
         restSeconds: set.restSeconds,
+        status: newStatus,
+        completedAt: newCompletedAt,
       };
       updatedSet = await addSessionSet(body);
     }
