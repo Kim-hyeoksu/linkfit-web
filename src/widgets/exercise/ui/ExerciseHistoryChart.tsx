@@ -183,12 +183,6 @@ export const ExerciseHistoryChart = ({
           font: { family: "sans-serif", size: 10 },
           padding: 5,
         },
-        title: {
-          display: true,
-          text: "1RM (kg)",
-          color: "#ef4444",
-          font: { size: 10, weight: "bold" },
-        },
       },
       "y-volume": {
         type: "linear",
@@ -204,18 +198,22 @@ export const ExerciseHistoryChart = ({
           font: { family: "sans-serif", size: 10 },
           padding: 5,
         },
-        title: {
-          display: true,
-          text: "볼륨 (kg)",
-          color: "#3b82f6",
-          font: { size: 10, weight: "bold" },
-        },
       },
     },
   };
 
   return (
     <div className="w-full h-full text-xs font-sans flex flex-col pt-2 bg-white rounded-3xl p-4 shadow-sm border border-gray-100">
+      <div className="flex justify-between items-start text-[10px] px-1 mt-2">
+        <div className="flex flex-col text-[#3b82f6] font-bold leading-tight">
+          <span>볼륨</span>
+          <span>(kg)</span>
+        </div>
+        <div className="flex flex-col items-end text-[#ef4444] font-bold leading-tight">
+          <span>1RM</span>
+          <span>(kg)</span>
+        </div>
+      </div>
       <div className="flex-1 w-full relative h-[300px] min-h-[250px]">
         <Chart type="bar" data={chartData as any} options={options as any} />
       </div>

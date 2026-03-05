@@ -102,20 +102,9 @@ export default function ExerciseHistoryDetailPage() {
                           <span className="w-10 text-right">
                             {set.actualWeight}kg
                           </span>
-                          <span className="w-8 text-right">x</span>
-                          <span className="w-8 text-left">
-                            {set.actualReps}회
-                          </span>
+                          <span className="w-8 text-center">x</span>
+                          <span className="w-8 ">{set.actualReps}회</span>
                         </div>
-                        <span
-                          className={`text-[10px] px-2 py-0.5 rounded-full ${set.status === "COMPLETED" ? "bg-blue-50 text-blue-500" : set.status === "SKIPPED" ? "bg-gray-100 text-gray-400" : "bg-orange-50 text-orange-500"}`}
-                        >
-                          {set.status === "COMPLETED"
-                            ? "완료"
-                            : set.status === "SKIPPED"
-                              ? "건너뜀"
-                              : "진행중"}
-                        </span>
                       </div>
                     ))}
                   </div>
