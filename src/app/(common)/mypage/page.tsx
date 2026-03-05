@@ -151,7 +151,10 @@ export default function MyPage() {
         {/* 메뉴 리스트 */}
         <section className="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 divide-y divide-gray-50">
           <MenuItem label="알림 설정" onClick={() => {}} />
-          <MenuItem label="운동 설정" onClick={() => {}} />
+          <MenuItem
+            label="종목별 기록 통계"
+            onClick={() => router.push("/exercises/history")}
+          />
         </section>
 
         <section className="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 divide-y divide-gray-50">

@@ -59,6 +59,7 @@ export interface ExerciseHistoryResponse {
   planTitle: string;
   programName: string | null;
   calculated1Rm: number;
+  totalVolume: number;
   sets: SetRecord[];
 }
 
