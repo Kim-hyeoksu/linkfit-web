@@ -12,6 +12,9 @@ import { getLatestBodyMetric } from "@/entities/user/api/getLatestBodyMetric";
 import { getBodyMetrics } from "@/entities/user/api/getBodyMetrics";
 import { BodyMetric } from "@/entities/user/model/types";
 import { BodyMetricsChart } from "@/widgets/user";
+import { getSessions } from "@/entities/session/api/getSessions";
+import { ActiveSessionDto } from "@/entities/session";
+import { MuscleHeatmap } from "@/widgets/exercise";
 
 export default function MyPage() {
   const user = useAtomValue(userState);
@@ -21,16 +24,29 @@ export default function MyPage() {
 
   const [bodyMetric, setBodyMetric] = useState<BodyMetric | null>(null);
   const [allMetrics, setAllMetrics] = useState<BodyMetric[]>([]);
+  const [sessions, setSessions] = useState<ActiveSessionDto[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       if (user) {
-        const [latest, all] = await Promise.all([
-          getLatestBodyMetric(),
-          getBodyMetrics(),
-        ]);
-        setBodyMetric(latest);
-        if (all) setAllMetrics(all);
+        const toDate = new Date();
+        const fromDate = new Date();
+        fromDate.setDate(toDate.getDate() - 30);
+        const toStr = toDate.toISOString().split("T")[0];
+        const fromStr = fromDate.toISOString().split("T")[0];
+
+        try {
+          const [latest, all, recentSessions] = await Promise.all([
+            getLatestBodyMetric(),
+            getBodyMetrics(),
+            getSessions({ userId: user.id, from: fromStr, to: toStr }),
+          ]);
+          setBodyMetric(latest);
+          if (all) setAllMetrics(all);
+          if (recentSessions) setSessions(recentSessions);
+        } catch (e) {
+          console.error("Failed to fetch mypage data", e);
+        }
       }
     };
     fetchData();
@@ -146,6 +162,18 @@ export default function MyPage() {
           >
             {bodyMetric ? "오늘의 신체 정보 기록하기" : "첫 신체 정보 입력하기"}
           </button>
+        </section>
+
+        {/* 운동 부위 히트맵 */}
+        <section className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-gray-800">최근 30일 부위별 집중도</h3>
+          </div>
+          <p className="text-xs text-gray-500 mb-2">
+            최근 수행한 운동의 총 볼륨(무게×횟수)을 기준으로 한 근육
+            활성도입니다.
+          </p>
+          <MuscleHeatmap sessions={sessions} />
         </section>
 
         {/* 메뉴 리스트 */}
