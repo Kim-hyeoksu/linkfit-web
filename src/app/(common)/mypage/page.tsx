@@ -12,8 +12,8 @@ import { getLatestBodyMetric } from "@/entities/user/api/getLatestBodyMetric";
 import { getBodyMetrics } from "@/entities/user/api/getBodyMetrics";
 import { BodyMetric } from "@/entities/user/model/types";
 import { BodyMetricsChart } from "@/widgets/user";
-import { getSessions } from "@/entities/session/api/getSessions";
 import { ActiveSessionDto } from "@/entities/session";
+import { getMuscleHeatmap } from "@/entities/exercise";
 import { MuscleHeatmap } from "@/widgets/exercise";
 
 export default function MyPage() {
@@ -24,7 +24,7 @@ export default function MyPage() {
 
   const [bodyMetric, setBodyMetric] = useState<BodyMetric | null>(null);
   const [allMetrics, setAllMetrics] = useState<BodyMetric[]>([]);
-  const [sessions, setSessions] = useState<ActiveSessionDto[]>([]);
+  const [volumeMap, setVolumeMap] = useState<Record<string, number>>({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,14 +36,14 @@ export default function MyPage() {
         const fromStr = fromDate.toISOString().split("T")[0];
 
         try {
-          const [latest, all, recentSessions] = await Promise.all([
+          const [latest, all, heatmapData] = await Promise.all([
             getLatestBodyMetric(),
             getBodyMetrics(),
-            getSessions({ userId: user.id, from: fromStr, to: toStr }),
+            getMuscleHeatmap({ startDate: fromStr, endDate: toStr }),
           ]);
           setBodyMetric(latest);
           if (all) setAllMetrics(all);
-          if (recentSessions) setSessions(recentSessions);
+          if (heatmapData) setVolumeMap(heatmapData);
         } catch (e) {
           console.error("Failed to fetch mypage data", e);
         }
@@ -173,7 +173,7 @@ export default function MyPage() {
             최근 수행한 운동의 총 볼륨(무게×횟수)을 기준으로 한 근육
             활성도입니다.
           </p>
-          <MuscleHeatmap sessions={sessions} />
+          <MuscleHeatmap volumeMap={volumeMap} />
         </section>
 
         {/* 메뉴 리스트 */}

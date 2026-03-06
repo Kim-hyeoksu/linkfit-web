@@ -12,13 +12,18 @@ interface HeatmapData {
 }
 
 interface MuscleHeatmapProps {
-  sessions: ActiveSessionDto[];
+  volumeMap: Record<string, number>;
 }
 
 // Map linkfit Korean body parts to react-body-highlighter muscles
 const BODY_PART_TO_MUSCLES: Record<string, string[]> = {
+  // 대분류 (기존 유지)
   가슴: ["chest"],
+  Chest: ["chest"],
+  chest: ["chest"],
   등: ["upper-back", "lower-back", "trapezius"],
+  Back: ["upper-back", "lower-back", "trapezius"],
+  back: ["upper-back", "lower-back", "trapezius"],
   하체: [
     "hamstring",
     "quadriceps",
@@ -27,51 +32,75 @@ const BODY_PART_TO_MUSCLES: Record<string, string[]> = {
     "adductor",
     "abductors",
   ],
+  Legs: [
+    "hamstring",
+    "quadriceps",
+    "gluteal",
+    "calves",
+    "adductor",
+    "abductors",
+  ],
+  legs: [
+    "hamstring",
+    "quadriceps",
+    "gluteal",
+    "calves",
+    "adductor",
+    "abductors",
+  ],
   어깨: ["front-deltoids", "back-deltoids"],
+  Shoulders: ["front-deltoids", "back-deltoids"],
+  shoulders: ["front-deltoids", "back-deltoids"],
+  deltoids: ["front-deltoids", "back-deltoids"],
   팔: ["biceps", "triceps", "forearm"],
+  Arms: ["biceps", "triceps", "forearm"],
+  arms: ["biceps", "triceps", "forearm"],
   코어: ["abs", "obliques"],
+  Core: ["abs", "obliques"],
+  core: ["abs", "obliques"],
+
+  // 세부 부위 (추가)
+  triceps: ["triceps"],
+  biceps: ["biceps"],
+  forearm: ["forearm"],
+  trapezius: ["trapezius"],
+  "upper-back": ["upper-back"],
+  "lower-back": ["lower-back"],
+  abs: ["abs"],
+  obliques: ["obliques"],
+  quadriceps: ["quadriceps"],
+  hamstring: ["hamstring"],
+  calves: ["calves"],
+  gluteal: ["gluteal"],
+  adductor: ["adductor"],
+  abductors: ["abductors"],
 };
 
-export function MuscleHeatmap({ sessions }: MuscleHeatmapProps) {
+export function MuscleHeatmap({ volumeMap }: MuscleHeatmapProps) {
   const data = useMemo(() => {
-    const volumeMap: Record<string, number> = {};
+    const result: HeatmapData[] = [];
+    if (volumeMap) {
+      // 1. 가장 운동 볼륨이 높은 부위의 값을 찾음 (기준점)
+      const maxVolume = Math.max(
+        ...Object.values(volumeMap).map((v) => v || 0),
+      );
 
-    sessions?.forEach((session) => {
-      session.exercises?.forEach((ex) => {
-        let exerciseVolume = 0;
-        ex.sets?.forEach((set: any) => {
-          // Calculate volume for completed sets only
-          if (
-            set.status === "COMPLETED" ||
-            set.status === "IN_PROGRESS" ||
-            !!set.completedAt
-          ) {
-            exerciseVolume +=
-              (set.actualWeight || set.weight || 0) *
-              (set.actualReps || set.reps || 0);
-          }
-        });
+      Object.entries(volumeMap).forEach(([part, volume]) => {
+        if (volume > 0 && BODY_PART_TO_MUSCLES[part] && maxVolume > 0) {
+          // 2. 최대 볼륨 대비 해당 부위의 비율로 1~8(색상 단계) 사이의 레벨 계산
+          const intensityLevel = Math.ceil((volume / maxVolume) * 8);
 
-        const part = ex.bodyPart;
-        if (part) {
-          volumeMap[part] = (volumeMap[part] || 0) + exerciseVolume;
+          result.push({
+            name: part,
+            muscles: BODY_PART_TO_MUSCLES[part],
+            frequency: Math.max(1, intensityLevel),
+          });
         }
       });
-    });
-
-    const result: HeatmapData[] = [];
-    Object.entries(volumeMap).forEach(([part, volume]) => {
-      if (volume > 0 && BODY_PART_TO_MUSCLES[part]) {
-        result.push({
-          name: part,
-          muscles: BODY_PART_TO_MUSCLES[part],
-          frequency: volume,
-        });
-      }
-    });
+    }
 
     return result as any; // Cast as any because Model prop types might be strict
-  }, [sessions]);
+  }, [volumeMap]);
 
   // LinkFit Blue color scale for heatmap (from light to dark)
   const heatmapColors = [
