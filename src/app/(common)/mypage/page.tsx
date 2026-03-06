@@ -24,7 +24,9 @@ export default function MyPage() {
 
   const [bodyMetric, setBodyMetric] = useState<BodyMetric | null>(null);
   const [allMetrics, setAllMetrics] = useState<BodyMetric[]>([]);
-  const [volumeMap, setVolumeMap] = useState<Record<string, number>>({});
+  const [volumeMap, setVolumeMap] = useState<
+    Record<string, { score: number; volume: number }>
+  >({});
 
   useEffect(() => {
     const fetchData = async () => {
