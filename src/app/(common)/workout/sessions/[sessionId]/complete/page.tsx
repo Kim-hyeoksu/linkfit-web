@@ -126,7 +126,7 @@ export default function WorkoutCompletePage({
 
   return (
     <div className="bg-white min-h-screen pb-24">
-      <Header showBackButton={true} title="운동 결과" />
+      <Header showBackButton={false} title="운동 결과" />
 
       <div className="px-5 pt-8 pb-10">
         {/* 심플한 완료 메시지 (플랫 디자인 + 브랜드 컬러) */}
