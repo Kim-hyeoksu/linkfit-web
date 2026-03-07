@@ -107,18 +107,16 @@ export const Timer = ({
 
   // 타이머 초기화
   const resetTimer = () => {
-    stopTimer();
-    const initialMs = restSeconds; // 기본 5초
-    setRemainingMs(initialMs);
-    setTotalMs(initialMs);
+    startTimer();
   };
 
   // 남은 시간 변경 버튼 (+/-)
   const changeSeconds = (seconds: number) => {
     setRemainingMs((prev) => {
       const next = Math.max(prev + seconds * 1000, 0);
-      // totalMs보다 크면 totalMs로 제한
-      return Math.min(next, totalMs);
+      // 늘어난 시간이 기존 총 시간보다 커지면, 프로그레스 바를 위해 총 시간도 함께 늘려줍니다.
+      setTotalMs((prevTotal) => Math.max(prevTotal, next));
+      return next;
     });
   };
 
