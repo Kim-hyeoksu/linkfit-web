@@ -85,7 +85,7 @@ export default function WorkoutCompletePage({
       const name = ex.exerciseName ?? ex.name ?? ex.title ?? "운동";
       const sets = ex.sets ?? ex.sessionSets ?? ex.exerciseSets ?? [];
       const completedSets = (sets as any[]).filter(
-        (s) => s.completedAt || s.isComplete || s.status === "COMPLETED",
+        (s) => s.status === "COMPLETED",
       );
       const volume = completedSets.reduce((acc: number, s: any) => {
         const reps = Number(s.reps ?? s.actualReps ?? s.targetReps ?? 0);
@@ -110,9 +110,7 @@ export default function WorkoutCompletePage({
               s.actualRestSeconds ??
               s.targetRestSeconds ??
               null,
-            completed: Boolean(
-              s.completedAt || s.isComplete || s.status === "COMPLETED",
-            ),
+            completed: Boolean(s.status === "COMPLETED"),
           }))
           .filter((s) => s.completed),
       };

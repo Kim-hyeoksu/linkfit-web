@@ -87,7 +87,9 @@ export default function PlanClient({
       (ex) => ex.sessionExerciseId === exerciseId,
     );
     if (!exercise) return;
-    const nextIncompleteSet = exercise.sets.find((set) => !set.completedAt);
+    const nextIncompleteSet = exercise.sets.find(
+      (set) => set.status !== "COMPLETED",
+    );
 
     if (nextIncompleteSet) {
       setCurrentExerciseSetId(nextIncompleteSet.sessionExerciseId ?? -1);
@@ -99,7 +101,7 @@ export default function PlanClient({
 
       if (nextExercise) {
         const nextExerciseFirstIncompleteSet = nextExercise.sets.find(
-          (set) => !set.completedAt,
+          (set) => set.status !== "COMPLETED",
         );
 
         if (nextExerciseFirstIncompleteSet) {

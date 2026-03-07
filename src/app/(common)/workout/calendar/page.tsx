@@ -98,9 +98,7 @@ const getExerciseSets = (exercise: any) => {
 };
 
 const isCompletedSet = (set: any) => {
-  return Boolean(
-    set.completedAt || set.isComplete || set.status === "COMPLETED",
-  );
+  return Boolean(set.status === "COMPLETED");
 };
 
 export default function WorkoutCalendarPage() {
@@ -204,7 +202,11 @@ export default function WorkoutCalendarPage() {
 
   return (
     <div>
-      <Header showBackButton={true} title="운동 캘린더">
+      <Header
+        showBackButton={true}
+        title="운동 캘린더"
+        backUrl="/workout/programs"
+      >
         <div />
       </Header>
 
