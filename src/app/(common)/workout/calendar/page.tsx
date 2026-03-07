@@ -201,7 +201,7 @@ export default function WorkoutCalendarPage() {
     : [];
 
   return (
-    <div>
+    <div className="pb-12">
       <Header
         showBackButton={true}
         title="운동 캘린더"
