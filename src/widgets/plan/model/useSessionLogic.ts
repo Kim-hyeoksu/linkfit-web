@@ -63,10 +63,6 @@ export const useSessionLogic = (
       const nowMs = Date.now();
       const elapsed = Math.max(nowMs - startedMs, 0);
       setTotalExerciseMs(elapsed);
-
-      if (startTrigger === 0) {
-        setStartTrigger(1);
-      }
     }
   }, [initialPlanDetail, setSessionState, setReturnUrl]);
 
@@ -118,7 +114,6 @@ export const useSessionLogic = (
       setReturnUrl(window.location.pathname);
 
       setExercises(normalizeExercises(session)); // 데이터 갱신
-      setStartTrigger(1);
     } catch (e) {
       console.error("세션 시작 실패", e);
       alert("운동 시작에 실패했습니다.");
@@ -186,8 +181,9 @@ export const useSessionLogic = (
     setCurrentExerciseId(sessionExerciseId);
     setCurrentExerciseSetId(set.id ?? -1);
 
-    // Start trigger logic is now handled by effect, but we can double check
-    // Actually startTrigger isn't critical for global timer, but local feedback
+    if (newStatus === "COMPLETED") {
+      setStartTrigger((prev) => prev + 1);
+    }
   };
 
   // 세트 추가 (낙관적 업데이트)
