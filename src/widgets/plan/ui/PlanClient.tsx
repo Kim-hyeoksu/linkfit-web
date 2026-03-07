@@ -155,7 +155,7 @@ export default function PlanClient({
     if (!isSessionStarted || exercises.length === 0) return;
 
     const isAllCompleted = exercises.every((ex) =>
-      ex.sets.every((set) => set.completedAt || set.status === "COMPLETED"),
+      ex.sets.every((set) => set.status === "COMPLETED"),
     );
 
     if (isAllCompleted && !allCompletedTriggered) {

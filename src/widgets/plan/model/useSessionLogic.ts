@@ -130,9 +130,8 @@ export const useSessionLogic = (
     const reps = set.reps || set.targetReps || 0;
     const weight = set.weight || set.targetWeight || 0;
 
-    // 현재 완료 시각(completedAt) 유무에 따라 토글 분기
-    const isCurrentlyCompleted =
-      !!set.completedAt || set.status === "COMPLETED";
+    // 현재 완료 유무에 따라 토글 분기
+    const isCurrentlyCompleted = set.status === "COMPLETED";
     const newStatus = isCurrentlyCompleted ? "IN_PROGRESS" : "COMPLETED";
     const newCompletedAt = isCurrentlyCompleted
       ? null
@@ -171,7 +170,17 @@ export const useSessionLogic = (
         if (exercise.sessionExerciseId !== sessionExerciseId) return exercise;
         return {
           ...exercise,
-          sets: exercise.sets.map((s) => (s.id === set.id ? updatedSet : s)),
+          sets: exercise.sets.map((s) => {
+            if (s.id === set.id) {
+              return {
+                ...s,
+                ...updatedSet,
+                status: newStatus,
+                completedAt: newCompletedAt,
+              };
+            }
+            return s;
+          }),
         };
       }),
     );

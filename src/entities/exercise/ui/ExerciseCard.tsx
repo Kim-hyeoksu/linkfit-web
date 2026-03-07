@@ -175,7 +175,7 @@ export const ExerciseCard = ({
             {sets.map((set, index) => {
               const setKey = set.id;
               const isSetCurrent = currentExerciseSetId === setKey;
-              const isCompleted = !!set.completedAt;
+              const isCompleted = set.status === "COMPLETED";
 
               return (
                 <div
