@@ -142,12 +142,29 @@ export default function PlanClient({
     await toggleSetCompletion(Number(sessionExerciseId), set);
   };
 
+  const [allCompletedTriggered, setAllCompletedTriggered] = useState(false);
+
   useEffect(() => {
     if (pendingExerciseId !== -1) {
       handleNextSet(pendingExerciseId);
       setPendingExerciseId(-1);
     }
   }, [exercises, pendingExerciseId]);
+
+  useEffect(() => {
+    if (!isSessionStarted || exercises.length === 0) return;
+
+    const isAllCompleted = exercises.every((ex) =>
+      ex.sets.every((set) => set.completedAt || set.status === "COMPLETED"),
+    );
+
+    if (isAllCompleted && !allCompletedTriggered) {
+      setAllCompletedTriggered(true);
+      setIsEndConfirmOpen(true);
+    } else if (!isAllCompleted && allCompletedTriggered) {
+      setAllCompletedTriggered(false);
+    }
+  }, [exercises, isSessionStarted, allCompletedTriggered]);
 
   const handleEditButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
