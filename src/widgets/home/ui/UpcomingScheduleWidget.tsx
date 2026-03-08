@@ -25,7 +25,7 @@ export const UpcomingScheduleWidget = () => {
       </div>
 
       {todayPlan ? (
-        <div className="bg-white rounded-[24px] p-6 shadow-sm border border-white relative overflow-hidden active:scale-[0.98] transition-all cursor-pointer">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-white relative overflow-hidden active:scale-[0.98] transition-all cursor-pointer">
           <div className="relative z-10 flex flex-col gap-6">
             <div className="flex justify-between items-start">
               <div className="flex flex-col gap-2">

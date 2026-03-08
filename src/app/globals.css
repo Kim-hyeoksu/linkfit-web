@@ -4,6 +4,19 @@
   --color-main: #0ea5e9;
   --color-light-gray: #d9d9d9;
   --color-dark-gray: #3a3a3a;
+
+  @keyframes bounce-subtle {
+    0%,
+    100% {
+      transform: translateY(-5%);
+      animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+    }
+    50% {
+      transform: translateY(0);
+      animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    }
+  }
+  --animate-bounce-subtle: bounce-subtle 1.5s infinite;
 }
 
 /* 기본적으로 모바일 (작은 화면) 기준 */

@@ -10,18 +10,22 @@ interface GreetingProps {
 
 export const GreetingWidget = ({ user, summary }: GreetingProps) => {
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex justify-between items-center px-1">
-        <div className="space-y-1">
-          <h1 className="text-[20px] font-bold text-gray-900 leading-tight">
-            안녕하세요{" "}
-            <span className="text-gray-950">{user?.name || "사용자"}</span>님
+    <div className="bg-white rounded-2xl py-6 px-5 shadow-sm flex flex-col gap-7">
+      {/* 상단 인사말 */}
+      <div className="flex justify-between items-center">
+        <div className="space-y-1.5">
+          <h1 className="text-[20px] font-bold text-gray-900 leading-tight tracking-tight">
+            안녕하세요,{" "}
+            <span className="text-main">{user?.name || "사용자"}</span>님{" "}
+            <span className="inline-block animate-bounce-subtle origin-bottom">
+              👋
+            </span>
           </h1>
-          <p className="text-[14px] font-medium text-slate-400">
-            오늘도 잊지 말고 득근하세요!
+          <p className="text-[15px] font-semibold text-slate-500/80 leading-relaxed">
+            오늘도 멋진 근육을 만들 준비 되셨나요?
           </p>
         </div>
-        <div className="w-[52px] h-[52px] rounded-full bg-slate-100 overflow-hidden border border-slate-200/50 flex items-center justify-center relative shadow-sm">
+        <div className="w-[52px] h-[52px] rounded-full bg-slate-50 overflow-hidden border border-slate-100 flex items-center justify-center relative shadow-sm">
           {user?.profileImage ? (
             <Image
               src={user.profileImage}
@@ -35,8 +39,9 @@ export const GreetingWidget = ({ user, summary }: GreetingProps) => {
         </div>
       </div>
 
-      <div className="bg-white rounded-[24px] p-6 shadow-sm flex items-center justify-between">
-        <div className="flex flex-col items-center gap-2 flex-1 border-r border-slate-100">
+      {/* 하단 지표 요약 (구분선 추가) */}
+      <div className="flex items-center justify-between border-t border-slate-50 pt-7">
+        <div className="flex flex-col items-center gap-2 flex-1 border-r border-slate-50">
           <div className="text-[13px] font-semibold text-slate-400">
             이번 달
           </div>

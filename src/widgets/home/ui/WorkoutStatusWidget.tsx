@@ -32,7 +32,7 @@ export const WorkoutStatusWidget = ({ summary }: WorkoutStatusProps) => {
               );
             }
           }}
-          className="bg-white p-6 rounded-[24px] shadow-sm flex items-center justify-between group cursor-pointer active:scale-[0.98] transition-all"
+          className="bg-white p-6 rounded-2xl shadow-sm flex items-center justify-between group cursor-pointer active:scale-[0.98] transition-all"
         >
           <div className="flex flex-col gap-1">
             <span className="text-[12px] font-semibold text-main uppercase tracking-tight">
@@ -49,7 +49,7 @@ export const WorkoutStatusWidget = ({ summary }: WorkoutStatusProps) => {
       )}
 
       {/* 주간 볼륨 차트 */}
-      <section className="bg-white p-7 rounded-[28px] shadow-sm flex flex-col gap-6 border border-white">
+      <section className="bg-white p-7 rounded-2xl shadow-sm flex flex-col gap-6 border border-white">
         <div className="flex justify-between items-start">
           <div className="flex flex-col gap-1.5">
             <h2 className="text-[18px] font-bold text-gray-900 tracking-tight">
@@ -63,7 +63,7 @@ export const WorkoutStatusWidget = ({ summary }: WorkoutStatusProps) => {
           </div>
           <Link
             href="/workout/calendar"
-            className="p-1 px-3 bg-slate-50 rounded-full text-[12px] font-bold text-slate-400 hover:text-main flex items-center transition-all"
+            className="text-[12px] font-bold text-slate-400 hover:text-main flex items-center transition-all"
           >
             전체 기록 <ChevronRight size={14} className="ml-0.5" />
           </Link>
@@ -123,7 +123,7 @@ export const WorkoutStatusWidget = ({ summary }: WorkoutStatusProps) => {
 
       {/* 신체 지표 요약 - Toss 스타일 리스트형 */}
       {bodyMetricSummary && (
-        <section className="bg-white p-7 rounded-[28px] shadow-sm flex flex-col gap-6">
+        <section className="bg-white p-7 rounded-2xl shadow-sm flex flex-col gap-6">
           <div className="flex justify-between items-center">
             <h2 className="text-[18px] font-bold text-gray-900 tracking-tight">
               신체 지표 현황
