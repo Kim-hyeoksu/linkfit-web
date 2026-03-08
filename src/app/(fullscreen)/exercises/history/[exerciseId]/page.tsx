@@ -12,6 +12,7 @@ import {
 import { ExerciseHistoryChart } from "@/widgets/exercise";
 import { Settings, History, Info, Save } from "lucide-react";
 import { useToast } from "@/shared/ui/toast";
+import Image from "next/image";
 
 export default function ExerciseHistoryDetailPage() {
   const { exerciseId } = useParams();
@@ -20,6 +21,7 @@ export default function ExerciseHistoryDetailPage() {
   const [exercise, setExercise] = useState<Exercise | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"history" | "settings">("history");
+  const [imageIndex, setImageIndex] = useState(0);
 
   // 설정용 로컬 상태
   const [settings, setSettings] = useState({
@@ -63,6 +65,16 @@ export default function ExerciseHistoryDetailPage() {
 
     fetchData();
   }, [exerciseId]);
+
+  useEffect(() => {
+    if (!exercise?.imagePath) return;
+
+    const interval = setInterval(() => {
+      setImageIndex((prev) => (prev === 0 ? 1 : 0));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [exercise?.imagePath]);
 
   const handleUpdateSettings = async () => {
     if (!exerciseId) return;
@@ -155,6 +167,29 @@ export default function ExerciseHistoryDetailPage() {
       <Header title={exercise?.name || "종목 상세"} showBackButton={true} />
 
       <main className="px-5 pt-4 flex flex-col gap-6">
+        {/* 운동 이미지 애니메이션 */}
+        {!isLoading && exercise?.imagePath && (
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative aspect-[4/3] w-full">
+            <Image
+              src={`${process.env.NEXT_PUBLIC_API_URL}${exercise.imagePath}`}
+              alt={exercise.name}
+              fill
+              className={`object-cover ${
+                imageIndex === 0 ? "opacity-100" : "opacity-0"
+              }`}
+              priority
+            />
+            <Image
+              src={`${process.env.NEXT_PUBLIC_API_URL}${exercise.imagePath.replace(/\.png$/, "2.png")}`}
+              alt={exercise.name}
+              fill
+              className={`object-cover ${
+                imageIndex === 1 ? "opacity-100" : "opacity-0"
+              }`}
+            />
+          </div>
+        )}
+
         {/* 탭 메뉴 */}
         <div className="flex bg-white p-1 rounded-2xl shadow-sm border border-gray-100">
           <button
