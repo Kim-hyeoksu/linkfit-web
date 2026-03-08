@@ -4,7 +4,9 @@ import { use, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Header } from "@/shared";
 import { getSession } from "@/entities/session";
-import { CheckCircle2, Clock, Dumbbell } from "lucide-react";
+import { Clock, Dumbbell } from "lucide-react";
+import Lottie from "lottie-react";
+import checkAnimation from "../../../../../../../public/images/check-circle.json";
 
 const formatDuration = (durationSeconds: number) => {
   const minutes = Math.floor(durationSeconds / 60);
@@ -131,8 +133,8 @@ export default function WorkoutCompletePage({
       <div className="px-5 pt-8 pb-10">
         {/* 심플한 완료 메시지 (플랫 디자인 + 브랜드 컬러) */}
         <div className="flex flex-col items-center justify-center text-center mb-8 mt-2">
-          <div className="w-[60px] h-[60px] bg-blue-50 text-main rounded-full flex items-center justify-center mb-4">
-            <CheckCircle2 size={32} strokeWidth={2.5} />
+          <div className="w-[100px] h-[100px] flex items-center justify-center mb-2">
+            <Lottie animationData={checkAnimation} loop={true} />
           </div>
 
           <h2 className="text-[22px] font-bold text-gray-900 mb-1.5 px-2">
