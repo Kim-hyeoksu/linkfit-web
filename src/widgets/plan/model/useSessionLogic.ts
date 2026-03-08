@@ -200,7 +200,7 @@ export const useSessionLogic = (
     setExercises((prev) =>
       prev.map((exercise) => {
         if (exercise.sessionExerciseId !== exerciseId) return exercise;
-
+        console.log(exercise.sets);
         const lastSet = exercise.sets[exercise.sets.length - 1];
         return {
           ...exercise,
@@ -210,11 +210,11 @@ export const useSessionLogic = (
               id: -(Date.now() + Math.floor(Math.random() * 1000)),
               sessionExerciseId: exercise.sessionExerciseId,
               setOrder: exercise.sets.length + 1,
-              reps: 0,
-              weight: 0,
+              reps: lastSet?.reps ?? exercise.targetReps ?? 0,
+              weight: lastSet?.weight ?? exercise.targetWeight ?? 0,
               restSeconds: exercise.restSeconds,
-              targetReps: lastSet?.targetReps ?? exercise.reps ?? 0,
-              targetWeight: lastSet?.targetWeight ?? exercise.weight ?? 0,
+              targetReps: lastSet?.reps ?? exercise.targetReps ?? 0,
+              targetWeight: lastSet?.weight ?? exercise.targetWeight ?? 0,
               targetRestSeconds: exercise.restSeconds,
               status: "PENDING",
             },
@@ -277,8 +277,8 @@ export const useSessionLogic = (
         if (exercise.sessionExerciseId !== sessionExerciseId) return exercise;
         return {
           ...exercise,
-          defaultWeight: weight,
-          defaultReps: reps,
+          targetWeight: weight,
+          targetReps: reps,
           weight: weight,
           reps: reps,
         };

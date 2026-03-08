@@ -8,8 +8,8 @@ import { createStandalonePlan } from "@/entities/plan/api";
 import { useToast } from "@/shared/ui/toast";
 
 interface PlanSet {
-  weight: number;
-  reps: number;
+  targetWeight: number;
+  targetReps: number;
 }
 
 interface PlanExercise {
@@ -17,10 +17,10 @@ interface PlanExercise {
   name: string;
   bodyPart: string;
   orderIndex: number;
-  defaultSets: number;
-  defaultReps: number;
-  defaultWeight: number;
-  defaultRestSeconds: number;
+  targetSets: number;
+  targetReps: number;
+  targetWeight: number;
+  targetRestSeconds: number;
   sets: PlanSet[];
 }
 
@@ -54,22 +54,22 @@ const PlanAddPage = () => {
   }, []);
 
   const handleAddExercise = (exercise: Exercise) => {
-    const defaultSetsCount = exercise.defaultSets || 3;
-    const defaultReps = exercise.defaultReps || 10;
-    const defaultWeight = exercise.defaultWeight || 0;
+    const defaultSetsCount = exercise.targetSets || 3;
+    const defaultReps = exercise.targetReps || 10;
+    const defaultWeight = exercise.targetWeight || 0;
 
     const newExercise: PlanExercise = {
       exerciseId: exercise.id,
       name: exercise.name,
       bodyPart: exercise.bodyPart,
       orderIndex: exercises.length + 1,
-      defaultSets: defaultSetsCount,
-      defaultReps: defaultReps,
-      defaultWeight: defaultWeight,
-      defaultRestSeconds: exercise.defaultRestSeconds || 60,
+      targetSets: defaultSetsCount,
+      targetReps: defaultReps,
+      targetWeight: defaultWeight,
+      targetRestSeconds: exercise.targetRestSeconds || 60,
       sets: Array.from({ length: defaultSetsCount }, () => ({
-        weight: defaultWeight,
-        reps: defaultReps,
+        targetWeight: defaultWeight,
+        targetReps: defaultReps,
       })),
     };
     setExercises([...exercises, newExercise]);
@@ -108,8 +108,8 @@ const PlanAddPage = () => {
       prev.map((ex, i) => {
         if (i !== exerciseIndex) return ex;
         const lastSet = ex.sets[ex.sets.length - 1] || {
-          reps: ex.defaultReps,
-          weight: ex.defaultWeight,
+          targetReps: ex.targetReps,
+          targetWeight: ex.targetWeight,
         };
         return {
           ...ex,
@@ -153,15 +153,15 @@ const PlanAddPage = () => {
         exercises: exercises.map((ex) => ({
           exerciseId: ex.exerciseId,
           orderIndex: ex.orderIndex,
-          defaultSets: ex.sets.length,
-          defaultReps: ex.sets[0]?.reps || ex.defaultReps,
-          defaultWeight: ex.sets[0]?.weight || ex.defaultWeight,
-          defaultRestSeconds: ex.defaultRestSeconds,
+          targetSets: ex.sets.length,
+          targetReps: ex.sets[0]?.targetReps || ex.targetReps,
+          targetWeight: ex.sets[0]?.targetWeight || ex.targetWeight,
+          targetRestSeconds: ex.targetRestSeconds,
           sets: ex.sets.map((s, si) => ({
             setOrder: si + 1,
-            reps: s.reps,
-            weight: s.weight,
-            restSeconds: ex.defaultRestSeconds,
+            targetReps: s.targetReps,
+            targetWeight: s.targetWeight,
+            targetRestSeconds: ex.targetRestSeconds,
           })),
         })),
       };
@@ -290,16 +290,16 @@ const PlanAddPage = () => {
                               value={
                                 focusedField?.index === index &&
                                 focusedField?.setIndex === setIndex &&
-                                focusedField?.field === "weight" &&
-                                set.weight === 0
+                                focusedField?.field === "targetWeight" &&
+                                set.targetWeight === 0
                                   ? ""
-                                  : set.weight
+                                  : set.targetWeight
                               }
                               onFocus={() =>
                                 setFocusedField({
                                   index,
                                   setIndex,
-                                  field: "weight",
+                                  field: "targetWeight",
                                 })
                               }
                               onBlur={() => setFocusedField(null)}
@@ -307,7 +307,7 @@ const PlanAddPage = () => {
                                 handleUpdateSet(
                                   index,
                                   setIndex,
-                                  "weight",
+                                  "targetWeight",
                                   Number(e.target.value),
                                 )
                               }
@@ -321,16 +321,16 @@ const PlanAddPage = () => {
                               value={
                                 focusedField?.index === index &&
                                 focusedField?.setIndex === setIndex &&
-                                focusedField?.field === "reps" &&
-                                set.reps === 0
+                                focusedField?.field === "targetReps" &&
+                                set.targetReps === 0
                                   ? ""
-                                  : set.reps
+                                  : set.targetReps
                               }
                               onFocus={() =>
                                 setFocusedField({
                                   index,
                                   setIndex,
-                                  field: "reps",
+                                  field: "targetReps",
                                 })
                               }
                               onBlur={() => setFocusedField(null)}
@@ -338,7 +338,7 @@ const PlanAddPage = () => {
                                 handleUpdateSet(
                                   index,
                                   setIndex,
-                                  "reps",
+                                  "targetReps",
                                   Number(e.target.value),
                                 )
                               }
@@ -378,22 +378,22 @@ const PlanAddPage = () => {
                         className="w-16 h-8 bg-slate-50 border border-slate-200 text-center rounded-md font-bold text-xs focus:ring-2 focus:ring-blue-100 outline-none"
                         value={
                           focusedField?.index === index &&
-                          focusedField?.field === "defaultRestSeconds" &&
-                          exercise.defaultRestSeconds === 0
+                          focusedField?.field === "targetRestSeconds" &&
+                          exercise.targetRestSeconds === 0
                             ? ""
-                            : exercise.defaultRestSeconds
+                            : exercise.targetRestSeconds
                         }
                         onFocus={() =>
                           setFocusedField({
                             index,
-                            field: "defaultRestSeconds",
+                            field: "targetRestSeconds",
                           })
                         }
                         onBlur={() => setFocusedField(null)}
                         onChange={(e) =>
                           handleUpdateExercise(
                             index,
-                            "defaultRestSeconds",
+                            "targetRestSeconds",
                             Number(e.target.value),
                           )
                         }

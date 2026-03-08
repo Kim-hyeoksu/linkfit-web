@@ -1,8 +1,5 @@
 import { useState } from "react";
-import {
-  updatePlan,
-  type PlanDetailDto,
-} from "@/entities/plan";
+import { updatePlan, type PlanDetailDto } from "@/entities/plan";
 import type { ClientExercise } from "@/entities/exercise";
 
 export const usePlanLogic = (initialPlanDetail: PlanDetailDto | any) => {
@@ -23,14 +20,14 @@ export const usePlanLogic = (initialPlanDetail: PlanDetailDto | any) => {
         exercises: exercises.map((exercise, index) => ({
           exerciseId: exercise.exerciseId,
           orderIndex: exercise.orderIndex ?? index,
-          defaultReps: exercise.defaultReps || 0,
-          defaultSets: exercise.defaultSets || 0,
-          defaultWeight: exercise.defaultWeight || 0,
+          targetReps: exercise.targetReps || 0,
+          targetSets: exercise.targetSets || 0,
+          targetWeight: exercise.targetWeight || 0,
           sets: exercise.sets.map((set) => ({
             setOrder: set.setOrder,
-            reps: set.reps,
-            weight: set.weight,
-            restSeconds: set.restSeconds,
+            targetReps: set.targetReps ?? set.reps,
+            targetWeight: set.targetWeight ?? set.weight,
+            targetRestSeconds: set.targetRestSeconds ?? set.restSeconds,
           })),
         })),
       };

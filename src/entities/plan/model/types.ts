@@ -18,10 +18,6 @@ export type PlanDetailExerciseDto = {
   exerciseId: number;
   sessionExerciseId?: number;
   exerciseName: string;
-  defaultSets: number;
-  defaultReps: number;
-  defaultWeight: number;
-  defaultRestSeconds: number;
   targetSets: number;
   targetReps: number;
   targetWeight: number;

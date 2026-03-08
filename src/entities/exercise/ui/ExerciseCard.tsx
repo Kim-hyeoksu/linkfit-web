@@ -123,12 +123,12 @@ export const ExerciseCard = ({
                 <input
                   type="number"
                   className="w-16 h-9 pb-1 bg-white border border-slate-200 rounded-lg text-center font-bold text-slate-700 focus:border-main focus:ring-2 focus:ring-blue-100 transition-all outline-none"
-                  value={exercise.defaultWeight}
+                  value={exercise.targetWeight}
                   onChange={(e) =>
                     onUpdateDefault?.(
                       exerciseId,
                       Number(e.target.value),
-                      exercise.defaultReps,
+                      exercise.targetReps,
                     )
                   }
                 />
@@ -145,11 +145,11 @@ export const ExerciseCard = ({
                 <input
                   type="number"
                   className="w-16 h-9 pb-1 bg-white border border-slate-200 rounded-lg text-center font-bold text-slate-700 focus:border-main focus:ring-2 focus:ring-blue-100 transition-all outline-none"
-                  value={exercise.defaultReps}
+                  value={exercise.targetReps}
                   onChange={(e) =>
                     onUpdateDefault?.(
                       exerciseId,
-                      exercise.defaultWeight,
+                      exercise.targetWeight,
                       Number(e.target.value),
                     )
                   }

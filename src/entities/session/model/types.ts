@@ -8,11 +8,8 @@ export interface SessionSet {
   sessionExerciseId?: number;
   setOrder: number;
   targetReps?: number;
-  targeWeight?: number;
-  targetResetSeconds?: number;
-  defaultReps?: number | null;
-  defaultWeight?: number | null;
-  defaultRestSeconds?: number | null;
+  targetWeight?: number;
+  targetRestSeconds?: number;
   reps: number;
   weight: number;
   rpe?: number;
@@ -46,10 +43,6 @@ export type SessionExerciseDto = {
   targetReps: number;
   targetWeight: number;
   targetRestSeconds: number;
-  defaultSets: number;
-  defaultReps: number;
-  defaultWeight: number;
-  defaultRestSeconds: number;
   bodyPart: string;
   exerciseImagePath: string;
   sets: SessionSetDto[];

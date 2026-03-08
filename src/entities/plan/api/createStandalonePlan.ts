@@ -9,18 +9,18 @@ export interface CreatePlanRequest {
 export interface ExercisePayload {
   exerciseId: number;
   orderIndex: number;
-  defaultSets: number;
-  defaultReps: number;
-  defaultWeight?: number;
-  defaultRestSeconds?: number;
+  targetSets: number;
+  targetReps: number;
+  targetWeight?: number;
+  targetRestSeconds?: number;
   sets?: SetPayload[];
 }
 
 export interface SetPayload {
   setOrder?: number;
-  reps?: number;
-  weight?: number;
-  restSeconds?: number;
+  targetReps?: number;
+  targetWeight?: number;
+  targetRestSeconds?: number;
 }
 
 export const createStandalonePlan = async (data: CreatePlanRequest) => {

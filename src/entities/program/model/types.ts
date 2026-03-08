@@ -9,18 +9,18 @@ export interface Program {
 
 export interface ProgramPlanSetCreateRequest {
   setOrder: number;
-  reps: number;
-  weight: number;
-  restSeconds: number;
+  targetReps: number;
+  targetWeight: number;
+  targetRestSeconds: number;
 }
 
 export interface ProgramPlanExerciseCreateRequest {
   exerciseId: number;
   orderIndex: number;
-  defaultSets: number;
-  defaultReps: number;
-  defaultWeight: number;
-  defaultRestSeconds: number;
+  targetSets: number;
+  targetReps: number;
+  targetWeight: number;
+  targetRestSeconds: number;
   sets: ProgramPlanSetCreateRequest[];
 }
 

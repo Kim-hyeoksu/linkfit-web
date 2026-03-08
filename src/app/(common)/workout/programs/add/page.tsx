@@ -23,9 +23,9 @@ import {
 
 interface ProgramPlanSet {
   setOrder: number;
-  reps: number;
-  weight: number;
-  restSeconds: number;
+  targetReps: number;
+  targetWeight: number;
+  targetRestSeconds: number;
 }
 
 interface ProgramPlanExercise {
@@ -33,10 +33,10 @@ interface ProgramPlanExercise {
   name: string;
   bodyPart: string;
   orderIndex: number;
-  defaultSets: number;
-  defaultReps: number;
-  defaultWeight: number;
-  defaultRestSeconds: number;
+  targetSets: number;
+  targetReps: number;
+  targetWeight: number;
+  targetRestSeconds: number;
   sets: ProgramPlanSet[];
 }
 
@@ -145,18 +145,18 @@ const ProgramAddPage = () => {
 
     let hasInvalid = false;
     for (const ex of editingPlan.exercises) {
-      if (ex.defaultRestSeconds < 0) {
+      if (ex.targetRestSeconds < 0) {
         showToast("휴식 시간은 0초 이상이어야 합니다.", "error");
         hasInvalid = true;
         break;
       }
       for (const set of ex.sets) {
-        if (set.reps <= 0) {
+        if (set.targetReps <= 0) {
           showToast("반복 횟수(REPS)는 최소 1 이상이어야 합니다.", "error");
           hasInvalid = true;
           break;
         }
-        if (set.weight <= 0) {
+        if (set.targetWeight <= 0) {
           showToast("무게(WEIGHT)는 0 초과이어야 합니다.", "error");
           hasInvalid = true;
           break;
@@ -225,15 +225,15 @@ const ProgramAddPage = () => {
         exercises: p.exercises.map((ex) => ({
           exerciseId: ex.exerciseId,
           orderIndex: ex.orderIndex,
-          defaultSets: ex.sets.length,
-          defaultReps: ex.sets[0]?.reps || 10,
-          defaultWeight: ex.sets[0]?.weight || 0,
-          defaultRestSeconds: ex.defaultRestSeconds,
+          targetSets: ex.sets.length,
+          targetReps: ex.sets[0]?.targetReps || 10,
+          targetWeight: ex.sets[0]?.targetWeight || 0,
+          targetRestSeconds: ex.targetRestSeconds,
           sets: ex.sets.map((s) => ({
             setOrder: s.setOrder,
-            reps: s.reps,
-            weight: s.weight,
-            restSeconds: s.restSeconds,
+            targetReps: s.targetReps,
+            targetWeight: s.targetWeight,
+            targetRestSeconds: s.targetRestSeconds,
           })),
         })),
       }));
@@ -267,25 +267,25 @@ const ProgramAddPage = () => {
 
   const handleAddExercise = (exercise: Exercise) => {
     if (!editingPlan) return;
-    const defaultSetsCount = exercise.defaultSets || 3;
-    const defaultReps = exercise.defaultReps || 10;
-    const defaultWeight = exercise.defaultWeight || 0;
-    const defaultRestSeconds = exercise.defaultRestSeconds || 60;
+    const defaultSetsCount = exercise.targetSets || 3;
+    const defaultReps = exercise.targetReps || 10;
+    const defaultWeight = exercise.targetWeight || 0;
+    const defaultRestSeconds = exercise.targetRestSeconds || 60;
 
     const newExercise: ProgramPlanExercise = {
       exerciseId: exercise.id,
       name: exercise.name,
       bodyPart: exercise.bodyPart,
       orderIndex: editingPlan.exercises.length + 1,
-      defaultSets: defaultSetsCount,
-      defaultReps: defaultReps,
-      defaultWeight: defaultWeight,
-      defaultRestSeconds: defaultRestSeconds,
+      targetSets: defaultSetsCount,
+      targetReps: defaultReps,
+      targetWeight: defaultWeight,
+      targetRestSeconds: defaultRestSeconds,
       sets: Array.from({ length: defaultSetsCount }, (_, i) => ({
         setOrder: i + 1,
-        reps: defaultReps,
-        weight: defaultWeight,
-        restSeconds: defaultRestSeconds,
+        targetReps: defaultReps,
+        targetWeight: defaultWeight,
+        targetRestSeconds: defaultRestSeconds,
       })),
     };
     setEditingPlan({
@@ -338,9 +338,9 @@ const ProgramAddPage = () => {
         if (i !== exerciseIndex) return ex;
         const lastSet = ex.sets[ex.sets.length - 1] || {
           setOrder: 1,
-          reps: ex.defaultReps,
-          weight: ex.defaultWeight,
-          restSeconds: ex.defaultRestSeconds,
+          targetReps: ex.targetReps,
+          targetWeight: ex.targetWeight,
+          targetRestSeconds: ex.targetRestSeconds,
         };
         return {
           ...ex,
@@ -810,16 +810,17 @@ const ProgramAddPage = () => {
                                       value={
                                         focusedField?.index === index &&
                                         focusedField?.setIndex === setIndex &&
-                                        focusedField?.field === "weight" &&
-                                        set.weight === 0
+                                        focusedField?.field ===
+                                          "targetWeight" &&
+                                        set.targetWeight === 0
                                           ? ""
-                                          : set.weight
+                                          : set.targetWeight
                                       }
                                       onFocus={() =>
                                         setFocusedField({
                                           index,
                                           setIndex,
-                                          field: "weight",
+                                          field: "targetWeight",
                                         })
                                       }
                                       onBlur={() => setFocusedField(null)}
@@ -827,7 +828,7 @@ const ProgramAddPage = () => {
                                         handleUpdateSet(
                                           index,
                                           setIndex,
-                                          "weight",
+                                          "targetWeight",
                                           Number(e.target.value),
                                         )
                                       }
@@ -841,16 +842,16 @@ const ProgramAddPage = () => {
                                       value={
                                         focusedField?.index === index &&
                                         focusedField?.setIndex === setIndex &&
-                                        focusedField?.field === "reps" &&
-                                        set.reps === 0
+                                        focusedField?.field === "targetReps" &&
+                                        set.targetReps === 0
                                           ? ""
-                                          : set.reps
+                                          : set.targetReps
                                       }
                                       onFocus={() =>
                                         setFocusedField({
                                           index,
                                           setIndex,
-                                          field: "reps",
+                                          field: "targetReps",
                                         })
                                       }
                                       onBlur={() => setFocusedField(null)}
@@ -858,7 +859,7 @@ const ProgramAddPage = () => {
                                         handleUpdateSet(
                                           index,
                                           setIndex,
-                                          "reps",
+                                          "targetReps",
                                           Number(e.target.value),
                                         )
                                       }
@@ -900,23 +901,22 @@ const ProgramAddPage = () => {
                                 className="w-16 h-8 bg-slate-50 border border-slate-200 text-center rounded-md font-bold text-[12px] focus:ring-2 focus:ring-blue-100 outline-none"
                                 value={
                                   focusedField?.index === index &&
-                                  focusedField?.field ===
-                                    "defaultRestSeconds" &&
-                                  exercise.defaultRestSeconds === 0
+                                  focusedField?.field === "targetRestSeconds" &&
+                                  exercise.targetRestSeconds === 0
                                     ? ""
-                                    : exercise.defaultRestSeconds
+                                    : exercise.targetRestSeconds
                                 }
                                 onFocus={() =>
                                   setFocusedField({
                                     index,
-                                    field: "defaultRestSeconds",
+                                    field: "targetRestSeconds",
                                   })
                                 }
                                 onBlur={() => setFocusedField(null)}
                                 onChange={(e) =>
                                   handleUpdateExercise(
                                     index,
-                                    "defaultRestSeconds",
+                                    "targetRestSeconds",
                                     Number(e.target.value),
                                   )
                                 }

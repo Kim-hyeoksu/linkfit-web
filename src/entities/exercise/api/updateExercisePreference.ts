@@ -1,10 +1,10 @@
 import { api } from "@/shared/api/axios";
 
 export interface UpdateExercisePreferenceRequest {
-  defaultSets?: number;
-  defaultReps?: number;
-  defaultWeight?: number;
-  defaultRestSeconds?: number;
+  targetSets?: number;
+  targetReps?: number;
+  targetWeight?: number;
+  targetRestSeconds?: number;
 }
 
 export const updateExercisePreference = async (

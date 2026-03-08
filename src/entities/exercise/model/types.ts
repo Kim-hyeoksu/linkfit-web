@@ -7,10 +7,10 @@ export interface Exercise {
   equipment: string;
   description: string;
   createdAt: string;
-  defaultSets?: number;
-  defaultReps?: number;
-  defaultWeight?: number;
-  defaultRestSeconds?: number;
+  targetSets?: number;
+  targetReps?: number;
+  targetWeight?: number;
+  targetRestSeconds?: number;
 }
 
 export interface ClientSet {
@@ -33,9 +33,9 @@ export interface ClientExercise {
   exerciseId: number;
   exerciseName: string;
   sets: ClientSet[];
-  defaultReps: number;
-  defaultWeight: number;
-  defaultSets: number;
+  targetReps: number;
+  targetWeight: number;
+  targetSets: number;
   restSeconds: number;
   bodyPart?: string;
   exerciseImagePath?: string;
