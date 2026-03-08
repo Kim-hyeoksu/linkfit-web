@@ -102,6 +102,64 @@ const isCompletedSet = (set: any) => {
   return Boolean(set.status === "COMPLETED");
 };
 
+const SessionCard = ({
+  session,
+  onClick,
+}: {
+  session: SessionLike;
+  onClick: () => void;
+}) => {
+  const duration = session.totalDurationSeconds;
+  const exercises = getSessionExercises(session);
+  const planTitle = session.planTitle;
+  const programName = session.programName;
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="w-full text-left bg-white rounded-2xl p-4 shadow-sm border border-slate-100 hover:border-main/30 hover:shadow-md transition-all active:scale-[0.98] flex items-center"
+    >
+      <div className="flex-1 flex flex-col gap-1.5">
+        <div className="text-[15px] font-extrabold text-slate-800 line-clamp-1">
+          {programName || planTitle ? (
+            <>
+              {programName ? (
+                <span className="text-main mr-1">[{programName}]</span>
+              ) : (
+                ""
+              )}
+              {planTitle ?? "완료된 운동"}
+            </>
+          ) : (
+            (exercises as any[])
+              .map((ex) => ex.exerciseName ?? ex.name ?? "운동")
+              .join(", ")
+          )}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2 mt-1">
+          <div className="text-[12px] font-medium text-slate-500 bg-slate-50 px-2 py-0.5 rounded-md flex items-center gap-1">
+            <Clock size={12} />
+            <span>
+              {formatTime(session.startedAt)} - {formatTime(session.endedAt)}
+            </span>
+          </div>
+          <div className="text-[12px] font-medium text-slate-500 bg-slate-50 px-2 py-0.5 rounded-md">
+            {formatDuration(duration)} 소요
+          </div>
+          <div className="text-[12px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">
+            {Math.round(getSessionTotalVolumeKg(session)).toLocaleString()} kg
+          </div>
+        </div>
+      </div>
+      <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 flex-shrink-0">
+        <ChevronRight size={18} />
+      </div>
+    </button>
+  );
+};
+
 export default function WorkoutCalendarPage() {
   const userId = 1; // TODO: 로그인 유저로 교체
   const [monthCursor, setMonthCursor] = useState(() => {
@@ -334,111 +392,18 @@ export default function WorkoutCalendarPage() {
                   </div>
                 </div>
               ) : (
-                <div className="flex flex-col gap-4">
-                  {selectedSessions.map((s, idx) => {
-                    const duration = s.totalDurationSeconds;
-                    const exercises = getSessionExercises(s);
-                    const planTitle = s.planTitle;
-                    const programName = s.programName;
-                    return (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (s?.id) {
-                            window.location.href = `/workout/sessions/${s.id}/complete`;
-                          }
-                        }}
-                        key={s.id ?? idx}
-                        className="w-full text-left bg-white rounded-3xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-100 hover:border-blue-100 hover:shadow-[0_8px_30px_rgba(59,130,246,0.08)] transition-all active:scale-[0.98] group relative overflow-hidden flex flex-col gap-4"
-                      >
-                        <div className="absolute top-0 left-0 w-1.5 h-full bg-main rounded-l-3xl opacity-80" />
-
-                        {/* Header Info */}
-                        <div className="pl-3">
-                          <div className="flex justify-between items-start mb-1.5">
-                            {planTitle || programName ? (
-                              <h4 className="text-base font-extrabold text-slate-800 line-clamp-1 pr-4">
-                                {programName ? (
-                                  <span className="text-main mr-1">
-                                    [{programName}]
-                                  </span>
-                                ) : (
-                                  ""
-                                )}
-                                {planTitle ?? "완료된 운동"}
-                              </h4>
-                            ) : (
-                              <h4 className="text-base font-extrabold text-slate-800">
-                                자유 운동
-                              </h4>
-                            )}
-                          </div>
-
-                          <div className="flex flex-wrap items-center gap-3 mt-2">
-                            <div className="flex items-center gap-1.5 text-[13px] font-medium text-slate-500 bg-slate-50 px-2.5 py-1 rounded-lg">
-                              <Clock size={14} className="text-slate-400" />
-                              <span>
-                                {formatTime(s.startedAt)} ~{" "}
-                                {formatTime(s.endedAt)}
-                              </span>
-                              <span className="text-slate-300">|</span>
-                              <span className="text-slate-700 font-bold">
-                                {formatDuration(duration)}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1.5 text-[13px] font-medium text-slate-500 bg-blue-50 px-2.5 py-1 rounded-lg">
-                              <Activity size={14} className="text-blue-400" />
-                              <span>총 볼륨</span>
-                              <span className="text-blue-600 font-bold">
-                                {Math.round(
-                                  getSessionTotalVolumeKg(s),
-                                ).toLocaleString()}{" "}
-                                <span className="text-[11px] font-medium">
-                                  kg
-                                </span>
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Exercise Summary Preview (Only show first 3) */}
-                        <div className="pl-3 mt-1 pt-4 border-t border-slate-50 flex flex-col gap-2.5">
-                          {(exercises as any[]).slice(0, 3).map((ex, exIdx) => {
-                            const name =
-                              ex.exerciseName ?? ex.name ?? ex.title ?? "운동";
-                            const sets = getExerciseSets(ex);
-                            const completedSets = (sets as any[]).filter(
-                              isCompletedSet,
-                            );
-
-                            if (completedSets.length === 0) return null;
-
-                            // Simple summary for the card: "Squat (3 sets)"
-                            return (
-                              <div
-                                key={`${name}-${exIdx}`}
-                                className="flex items-center gap-2 text-sm"
-                              >
-                                <div className="w-1.5 h-1.5 rounded-full bg-slate-300 group-hover:bg-blue-300 transition-colors" />
-                                <span className="font-bold text-slate-700">
-                                  {name}
-                                </span>
-                                <span className="text-slate-400 text-[13px] font-medium ml-1">
-                                  {completedSets.length}세트 완료
-                                </span>
-                              </div>
-                            );
-                          })}
-                          {(exercises as any[]).length > 3 && (
-                            <div className="text-[13px] font-bold text-slate-400 pl-3 mt-1">
-                              + {(exercises as any[]).length - 3}개의 운동
-                              더보기
-                            </div>
-                          )}
-                        </div>
-                      </button>
-                    );
-                  })}
+                <div className="flex flex-col gap-3">
+                  {selectedSessions.map((s, idx) => (
+                    <SessionCard
+                      key={s.id ?? idx}
+                      session={s}
+                      onClick={() => {
+                        if (s?.id) {
+                          window.location.href = `/workout/sessions/${s.id}/complete`;
+                        }
+                      }}
+                    />
+                  ))}
                 </div>
               )}
             </div>
@@ -494,9 +459,9 @@ export default function WorkoutCalendarPage() {
 
                         <div className="flex flex-col gap-3 px-1 mt-3">
                           {list.map((s, idx) => (
-                            <button
+                            <SessionCard
                               key={s.id ?? idx}
-                              type="button"
+                              session={s}
                               onClick={() => {
                                 if (s?.id) {
                                   window.location.href = `/workout/sessions/${s.id}/complete`;
@@ -504,46 +469,7 @@ export default function WorkoutCalendarPage() {
                                   setSelectedDateKey(dateKey);
                                 }
                               }}
-                              className="w-full text-left bg-white rounded-2xl p-4 shadow-sm border border-slate-100 hover:border-main/30 hover:shadow-md transition-all active:scale-[0.98] flex gap-4 items-center"
-                            >
-                              <div className="flex-1 flex flex-col gap-1.5">
-                                <div className="text-[15px] font-extrabold text-slate-800 line-clamp-1">
-                                  {s.programName || s.planTitle
-                                    ? `${s.programName ? `[${s.programName}] ` : ""}${s.planTitle ?? ""}`
-                                    : (getSessionExercises(s) as any[])
-                                        .map(
-                                          (ex) =>
-                                            ex.exerciseName ??
-                                            ex.name ??
-                                            "운동",
-                                        )
-                                        .join(", ")}
-                                </div>
-
-                                <div className="flex flex-wrap items-center gap-2 mt-1">
-                                  <div className="text-[12px] font-medium text-slate-500 bg-slate-50 px-2 py-0.5 rounded-md flex items-center gap-1">
-                                    <Clock size={12} />
-                                    <span>
-                                      {formatTime(s.startedAt)} -{" "}
-                                      {formatTime(s.endedAt)}
-                                    </span>
-                                  </div>
-                                  <div className="text-[12px] font-medium text-slate-500 bg-slate-50 px-2 py-0.5 rounded-md">
-                                    {formatDuration(s.totalDurationSeconds)}{" "}
-                                    소요
-                                  </div>
-                                  <div className="text-[12px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">
-                                    {Math.round(
-                                      getSessionTotalVolumeKg(s),
-                                    ).toLocaleString()}{" "}
-                                    kg
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 flex-shrink-0">
-                                <ChevronRight size={18} />
-                              </div>
-                            </button>
+                            />
                           ))}
                         </div>
                       </div>
