@@ -63,7 +63,7 @@ export const ExerciseCard = ({
     (s) => s.status === "COMPLETED",
   ).length;
 
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   // 현재 진행 중인 세트가 있는 운동은 자동으로 펼침 상태 유지 (세션 시)
   useEffect(() => {
