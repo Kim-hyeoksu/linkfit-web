@@ -1,5 +1,5 @@
 import { api } from "@/shared/api";
-import { ExerciseHistoryDetailResponse } from "../model/types";
+import { PageExerciseHistoryResponse } from "../model/types";
 
 type GetExerciseHistoryParams = {
   exerciseId: number;
@@ -7,7 +7,7 @@ type GetExerciseHistoryParams = {
   endDate?: string; // YYYY-MM-DD
   page?: number;
   size?: number;
-  sort?: string[];
+  sortOrder?: string;
 };
 
 export const getExerciseHistory = async ({
@@ -16,15 +16,15 @@ export const getExerciseHistory = async ({
   endDate,
   page = 0,
   size = 10,
-  sort,
-}: GetExerciseHistoryParams): Promise<ExerciseHistoryDetailResponse> => {
+  sortOrder,
+}: GetExerciseHistoryParams): Promise<PageExerciseHistoryResponse> => {
   const response = await api.get(`/api/exercises/${exerciseId}/history`, {
     params: {
       startDate,
       endDate,
       page,
       size,
-      sort,
+      sortOrder,
     },
   });
 

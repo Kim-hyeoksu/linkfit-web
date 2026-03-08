@@ -86,8 +86,3 @@ export interface PageExerciseHistoryResponse {
   sort: { sorted: boolean; unsorted: boolean; empty: boolean };
   empty: boolean;
 }
-
-export interface ExerciseHistoryDetailResponse {
-  exercise: Exercise;
-  history: PageExerciseHistoryResponse;
-}

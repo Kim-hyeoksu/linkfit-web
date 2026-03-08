@@ -1,4 +1,5 @@
 export { getExercises } from "./api/getExercises";
+export { getExerciseDetail } from "./api/getExerciseDetail";
 export { getExerciseHistory } from "./api/getExerciseHistory";
 export { updateExercisePreference } from "./api/updateExercisePreference";
 export { getMuscleHeatmap } from "./api/getMuscleHeatmap";

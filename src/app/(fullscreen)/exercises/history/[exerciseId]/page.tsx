@@ -5,12 +5,13 @@ import { useParams } from "next/navigation";
 import { Header } from "@/shared";
 import {
   getExerciseHistory,
+  getExerciseDetail,
   updateExercisePreference,
   Exercise,
   ExerciseHistoryResponse,
 } from "@/entities/exercise";
 import { ExerciseHistoryChart } from "@/widgets/exercise";
-import { Settings, History, Info, Save } from "lucide-react";
+import { Settings, History, Info, Save, ArrowUpDown } from "lucide-react";
 import { useToast } from "@/shared/ui/toast";
 import Image from "next/image";
 
@@ -22,6 +23,7 @@ export default function ExerciseHistoryDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"history" | "settings">("history");
   const [imageIndex, setImageIndex] = useState(0);
+  const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
 
   // 설정용 로컬 상태
   const [settings, setSettings] = useState({
@@ -32,39 +34,50 @@ export default function ExerciseHistoryDetailPage() {
   });
   const [isSaving, setIsSaving] = useState(false);
 
+  // 운동 상세 정보 조회
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchDetail = async () => {
       if (!exerciseId) return;
-      setIsLoading(true);
       try {
-        const response = await getExerciseHistory({
-          exerciseId: Number(exerciseId),
-          size: 100,
-          sort: ["sessionDate,desc"],
-        });
-
-        if (response.history) {
-          setHistory(response.history.content || []);
-        }
-
-        if (response.exercise) {
-          setExercise(response.exercise);
+        const detail = await getExerciseDetail(Number(exerciseId));
+        if (detail) {
+          setExercise(detail);
           setSettings({
-            targetWeight: response.exercise.targetWeight || 0,
-            targetReps: response.exercise.targetReps || 0,
-            targetSets: response.exercise.targetSets || 0,
-            targetRestSeconds: response.exercise.targetRestSeconds || 0,
+            targetWeight: detail.targetWeight || 0,
+            targetReps: detail.targetReps || 0,
+            targetSets: detail.targetSets || 0,
+            targetRestSeconds: detail.targetRestSeconds || 0,
           });
         }
       } catch (error) {
-        console.error("Failed to fetch data:", error);
+        console.error("Failed to fetch exercise detail:", error);
+      }
+    };
+    fetchDetail();
+  }, [exerciseId]);
+
+  // 운동 히스토리 조회
+  useEffect(() => {
+    const fetchHistory = async () => {
+      if (!exerciseId) return;
+      setIsLoading(true);
+      try {
+        const historyData = await getExerciseHistory({
+          exerciseId: Number(exerciseId),
+          size: 100,
+          sortOrder: sortOrder,
+        });
+
+        setHistory(historyData.content || []);
+      } catch (error) {
+        console.error("Failed to fetch exercise history:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchData();
-  }, [exerciseId]);
+    fetchHistory();
+  }, [exerciseId, sortOrder]);
 
   useEffect(() => {
     if (!exercise?.imagePath) return;
@@ -279,9 +292,22 @@ export default function ExerciseHistoryDetailPage() {
                 </section>
 
                 <section className="flex flex-col gap-4">
-                  <h3 className="font-bold text-gray-800 ml-1">
-                    상세 기록 리스트
-                  </h3>
+                  <div className="flex justify-between items-center px-1">
+                    <h3 className="font-bold text-gray-800">
+                      상세 기록 리스트
+                    </h3>
+                    <button
+                      onClick={() =>
+                        setSortOrder((prev) =>
+                          prev === "desc" ? "asc" : "desc",
+                        )
+                      }
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-gray-100 shadow-sm text-[11px] font-bold text-slate-500 hover:text-main hover:border-main transition-all active:scale-95"
+                    >
+                      <ArrowUpDown size={12} />
+                      {sortOrder === "desc" ? "최신순" : "오래된순"}
+                    </button>
+                  </div>
                   {history.length === 0 ? (
                     <div className="py-8 bg-white rounded-3xl text-center text-gray-500 text-sm border border-gray-100">
                       기록된 운동 정보가 없어요.
