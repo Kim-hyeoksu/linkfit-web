@@ -10,7 +10,7 @@ import {
 } from "@/features/session-control";
 import type { ActiveSessionDto, StartSessionRequest } from "@/entities/session";
 import type { PlanDetailDto } from "@/entities/plan";
-import type { ClientExercise, ClientSet } from "@/entities/exercise";
+import type { ClientExercise, ClientSet, Exercise } from "@/entities/exercise";
 import { normalizeExercises } from "./normalize";
 import { sessionStateAtom, sessionReturnUrlAtom } from "@/entities/session";
 
@@ -260,7 +260,14 @@ export const useSessionLogic = (
         return {
           ...exercise,
           sets: exercise.sets.map((set) =>
-            set.id === setId ? { ...set, ...values } : set,
+            set.id === setId
+              ? {
+                  ...set,
+                  ...values,
+                  targetWeight: values.weight,
+                  targetReps: values.reps,
+                }
+              : set,
           ),
         };
       }),
@@ -284,6 +291,46 @@ export const useSessionLogic = (
         };
       }),
     );
+  };
+
+  // 운동 추가
+  const handleAddExercise = (exercise: Exercise) => {
+    const tempSessionExerciseId = -(
+      Date.now() + Math.floor(Math.random() * 1000)
+    );
+
+    const newClientExercise: ClientExercise = {
+      sessionExerciseId: tempSessionExerciseId,
+      exerciseId: exercise.id,
+      exerciseName: exercise.name,
+      bodyPart: exercise.bodyPart,
+      targetSets: exercise.targetSets || 3,
+      targetReps: exercise.targetReps || 10,
+      targetWeight: exercise.targetWeight || 0,
+      restSeconds: exercise.targetRestSeconds || 60,
+      orderIndex: exercises.length,
+      sets: [],
+    };
+
+    // 기본 세트 생성
+    const initialSets: ClientSet[] = Array.from(
+      { length: newClientExercise.targetSets },
+      (_, i) => ({
+        id: -(Date.now() + i + Math.floor(Math.random() * 1000)),
+        sessionExerciseId: tempSessionExerciseId,
+        setOrder: i + 1,
+        reps: newClientExercise.targetReps,
+        weight: newClientExercise.targetWeight,
+        restSeconds: newClientExercise.restSeconds,
+        targetReps: newClientExercise.targetReps,
+        targetWeight: newClientExercise.targetWeight,
+        targetRestSeconds: newClientExercise.restSeconds,
+        status: "PENDING",
+      }),
+    );
+
+    newClientExercise.sets = initialSets;
+    setExercises((prev) => [...prev, newClientExercise]);
   };
 
   // 운동 종료
@@ -338,5 +385,6 @@ export const useSessionLogic = (
     handleUpdateSet,
     handleSave,
     handleUpdateDefault,
+    handleAddExercise,
   };
 };

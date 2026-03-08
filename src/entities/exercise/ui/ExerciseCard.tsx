@@ -21,6 +21,7 @@ interface ExerciseProps {
   ) => void;
   onDeleteSet: (sessionExerciseId: number, setId: number) => void;
   onToggleEdit?: () => void;
+  isSessionStarted?: boolean;
   onUpdateDefault?: (
     sessionExerciseId: number,
     weight: number,
@@ -41,6 +42,7 @@ export const ExerciseCard = ({
   onDeleteSet,
   onToggleEdit,
   onUpdateDefault,
+  isSessionStarted = false,
 }: ExerciseProps) => {
   const exerciseId = exercise.sessionExerciseId;
   const exerciseName = exercise.exerciseName;
@@ -85,21 +87,23 @@ export const ExerciseCard = ({
           </div>
 
           <div className="flex items-start gap-2">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleToggleEdit();
-              }}
-              className="p-2.5 bg-slate-50 hover:bg-slate-100 rounded-xl transition-all active:scale-95 group"
-            >
-              <Image
-                src="/images/common/icon/edit-contained.svg"
-                width={20}
-                height={20}
-                alt="수정"
-                className="opacity-70 group-hover:opacity-100 transition-opacity"
-              />
-            </button>
+            {isSessionStarted && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleToggleEdit();
+                }}
+                className="p-2.5 bg-slate-50 hover:bg-slate-100 rounded-xl transition-all active:scale-95 group"
+              >
+                <Image
+                  src="/images/common/icon/edit-contained.svg"
+                  width={20}
+                  height={20}
+                  alt="수정"
+                  className="opacity-70 group-hover:opacity-100 transition-opacity"
+                />
+              </button>
+            )}
             <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-inner bg-slate-100 border border-slate-50">
               <Image
                 src={`${process.env.NEXT_PUBLIC_API_URL}${exercise.exerciseImagePath ?? "/next.svg"}`}
@@ -294,20 +298,28 @@ export const ExerciseCard = ({
         </div>
 
         {/* Footer Actions */}
-        <div className="mt-6 flex gap-3">
-          <button className="flex-[0.4] min-w-[32px] h-11 flex items-center justify-center rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all transform active:scale-95">
-            <Edit2 size={20} />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              addSets(exerciseId);
-            }}
-            className="flex-1 h-11 flex items-center justify-center gap-2 rounded-2xl bg-[#eff6ff] text-main font-black text-[14px] hover:bg-main hover:text-white transition-all transform active:scale-95 shadow-sm shadow-blue-50"
-          >
-            <Plus size={18} /> 세트 추가하기
-          </button>
-        </div>
+        {(isSessionStarted || isEditing) && (
+          <div className="mt-4 flex gap-3 pt-4 border-t border-slate-100/50">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleToggleEdit();
+              }}
+              className="flex-[0.4] min-w-[44px] h-[48px] flex items-center justify-center rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-500 transition-all transform active:scale-95"
+            >
+              <Edit2 size={20} />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                addSets(Number(exerciseId));
+              }}
+              className="flex-1 h-[48px] flex items-center justify-center gap-2 rounded-2xl bg-[#eff6ff] text-main font-black text-[15px] hover:bg-main hover:text-white transition-all transform active:scale-95 shadow-sm shadow-blue-50/50"
+            >
+              <Plus size={20} /> 세트 추가하기
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

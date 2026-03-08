@@ -21,13 +21,13 @@ export const usePlanLogic = (initialPlanDetail: PlanDetailDto | any) => {
           exerciseId: exercise.exerciseId,
           orderIndex: exercise.orderIndex ?? index,
           targetReps: exercise.targetReps || 0,
-          targetSets: exercise.targetSets || 0,
+          targetSets: exercise.sets.length,
           targetWeight: exercise.targetWeight || 0,
           sets: exercise.sets.map((set) => ({
             setOrder: set.setOrder,
-            targetReps: set.targetReps ?? set.reps,
-            targetWeight: set.targetWeight ?? set.weight,
-            targetRestSeconds: set.targetRestSeconds ?? set.restSeconds,
+            targetReps: set.reps || set.targetReps || 0,
+            targetWeight: set.weight || set.targetWeight || 0,
+            targetRestSeconds: set.restSeconds || set.targetRestSeconds || 0,
           })),
         })),
       };

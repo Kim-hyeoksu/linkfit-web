@@ -8,10 +8,14 @@ import {
   ExerciseCard,
   type ClientSet,
   type ClientExercise,
+  ExerciseList,
+  type Exercise,
+  getExercises,
 } from "@/entities/exercise";
 import { Timer } from "@/entities/exercise";
 import { ConfirmModal, Header, Modal } from "@/shared";
 import { formatTime } from "@/shared";
+import { PlusCircle } from "lucide-react";
 
 import { usePlanLogic } from "../model/usePlanLogic";
 import { useSessionLogic } from "../model/useSessionLogic";
@@ -56,7 +60,30 @@ export default function PlanClient({
     handleUpdateSet,
     handleSave,
     handleUpdateDefault,
+    handleAddExercise,
   } = useSessionLogic(initialPlanDetail, initialExercises);
+
+  const [isExerciseSelectorOpen, setIsExerciseSelectorOpen] = useState(false);
+  const [availableExercises, setAvailableExercises] = useState<Exercise[]>([]);
+
+  useEffect(() => {
+    if (isExerciseSelectorOpen) {
+      const loadExercises = async () => {
+        try {
+          const data = await getExercises();
+          setAvailableExercises(data);
+        } catch (error) {
+          console.error("운동 목록 조회 실패:", error);
+        }
+      };
+      loadExercises();
+    }
+  }, [isExerciseSelectorOpen]);
+
+  const handleExerciseSelect = (exercise: Exercise) => {
+    handleAddExercise(exercise);
+    setIsExerciseSelectorOpen(false);
+  };
 
   // UI 상태 관리
   const [showType, setShowType] = useState<"bar" | "full">("bar");
@@ -226,7 +253,7 @@ export default function PlanClient({
               disabled={isUpdating}
               className={`flex items-center justify-center px-4 h-[36px] rounded-xl font-black text-[13px] transition-all active:scale-95 shadow-sm whitespace-nowrap ${
                 isEditing
-                  ? "bg-slate-100 text-slate-500 shadow-none cursor-default"
+                  ? "bg-blue-600 text-white shadow-blue-100 hover:shadow-md"
                   : "bg-main text-white shadow-blue-100 hover:shadow-md"
               }`}
             >
@@ -266,6 +293,7 @@ export default function PlanClient({
                   sets={exerciseSets}
                   isCurrent={exercise.sessionExerciseId === currentExerciseId}
                   isEditing={isEditing}
+                  isSessionStarted={isSessionStarted}
                   currentExerciseSetId={currentExerciseSetId}
                   onClickExercise={handleExerciseClick}
                   onClickSetCheckBtn={toggleSetCompletion}
@@ -278,6 +306,16 @@ export default function PlanClient({
               </div>
             );
           })}
+
+          {(isSessionStarted || isEditing) && (
+            <button
+              onClick={() => setIsExerciseSelectorOpen(true)}
+              className="w-full py-4 mt-2 border-2 border-dashed border-slate-200 rounded-2xl flex items-center justify-center gap-2 text-slate-500 font-bold hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-95"
+            >
+              <PlusCircle size={20} />
+              운동 추가하기
+            </button>
+          )}
         </div>
 
         <Timer
@@ -328,6 +366,18 @@ export default function PlanClient({
         isConfirmLoading={isEndConfirmLoading}
         onConfirm={handleConfirmEndWorkout}
       />
+      <Modal
+        isOpen={isExerciseSelectorOpen}
+        onClose={() => setIsExerciseSelectorOpen(false)}
+        title="운동 선택"
+      >
+        <div className="h-[60vh] overflow-y-auto pr-2 scrollbar-hide py-2">
+          <ExerciseList
+            exercises={availableExercises}
+            onSelect={handleExerciseSelect}
+          />
+        </div>
+      </Modal>
     </div>
   );
 }
