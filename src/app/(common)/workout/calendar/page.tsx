@@ -10,6 +10,7 @@ import {
   Clock,
   Activity,
   Dumbbell,
+  ArrowUpDown,
 } from "lucide-react";
 type SessionLike = any;
 
@@ -111,6 +112,7 @@ export default function WorkoutCalendarPage() {
   const [sessions, setSessions] = useState<SessionLike[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
 
   useEffect(() => {
     let mounted = true;
@@ -442,11 +444,22 @@ export default function WorkoutCalendarPage() {
             </div>
           ) : (
             <div className="animate-in fade-in duration-300">
-              <div className="flex items-center gap-2 mb-4 px-1">
-                <Activity size={20} className="text-slate-400" />
-                <h3 className="text-lg font-extrabold text-slate-800 tracking-tight">
-                  {monthCursor.getMonth() + 1}월 전체 요약
-                </h3>
+              <div className="flex items-center justify-between gap-2 mb-4 px-1">
+                <div className="flex items-center gap-2">
+                  <Activity size={20} className="text-main" />
+                  <h3 className="text-lg font-extrabold text-slate-800 tracking-tight">
+                    {monthCursor.getMonth() + 1}월 전체 요약
+                  </h3>
+                </div>
+                <button
+                  onClick={() =>
+                    setSortOrder((prev) => (prev === "desc" ? "asc" : "desc"))
+                  }
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-gray-100 shadow-sm text-[11px] font-bold text-slate-500 hover:text-main hover:border-main transition-all active:scale-95"
+                >
+                  <ArrowUpDown size={12} />
+                  {sortOrder === "desc" ? "최신순" : "오래된순"}
+                </button>
               </div>
 
               {sessionsByDate.size === 0 ? (
@@ -464,7 +477,9 @@ export default function WorkoutCalendarPage() {
               ) : (
                 <div className="flex flex-col gap-8">
                   {[...sessionsByDate.entries()]
-                    .sort(([a], [b]) => (a < b ? -1 : 1)) // 오름차순
+                    .sort(([a], [b]) =>
+                      sortOrder === "desc" ? (a < b ? 1 : -1) : a < b ? -1 : 1,
+                    )
                     .map(([dateKey, list]) => (
                       <div key={dateKey} className="relative">
                         <div className="sticky top-[64px] z-10 bg-[#f8fafc]/95 backdrop-blur-sm py-2 px-1 mb-2 border-b border-slate-100">
