@@ -33,33 +33,38 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="bg-[#f9fafb] min-h-screen flex items-center justify-center">
+      <div className="bg-[#f2f4f6] min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-main"></div>
       </div>
     );
   }
 
   return (
-    <div className="bg-[#f9fafb] min-h-screen pb-32">
+    <div className="bg-[#f2f4f6] min-h-screen pb-32">
       <Header
         title="DASHBOARD"
         showBackButton={false}
         className="!bg-transparent !border-none"
       >
         <button className="p-2 -mr-2 text-slate-400 hover:text-main transition-colors relative">
-          <Bell size={24} strokeWidth={2.5} />
-          <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+          <Bell size={24} strokeWidth={2} />
+          <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-red-500 rounded-full border border-white"></span>
         </button>
       </Header>
 
-      <div className="px-5 pt-8 flex flex-col gap-8">
-        <GreetingWidget user={user} summary={summary} />
+      <main className="px-5 pt-4 flex flex-col gap-10">
+        <section>
+          <GreetingWidget user={user} summary={summary} />
+        </section>
 
-        {/* 오늘의 일정은 별개로 유지하거나, 최근 플랜으로 대체하거나 고민 */}
-        <UpcomingScheduleWidget />
+        <section>
+          <UpcomingScheduleWidget />
+        </section>
 
-        <WorkoutStatusWidget summary={summary} />
-      </div>
+        <section>
+          <WorkoutStatusWidget summary={summary} />
+        </section>
+      </main>
     </div>
   );
 }

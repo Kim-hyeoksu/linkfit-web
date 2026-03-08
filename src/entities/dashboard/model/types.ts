@@ -23,6 +23,7 @@ export interface DashboardSummary {
   thisMonthWorkoutCount: number;
   currentStreakDays: number;
   recentlyCompletedPlanName: string | null;
+  recentlyCompletedSessionId: number | string | null;
   weeklyVolumeChart: WeeklyVolumeChart;
   bodyMetricSummary: BodyMetricSummary | null;
 }

@@ -11,65 +11,72 @@ export const UpcomingScheduleWidget = () => {
   };
 
   return (
-    <div className="mb-8">
-      <div className="flex justify-between items-center mb-3">
-        <h2 className="text-[18px] font-extrabold text-gray-900">
-          오늘의 일정
+    <div className="mb-6 flex flex-col gap-4">
+      <div className="flex justify-between items-end mb-1 px-1">
+        <h2 className="text-[18px] font-bold text-gray-900 tracking-tight">
+          오늘의 운동 일정
         </h2>
         <Link
           href="/workout/calendar"
-          className="text-[12px] font-bold text-slate-400 hover:text-main flex items-center transition-colors"
+          className="text-[13px] font-semibold text-slate-400 hover:text-main flex items-center transition-colors mb-1"
         >
-          전체 보기 <ChevronRight size={14} className="ml-0.5" />
+          전체 일정 <ChevronRight size={14} className="ml-0.5" />
         </Link>
       </div>
 
       {todayPlan ? (
-        <div className="bg-main text-white rounded-[24px] p-6 shadow-lg shadow-blue-500/20 relative overflow-hidden">
-          {/* 장식용 그래픽 요소 */}
-          <div className="absolute -right-8 -top-8 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
-
-          <div className="relative z-10 flex flex-col gap-5">
+        <div className="bg-white rounded-[24px] p-6 shadow-sm border border-white relative overflow-hidden active:scale-[0.98] transition-all cursor-pointer">
+          <div className="relative z-10 flex flex-col gap-6">
             <div className="flex justify-between items-start">
-              <div className="flex flex-col gap-1.5">
-                <span className="text-[11px] font-bold bg-white/20 px-3 py-1 rounded-full w-fit tracking-wide">
-                  예정된 플랜
+              <div className="flex flex-col gap-2">
+                <span className="text-[12px] font-bold px-3 py-1 bg-blue-50 text-main rounded-full w-fit tracking-wide uppercase">
+                  ACTIVE PLAN
                 </span>
-                <h3 className="text-[20px] font-extrabold mt-1 leading-tight tracking-tight">
+                <h3 className="text-[20px] font-bold text-gray-900 leading-tight">
                   {todayPlan.title}
                 </h3>
               </div>
             </div>
 
-            <div className="flex items-center gap-4 text-[13px] font-medium text-white/90">
-              <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1.5 rounded-xl">
-                <Clock size={16} /> {todayPlan.duration}
+            <div className="flex items-center gap-6">
+              <div className="flex flex-col gap-1">
+                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">
+                  DURATION
+                </span>
+                <div className="flex items-center gap-1.5 text-[14px] font-bold text-slate-700">
+                  <Clock size={16} /> {todayPlan.duration}
+                </div>
               </div>
-              <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1.5 rounded-xl">
-                <Dumbbell size={16} /> {todayPlan.exercises}개 운동
+              <div className="flex flex-col gap-1">
+                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">
+                  EXERCISES
+                </span>
+                <div className="flex items-center gap-1.5 text-[14px] font-bold text-slate-700">
+                  <Dumbbell size={16} /> {todayPlan.exercises}개 종목
+                </div>
               </div>
             </div>
 
-            <button className="w-full bg-white text-main font-bold py-3.5 rounded-xl shadow-sm hover:bg-slate-50 transition-colors mt-2 active:scale-95 flex items-center justify-center gap-2">
+            <button className="w-full bg-main text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-500/10 hover:bg-blue-600 transition-colors mt-2 active:scale-95 flex items-center justify-center gap-2">
               운동 시작하기 <ChevronRight size={16} />
             </button>
           </div>
         </div>
       ) : (
-        <div className="bg-white rounded-[24px] p-6 border border-slate-100 flex flex-col items-center justify-center text-center gap-3 shadow-sm">
-          <div className="w-14 h-14 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center text-slate-400 mb-1">
-            <Calendar size={28} strokeWidth={1.5} />
+        <div className="bg-white rounded-[24px] p-8 border border-slate-50 flex flex-col items-center justify-center text-center gap-4 shadow-sm">
+          <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300">
+            <Calendar size={32} strokeWidth={1.5} />
           </div>
-          <div>
-            <p className="text-[15px] font-bold text-slate-700">
-              오늘은 일정이 없어요
+          <div className="space-y-1">
+            <p className="text-[16px] font-bold text-gray-800">
+              오늘은 쉬는 날이에요
             </p>
-            <p className="text-[13px] text-slate-400 mt-1 font-medium">
-              계획을 세우고 운동을 시작해보세요!
+            <p className="text-[14px] text-slate-400 font-medium">
+              충분한 휴식도 성장에 중요합니다!
             </p>
           </div>
-          <button className="px-5 py-2.5 mt-2 bg-white border border-slate-200 rounded-xl text-[13px] font-bold text-slate-600 shadow-sm hover:bg-slate-50 transition-colors">
-            추천 플랜 둘러보기
+          <button className="px-6 py-3 mt-2 bg-slate-50 rounded-2xl text-[14px] font-bold text-slate-500 hover:bg-slate-100 transition-all">
+            내일 일정 확인하기
           </button>
         </div>
       )}

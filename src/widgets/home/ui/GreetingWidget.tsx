@@ -4,24 +4,24 @@ import { User as UserIcon, Flame, CalendarCheck } from "lucide-react";
 import { DashboardSummary } from "@/entities/dashboard";
 
 interface GreetingProps {
-  user: any; // User type or null
+  user: any;
   summary: DashboardSummary | null;
 }
 
 export const GreetingWidget = ({ user, summary }: GreetingProps) => {
   return (
-    <div className="flex flex-col gap-5">
-      <div className="flex justify-between items-center">
+    <div className="flex flex-col gap-6">
+      <div className="flex justify-between items-center px-1">
         <div className="space-y-1">
-          <h1 className="text-[20px] font-black text-gray-900 leading-tight tracking-tight">
+          <h1 className="text-[20px] font-bold text-gray-900 leading-tight">
             안녕하세요{" "}
-            <span className="text-main">{user?.name || "사용자"}</span>님! 👋
+            <span className="text-gray-950">{user?.name || "사용자"}</span>님
           </h1>
-          <p className="text-[14px] font-bold text-slate-400">
-            오늘도 멋진 근육을 만들어볼까요?
+          <p className="text-[14px] font-medium text-slate-400">
+            오늘도 잊지 말고 득근하세요!
           </p>
         </div>
-        <div className="w-[58px] h-[58px] rounded-[22px] bg-slate-100 overflow-hidden shadow-inner border border-white/50 flex items-center justify-center relative">
+        <div className="w-[52px] h-[52px] rounded-full bg-slate-100 overflow-hidden border border-slate-200/50 flex items-center justify-center relative shadow-sm">
           {user?.profileImage ? (
             <Image
               src={user.profileImage}
@@ -30,45 +30,32 @@ export const GreetingWidget = ({ user, summary }: GreetingProps) => {
               className="object-cover"
             />
           ) : (
-            <UserIcon size={24} className="text-slate-300" strokeWidth={2.5} />
+            <UserIcon size={24} className="text-slate-300" strokeWidth={2} />
           )}
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        {/* 이번 달 운동 횟수 */}
-        <div className="bg-white p-4 rounded-[24px] border border-slate-100 shadow-sm flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-main border border-blue-100">
-            <CalendarCheck size={20} strokeWidth={2.5} />
+      <div className="bg-white rounded-[24px] p-6 shadow-sm flex items-center justify-between">
+        <div className="flex flex-col items-center gap-2 flex-1 border-r border-slate-100">
+          <div className="text-[13px] font-semibold text-slate-400">
+            이번 달
           </div>
-          <div className="flex flex-col">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wide">
-              MONTHLY
+          <div className="text-[20px] font-bold text-gray-900 flex items-baseline gap-0.5">
+            {summary?.thisMonthWorkoutCount || 0}
+            <span className="text-[13px] font-medium text-slate-400 ml-0.5">
+              회
             </span>
-            <div className="text-[18px] font-black text-gray-900 flex items-baseline gap-0.5">
-              {summary?.thisMonthWorkoutCount || 0}
-              <span className="text-[12px] font-bold text-slate-300 uppercase ml-0.5">
-                회
-              </span>
-            </div>
           </div>
         </div>
-
-        {/* 현재 스트릭 */}
-        <div className="bg-white p-4 rounded-[24px] border border-slate-100 shadow-sm flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-500 border border-orange-100">
-            <Flame size={20} strokeWidth={2.5} />
+        <div className="flex flex-col items-center gap-2 flex-1">
+          <div className="text-[13px] font-semibold text-slate-400">
+            연속 운동
           </div>
-          <div className="flex flex-col">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wide">
-              STREAK
+          <div className="text-[20px] font-bold text-gray-900 flex items-baseline gap-0.5">
+            {summary?.currentStreakDays || 0}
+            <span className="text-[13px] font-medium text-slate-400 ml-0.5">
+              일
             </span>
-            <div className="text-[18px] font-black text-gray-900 flex items-baseline gap-0.5">
-              {summary?.currentStreakDays || 0}
-              <span className="text-[12px] font-bold text-slate-300 uppercase ml-0.5">
-                DAY
-              </span>
-            </div>
           </div>
         </div>
       </div>

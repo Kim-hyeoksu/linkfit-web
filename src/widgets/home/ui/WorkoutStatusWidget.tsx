@@ -1,6 +1,8 @@
 import React from "react";
 import { ChevronRight, TrendingUp, Scale, Activity, Award } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+
 import { DashboardSummary } from "@/entities/dashboard";
 
 interface WorkoutStatusProps {
@@ -8,81 +10,72 @@ interface WorkoutStatusProps {
 }
 
 export const WorkoutStatusWidget = ({ summary }: WorkoutStatusProps) => {
+  const router = useRouter();
   if (!summary) return null;
 
-  const { weeklyVolumeChart, bodyMetricSummary, recentlyCompletedPlanName } =
-    summary;
+  const {
+    weeklyVolumeChart,
+    bodyMetricSummary,
+    recentlyCompletedPlanName,
+    recentlyCompletedSessionId,
+  } = summary;
 
   return (
-    <div className="flex flex-col gap-8">
-      {/* 1. 최근 수행 플랜 하이라이트 */}
+    <div className="flex flex-col gap-6">
+      {/* 최근 완료한 플랜 */}
       {recentlyCompletedPlanName && (
-        <section>
-          <div className="flex justify-between items-end mb-3 ml-1">
-            <h2 className="text-[18px] font-extrabold text-gray-900">
-              최근 완료한 플랜 🏅
-            </h2>
+        <section
+          onClick={() => {
+            if (recentlyCompletedSessionId) {
+              router.push(
+                `/workout/sessions/${recentlyCompletedSessionId}/complete`,
+              );
+            }
+          }}
+          className="bg-white p-6 rounded-[24px] shadow-sm flex items-center justify-between group cursor-pointer active:scale-[0.98] transition-all"
+        >
+          <div className="flex flex-col gap-1">
+            <span className="text-[12px] font-semibold text-main uppercase tracking-tight">
+              RECENTLY COMPLETED
+            </span>
+            <h3 className="text-[17px] font-bold text-gray-900 leading-tight">
+              {recentlyCompletedPlanName}
+            </h3>
           </div>
-          <div className="bg-white p-5 rounded-[28px] border border-slate-100 shadow-sm flex items-center gap-4 cursor-pointer hover:bg-slate-50 transition-colors">
-            <div className="min-w-[54px] h-[54px] rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-500">
-              <Award size={28} strokeWidth={2.5} />
-            </div>
-            <div className="flex-grow">
-              <h3 className="text-[17px] font-black text-gray-900 tracking-tight">
-                {recentlyCompletedPlanName}
-              </h3>
-              <p className="text-[13px] font-bold text-slate-400 mt-0.5">
-                성공적으로 마무리했습니다!
-              </p>
-            </div>
+          <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-main group-hover:bg-blue-100 transition-colors">
+            <Award size={22} strokeWidth={2.5} />
           </div>
         </section>
       )}
 
-      {/* 2. 주간 볼륨 차트 */}
-      <section>
-        <div className="flex justify-between items-end mb-3 ml-1">
-          <div className="flex flex-col gap-0.5">
-            <h2 className="text-[18px] font-extrabold text-gray-900 tracking-tight">
-              주간 볼륨 차트 📈
+      {/* 주간 볼륨 차트 */}
+      <section className="bg-white p-7 rounded-[28px] shadow-sm flex flex-col gap-6 border border-white">
+        <div className="flex justify-between items-start">
+          <div className="flex flex-col gap-1.5">
+            <h2 className="text-[18px] font-bold text-gray-900 tracking-tight">
+              주간 운동 볼륨
             </h2>
-            <p className="text-[12px] font-bold text-slate-400 uppercase tracking-wide">
-              Weekly Progression
-            </p>
+            <div
+              className={`text-[15px] font-semibold ${weeklyVolumeChart.chartMessage.includes("성공") ? "text-blue-500" : "text-slate-500"}`}
+            >
+              {weeklyVolumeChart.chartMessage}
+            </div>
           </div>
           <Link
             href="/workout/calendar"
-            className="text-[12px] font-bold text-slate-400 hover:text-main flex items-center transition-colors mb-2"
+            className="p-1 px-3 bg-slate-50 rounded-full text-[12px] font-bold text-slate-400 hover:text-main flex items-center transition-all"
           >
-            기록 보기 <ChevronRight size={14} className="ml-0.5" />
+            전체 기록 <ChevronRight size={14} className="ml-0.5" />
           </Link>
         </div>
 
-        <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex flex-col">
-              <span className="text-[12px] font-bold text-slate-400 tracking-wide">
-                지난 주 평균 대비
-              </span>
-              <div className="text-[20px] font-black text-main tracking-tight">
-                {weeklyVolumeChart.chartMessage}
-              </div>
-            </div>
-            <div className="text-right">
-              <span className="text-[11px] font-bold text-slate-400">AVG</span>
-              <div className="text-[16px] font-extrabold text-slate-700">
-                {weeklyVolumeChart.lastWeekAverageVolume.toLocaleString()}kg
-              </div>
-            </div>
-          </div>
-
-          {/* 차트 시각화 (간단한 막대 형태) */}
-          <div className="flex items-end justify-between h-32 px-1 mb-2">
+        <div className="flex flex-col gap-8">
+          <div className="flex items-end justify-between h-28 px-2 gap-3">
             {weeklyVolumeChart.dailyVolumes.map((item, index) => {
               const maxVolume = Math.max(
                 ...weeklyVolumeChart.dailyVolumes.map((d) => d.volume),
                 weeklyVolumeChart.lastWeekAverageVolume,
-                1000,
+                500,
               );
               const height = (item.volume / maxVolume) * 100;
               const isToday =
@@ -91,26 +84,24 @@ export const WorkoutStatusWidget = ({ summary }: WorkoutStatusProps) => {
               return (
                 <div
                   key={item.date}
-                  className="flex flex-col items-center gap-3"
+                  className="flex-1 flex flex-col items-center gap-4 group"
                 >
-                  <div className="relative group flex flex-col items-center justify-end h-32 w-8">
-                    {/* 볼륨 툴팁 (hover 시) */}
-                    <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-900 text-white text-[10px] font-bold px-2 py-1 rounded-lg pointer-events-none whitespace-nowrap z-10 scale-90">
+                  <div className="relative w-full h-28 flex flex-col justify-end items-center">
+                    {/* Tooltip */}
+                    <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-all bg-gray-900 text-white text-[10px] font-bold px-3 py-1.5 rounded-xl pointer-events-none whitespace-nowrap z-10 bottom-full mb-2 shadow-xl">
                       {item.volume.toLocaleString()}kg
                     </div>
                     <div
-                      className={`w-4 rounded-full transition-all duration-700 ${
+                      className={`w-full max-w-[12px] rounded-full transition-all duration-1000 ${
                         isToday
-                          ? "bg-gradient-to-t from-main to-blue-400 shadow-lg shadow-blue-200"
-                          : "bg-slate-100"
+                          ? "bg-main shadow-lg shadow-blue-100"
+                          : "bg-slate-100 group-hover:bg-slate-200"
                       }`}
-                      style={{ height: `${height}%` }}
+                      style={{ height: `${Math.max(height, 5)}%` }}
                     ></div>
                   </div>
                   <span
-                    className={`text-[12px] font-black ${
-                      isToday ? "text-main" : "text-slate-300"
-                    }`}
+                    className={`text-[12px] font-bold ${isToday ? "text-main" : "text-slate-300"}`}
                   >
                     {item.dayOfWeek}
                   </span>
@@ -118,98 +109,92 @@ export const WorkoutStatusWidget = ({ summary }: WorkoutStatusProps) => {
               );
             })}
           </div>
+
+          <div className="pt-5 border-t border-slate-50 flex items-center justify-between">
+            <span className="text-[13px] font-medium text-slate-400">
+              지난 주 평균
+            </span>
+            <span className="text-[15px] font-bold text-slate-700">
+              {weeklyVolumeChart.lastWeekAverageVolume.toLocaleString()}kg
+            </span>
+          </div>
         </div>
       </section>
 
-      {/* 3. 신체 지표 요약 */}
+      {/* 신체 지표 요약 - Toss 스타일 리스트형 */}
       {bodyMetricSummary && (
-        <section>
-          <div className="flex justify-between items-end mb-4 ml-1">
-            <div className="flex flex-col gap-0.5">
-              <h2 className="text-[18px] font-extrabold text-gray-900 tracking-tight">
-                신체 지표 변화 👤
-              </h2>
-              <p className="text-[12px] font-bold text-slate-400 uppercase tracking-wide">
-                Body Metrics Tracking
-              </p>
-            </div>
+        <section className="bg-white p-7 rounded-[28px] shadow-sm flex flex-col gap-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-[18px] font-bold text-gray-900 tracking-tight">
+              신체 지표 현황
+            </h2>
             <Link
               href="/body-metrics/history"
-              className="text-[12px] font-bold text-slate-400 hover:text-main flex items-center transition-colors mb-2"
+              className="text-[13px] font-semibold text-slate-400 hover:text-main transition-colors"
             >
-              상세 변화 <ChevronRight size={14} className="ml-0.5" />
+              더보기
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-5">
             {/* 체중 */}
-            <div className="bg-white p-5 rounded-[28px] border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wide mb-2.5">
-                <Scale size={14} className="text-blue-500" /> Weight
-              </div>
-              <div className="text-[26px] font-black text-gray-900 tracking-tight mb-1">
-                {bodyMetricSummary.currentWeight}
-                <span className="text-[12px] font-bold text-slate-300 uppercase ml-1">
-                  kg
-                </span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-11 h-11 rounded-full bg-slate-50 flex items-center justify-center text-slate-400">
+                  <Scale size={20} />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[14px] font-semibold text-slate-400">
+                    체중
+                  </span>
+                  <div className="text-[17px] font-bold text-gray-900">
+                    {bodyMetricSummary.currentWeight}kg
+                  </div>
+                </div>
               </div>
               <div
-                className={`text-[12px] font-bold flex items-center gap-0.5 ${
-                  bodyMetricSummary.weightDiff <= 0
-                    ? "text-blue-500"
-                    : "text-red-500"
-                }`}
+                className={`text-[13px] font-bold px-3 py-1.5 rounded-full ${bodyMetricSummary.weightDiff <= 0 ? "bg-blue-50 text-blue-500" : "bg-red-50 text-red-500"}`}
               >
-                {bodyMetricSummary.weightDiff >= 0 ? "▲" : "▼"}{" "}
-                {Math.abs(bodyMetricSummary.weightDiff)}kg
+                {bodyMetricSummary.weightDiff >= 0 ? "+" : ""}
+                {bodyMetricSummary.weightDiff}kg
               </div>
             </div>
 
             {/* 골격근량 */}
-            <div className="bg-white p-5 rounded-[28px] border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wide mb-2.5">
-                <TrendingUp size={14} className="text-main" /> Muscle
-              </div>
-              <div className="text-[26px] font-black text-gray-900 tracking-tight mb-1">
-                {bodyMetricSummary.currentSkeletalMuscleMass}
-                <span className="text-[12px] font-bold text-slate-300 uppercase ml-1">
-                  kg
-                </span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-11 h-11 rounded-full bg-slate-50 flex items-center justify-center text-slate-400">
+                  <TrendingUp size={20} />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[14px] font-semibold text-slate-400">
+                    골격근량
+                  </span>
+                  <div className="text-[17px] font-bold text-gray-900">
+                    {bodyMetricSummary.currentSkeletalMuscleMass}kg
+                  </div>
+                </div>
               </div>
               <div
-                className={`text-[12px] font-bold flex items-center gap-0.5 ${
-                  bodyMetricSummary.skeletalMuscleMassDiff >= 0
-                    ? "text-green-500"
-                    : "text-red-500"
-                }`}
+                className={`text-[13px] font-bold px-3 py-1.5 rounded-full ${bodyMetricSummary.skeletalMuscleMassDiff >= 0 ? "bg-blue-50 text-blue-500" : "bg-red-50 text-red-500"}`}
               >
-                {bodyMetricSummary.skeletalMuscleMassDiff > 0
-                  ? `▲ ${bodyMetricSummary.skeletalMuscleMassDiff}kg`
-                  : bodyMetricSummary.skeletalMuscleMassDiff < 0
-                    ? `▼ ${Math.abs(bodyMetricSummary.skeletalMuscleMassDiff)}kg`
-                    : "유지"}
+                {bodyMetricSummary.skeletalMuscleMassDiff >= 0 ? "+" : ""}
+                {bodyMetricSummary.skeletalMuscleMassDiff}kg
               </div>
             </div>
 
-            {/* 체지방률 (Full Width) */}
-            <div className="col-span-2 bg-white p-5 rounded-[28px] border border-slate-100 shadow-sm hover:shadow-md transition-shadow flex items-center justify-between">
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wide">
-                  <Activity size={14} className="text-orange-500" /> Body Fat
-                </div>
-                <div className="text-[28px] font-black text-gray-900 tracking-tight">
-                  {bodyMetricSummary.currentBodyFatPercentage}
-                  <span className="text-[12px] font-bold text-slate-300 uppercase ml-1">
-                    %
-                  </span>
+            {/* 체지방률 */}
+            <div className="flex items-center justify-between border-t border-slate-50 pt-5 mt-2">
+              <div className="flex flex-col">
+                <span className="text-[14px] font-semibold text-slate-400">
+                  체지방률
+                </span>
+                <div className="text-[20px] font-bold text-gray-900 mt-0.5">
+                  {bodyMetricSummary.currentBodyFatPercentage}%
                 </div>
               </div>
               <div
-                className={`px-4 py-2 rounded-2xl font-black text-[14px] flex items-center gap-1.5 ${
-                  bodyMetricSummary.bodyFatPercentageDiff <= 0
-                    ? "bg-green-50 text-green-600 border border-green-100"
-                    : "bg-red-50 text-red-500 border border-red-100"
-                }`}
+                className={`text-[15px] font-bold ${bodyMetricSummary.bodyFatPercentageDiff <= 0 ? "text-blue-500" : "text-red-500"}`}
               >
                 {bodyMetricSummary.bodyFatPercentageDiff >= 0 ? "▲" : "▼"}{" "}
                 {Math.abs(bodyMetricSummary.bodyFatPercentageDiff)}%
