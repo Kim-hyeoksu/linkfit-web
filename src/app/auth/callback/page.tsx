@@ -53,7 +53,7 @@ export default function AuthCallbackPage() {
         }
 
         // 5. 메인 페이지로 이동
-        router.push("/workout/programs");
+        router.push("/");
       }
     };
 
