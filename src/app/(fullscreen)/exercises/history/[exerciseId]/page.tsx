@@ -180,7 +180,7 @@ export default function ExerciseHistoryDetailPage() {
                 : "text-slate-400 hover:text-slate-600"
             }`}
           >
-            <Settings size={16} /> 개인 설정
+            <Settings size={16} /> 운동 설정
           </button>
         </div>
 
