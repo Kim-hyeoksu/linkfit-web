@@ -182,7 +182,7 @@ export default function MyPage() {
         <section className="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 divide-y divide-gray-50">
           <MenuItem label="알림 설정" onClick={() => {}} />
           <MenuItem
-            label="종목별 기록 통계"
+            label="종목 관리 및 기록 통계"
             onClick={() => router.push("/exercises/history")}
           />
         </section>

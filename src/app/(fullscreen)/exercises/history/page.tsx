@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Header } from "@/shared";
 import { getExercises, Exercise } from "@/entities/exercise";
+import { ChevronRight, Settings, BarChart2 } from "lucide-react";
 
 export default function ExercisesHistoryListPage() {
   const router = useRouter();
@@ -27,15 +28,13 @@ export default function ExercisesHistoryListPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-32">
-      <Header title="종목별 기록 통계" showBackButton={true} />
+      <Header title="종목 관리 및 기록" showBackButton={true} />
 
       <main className="px-5 pt-4 flex flex-col gap-6">
         <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 flex flex-col gap-1">
-          <h2 className="text-lg font-bold text-gray-800">
-            어떤 운동의 기록을 확인하시겠어요?
-          </h2>
+          <h2 className="text-lg font-bold text-gray-800">운동 종목 관리</h2>
           <p className="text-xs text-gray-500">
-            지금까지 진행했던 운동의 성장 추이를 확인해보세요.
+            기록 통계를 확인하거나 나만의 기본 수치를 설정해보세요.
           </p>
         </div>
 
@@ -60,21 +59,7 @@ export default function ExercisesHistoryListPage() {
                   </span>
                 </div>
                 <div className="text-gray-400">
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M9 18L15 12L9 6"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                  <ChevronRight size={20} />
                 </div>
               </button>
             ))}
