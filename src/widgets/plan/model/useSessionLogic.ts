@@ -195,33 +195,54 @@ export const useSessionLogic = (
     }
   };
 
-  // 세트 추가 (낙관적 업데이트)
+  // 세트 추가 (서버 연동)
   const addSets = async (exerciseId: number) => {
-    setExercises((prev) =>
-      prev.map((exercise) => {
-        if (exercise.sessionExerciseId !== exerciseId) return exercise;
-        console.log(exercise.sets);
-        const lastSet = exercise.sets[exercise.sets.length - 1];
-        return {
-          ...exercise,
-          sets: [
-            ...exercise.sets,
-            {
-              id: -(Date.now() + Math.floor(Math.random() * 1000)),
-              sessionExerciseId: exercise.sessionExerciseId,
-              setOrder: exercise.sets.length + 1,
-              reps: lastSet?.reps ?? exercise.targetReps ?? 0,
-              weight: lastSet?.weight ?? exercise.targetWeight ?? 0,
-              restSeconds: exercise.restSeconds,
-              targetReps: lastSet?.reps ?? exercise.targetReps ?? 0,
-              targetWeight: lastSet?.weight ?? exercise.targetWeight ?? 0,
-              targetRestSeconds: exercise.restSeconds,
-              status: "PENDING",
-            },
-          ],
-        };
-      }),
+    const exercise = exercises.find(
+      (ex) => ex.sessionExerciseId === exerciseId,
     );
+    if (!exercise) return;
+
+    const lastSet = exercise.sets[exercise.sets.length - 1];
+    const newSetOrder = exercise.sets.length + 1;
+    const reps = lastSet?.reps ?? exercise.targetReps ?? 0;
+    const weight = lastSet?.weight ?? exercise.targetWeight ?? 0;
+
+    try {
+      // 서버에 세트 생성 요청
+      const body = {
+        sessionExerciseId: exerciseId,
+        setOrder: newSetOrder,
+        reps,
+        weight,
+        restSeconds: exercise.restSeconds,
+        status: "PENDING",
+      };
+      const realSet = await addSessionSet(body);
+
+      // 로컬 상태 업데이트 (진짜 ID 반영)
+      setExercises((prev) =>
+        prev.map((ex) => {
+          if (ex.sessionExerciseId !== exerciseId) return ex;
+          return {
+            ...ex,
+            sets: [
+              ...ex.sets,
+              {
+                ...realSet,
+                id: realSet.id,
+                sessionExerciseId: ex.sessionExerciseId,
+                targetReps: reps,
+                targetWeight: weight,
+                targetRestSeconds: ex.restSeconds,
+              },
+            ],
+          };
+        }),
+      );
+    } catch (e) {
+      console.error("세트 추가 실패", e);
+      alert("세트 추가에 실패했습니다.");
+    }
   };
 
   // 세트 삭제
@@ -286,10 +307,6 @@ export const useSessionLogic = (
 
     const set = exercise.sets.find((s) => s.id === setId);
     if (!set) return;
-
-    // 효율화: 완료되지 않은 세트(PENDING 등)는 체크 버튼을 누를 때 저장되므로
-    // 여기(Blur 시점)서는 이미 완료된 세트를 대정하는 경우만 서버에 보냅니다.
-    if (set.status !== "COMPLETED") return;
 
     try {
       await updateSessionSet(setId, {

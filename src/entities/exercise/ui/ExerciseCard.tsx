@@ -49,6 +49,12 @@ export const ExerciseCard = ({
   const exerciseId = exercise.sessionExerciseId;
   const exerciseName = exercise.exerciseName;
 
+  // 값 변경 감지를 위한 Ref
+  const initialValueRef = React.useRef<{ weight: number; reps: number }>({
+    weight: 0,
+    reps: 0,
+  });
+
   const handleToggleEdit = () => {
     onToggleEdit?.();
   };
@@ -260,8 +266,16 @@ export const ExerciseCard = ({
                           reps: set.reps,
                         })
                       }
-                      onBlur={() => {
-                        if (isSessionStarted && onSaveSet) {
+                      onFocus={(e) => {
+                        initialValueRef.current.weight = Number(e.target.value);
+                      }}
+                      onBlur={(e) => {
+                        const currentValue = Number(e.target.value);
+                        if (
+                          isSessionStarted &&
+                          onSaveSet &&
+                          currentValue !== initialValueRef.current.weight
+                        ) {
                           onSaveSet(Number(exerciseId), Number(set.id));
                         }
                       }}
@@ -293,8 +307,16 @@ export const ExerciseCard = ({
                           reps: Number(e.target.value),
                         })
                       }
-                      onBlur={() => {
-                        if (isSessionStarted && onSaveSet) {
+                      onFocus={(e) => {
+                        initialValueRef.current.reps = Number(e.target.value);
+                      }}
+                      onBlur={(e) => {
+                        const currentValue = Number(e.target.value);
+                        if (
+                          isSessionStarted &&
+                          onSaveSet &&
+                          currentValue !== initialValueRef.current.reps
+                        ) {
                           onSaveSet(Number(exerciseId), Number(set.id));
                         }
                       }}
