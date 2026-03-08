@@ -1,9 +1,17 @@
-import { Timer } from "@/entities/exercise";
+import {
+  GreetingWidget,
+  UpcomingScheduleWidget,
+  WorkoutStatusWidget,
+} from "@/widgets/home";
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex-col items-center justify-center pt-[60px]">
-      <Timer />
+    <div className="bg-[#f9fafb] min-h-screen pb-24">
+      <div className="px-5 pt-12 pb-6">
+        <GreetingWidget />
+        <UpcomingScheduleWidget />
+        <WorkoutStatusWidget />
+      </div>
     </div>
   );
 }
