@@ -61,6 +61,7 @@ export default function PlanClient({
     handleSave,
     handleUpdateDefault,
     handleAddExercise,
+    handleSaveSet,
   } = useSessionLogic(initialPlanDetail, initialExercises);
 
   const [isExerciseSelectorOpen, setIsExerciseSelectorOpen] = useState(false);
@@ -299,6 +300,7 @@ export default function PlanClient({
                   onClickSetCheckBtn={toggleSetCompletion}
                   addSets={addSets}
                   onUpdateSet={handleUpdateSet}
+                  onSaveSet={handleSaveSet}
                   onDeleteSet={handleDeleteSet}
                   onUpdateDefault={handleUpdateDefault}
                   onToggleEdit={() => setIsEditing((prev: boolean) => !prev)}

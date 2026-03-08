@@ -22,6 +22,7 @@ interface ExerciseProps {
   onDeleteSet: (sessionExerciseId: number, setId: number) => void;
   onToggleEdit?: () => void;
   isSessionStarted?: boolean;
+  onSaveSet?: (sessionExerciseId: number, setId: number) => void;
   onUpdateDefault?: (
     sessionExerciseId: number,
     weight: number,
@@ -41,6 +42,7 @@ export const ExerciseCard = ({
   onUpdateSet,
   onDeleteSet,
   onToggleEdit,
+  onSaveSet,
   onUpdateDefault,
   isSessionStarted = false,
 }: ExerciseProps) => {
@@ -238,58 +240,68 @@ export const ExerciseCard = ({
 
                   {/* 무게 */}
                   <div className="col-span-4 flex justify-center items-center">
-                    {isEditing ? (
-                      <div className="relative">
-                        <input
-                          className="w-16 h-8 bg-white border border-slate-200 text-center rounded-md font-bold focus:ring-2 focus:ring-blue-100 transition-all outline-none"
-                          type="number"
-                          value={String(set.weight || set.targetWeight || "")}
-                          onChange={(e) =>
-                            onUpdateSet(exerciseId, set.id, {
-                              weight: Number(e.target.value),
-                              reps: set.reps,
-                            })
-                          }
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </div>
-                    ) : (
-                      <span
-                        className={`text-[16px] font-extrabold ${isCompleted ? "text-slate-400" : "text-[#1e293b]"}`}
-                      >
-                        {set.weight || set.targetWeight}{" "}
-                        <span className="text-[12px] font-medium text-slate-400 ml-0.5">
-                          kg
-                        </span>
-                      </span>
-                    )}
+                    <input
+                      className={`w-16 h-8 text-center rounded-md font-bold transition-all outline-none ${
+                        isCompleted
+                          ? "text-slate-400 line-through decoration-slate-300"
+                          : "text-[#1e293b]"
+                      } ${
+                        isEditing
+                          ? "bg-white border border-slate-200 shadow-sm"
+                          : isSessionStarted
+                            ? "bg-transparent border border-transparent focus:bg-white focus:border-slate-200 focus:ring-2 focus:ring-blue-100"
+                            : "bg-transparent border border-transparent cursor-default"
+                      }`}
+                      type="number"
+                      value={String(set.weight ?? set.targetWeight ?? "")}
+                      onChange={(e) =>
+                        onUpdateSet(exerciseId, set.id, {
+                          weight: Number(e.target.value),
+                          reps: set.reps,
+                        })
+                      }
+                      onBlur={() => {
+                        if (isSessionStarted && onSaveSet) {
+                          onSaveSet(Number(exerciseId), Number(set.id));
+                        }
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                      readOnly={!isEditing && !isSessionStarted}
+                      placeholder="0"
+                    />
                   </div>
 
                   {/* 횟수 */}
                   <div className="col-span-4 flex justify-center items-center">
-                    {isEditing ? (
-                      <input
-                        className="w-16 h-8 bg-white border border-slate-200 text-center rounded-md font-bold focus:ring-2 focus:ring-blue-100 transition-all outline-none"
-                        type="number"
-                        value={String(set.reps || set.targetReps || "")}
-                        onChange={(e) =>
-                          onUpdateSet(exerciseId, set.id, {
-                            weight: set.weight,
-                            reps: Number(e.target.value),
-                          })
+                    <input
+                      className={`w-16 h-8 text-center rounded-md font-bold transition-all outline-none ${
+                        isCompleted
+                          ? "text-slate-400 line-through decoration-slate-300"
+                          : "text-[#1e293b]"
+                      } ${
+                        isEditing
+                          ? "bg-white border border-slate-200 shadow-sm"
+                          : isSessionStarted
+                            ? "bg-transparent border border-transparent focus:bg-white focus:border-slate-200 focus:ring-2 focus:ring-blue-100"
+                            : "bg-transparent border border-transparent cursor-default"
+                      }`}
+                      type="number"
+                      value={String(set.reps ?? set.targetReps ?? "")}
+                      onChange={(e) =>
+                        onUpdateSet(exerciseId, set.id, {
+                          weight: set.weight,
+                          reps: Number(e.target.value),
+                        })
+                      }
+                      onBlur={() => {
+                        if (isSessionStarted && onSaveSet) {
+                          onSaveSet(Number(exerciseId), Number(set.id));
                         }
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    ) : (
-                      <span
-                        className={`text-[16px] font-extrabold ${isCompleted ? "text-slate-400" : "text-[#1e293b]"}`}
-                      >
-                        {set.reps || set.targetReps}{" "}
-                        <span className="text-[12px] font-medium text-slate-400 ml-0.5">
-                          회
-                        </span>
-                      </span>
-                    )}
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                      readOnly={!isEditing && !isSessionStarted}
+                      placeholder="0"
+                    />
                   </div>
                 </div>
               );

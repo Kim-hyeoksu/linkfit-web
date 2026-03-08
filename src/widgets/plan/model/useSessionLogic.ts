@@ -274,6 +274,36 @@ export const useSessionLogic = (
     );
   };
 
+  // 세트 데이터 서버 저장
+  const handleSaveSet = async (sessionExerciseId: number, setId: number) => {
+    if (!sessionState.isSessionStarted) return;
+    if (!setId || Number(setId) < 0) return;
+
+    const exercise = exercises.find(
+      (ex) => ex.sessionExerciseId === sessionExerciseId,
+    );
+    if (!exercise) return;
+
+    const set = exercise.sets.find((s) => s.id === setId);
+    if (!set) return;
+
+    // 효율화: 완료되지 않은 세트(PENDING 등)는 체크 버튼을 누를 때 저장되므로
+    // 여기(Blur 시점)서는 이미 완료된 세트를 대정하는 경우만 서버에 보냅니다.
+    if (set.status !== "COMPLETED") return;
+
+    try {
+      await updateSessionSet(setId, {
+        reps: set.reps,
+        weight: set.weight,
+        status: set.status,
+        restSeconds: set.restSeconds,
+        rpe: set.rpe,
+      });
+    } catch (e) {
+      console.error("세트 실시간 저장 실패", e);
+    }
+  };
+
   const handleUpdateDefault = (
     sessionExerciseId: number,
     weight: number,
@@ -386,5 +416,6 @@ export const useSessionLogic = (
     handleSave,
     handleUpdateDefault,
     handleAddExercise,
+    handleSaveSet,
   };
 };
