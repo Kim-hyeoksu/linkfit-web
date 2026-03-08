@@ -5,7 +5,6 @@ import { useParams } from "next/navigation";
 import { Header } from "@/shared";
 import {
   getExerciseHistory,
-  getExercises,
   updateExercisePreference,
   Exercise,
   ExerciseHistoryResponse,
@@ -36,27 +35,23 @@ export default function ExerciseHistoryDetailPage() {
       if (!exerciseId) return;
       setIsLoading(true);
       try {
-        const [historyData, exercisesList] = await Promise.all([
-          getExerciseHistory({
-            exerciseId: Number(exerciseId),
-            size: 100,
-            sort: ["sessionDate,desc"],
-          }),
-          getExercises(),
-        ]);
+        const response = await getExerciseHistory({
+          exerciseId: Number(exerciseId),
+          size: 100,
+          sort: ["sessionDate,desc"],
+        });
 
-        setHistory(historyData.content || []);
+        if (response.history) {
+          setHistory(response.history.content || []);
+        }
 
-        const currentEx = exercisesList.find(
-          (ex) => ex.id === Number(exerciseId),
-        );
-        if (currentEx) {
-          setExercise(currentEx);
+        if (response.exercise) {
+          setExercise(response.exercise);
           setSettings({
-            targetWeight: currentEx.targetWeight || 0,
-            targetReps: currentEx.targetReps || 0,
-            targetSets: currentEx.targetSets || 0,
-            targetRestSeconds: currentEx.targetRestSeconds || 0,
+            targetWeight: response.exercise.targetWeight || 0,
+            targetReps: response.exercise.targetReps || 0,
+            targetSets: response.exercise.targetSets || 0,
+            targetRestSeconds: response.exercise.targetRestSeconds || 0,
           });
         }
       } catch (error) {

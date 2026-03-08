@@ -4,9 +4,12 @@ export interface Exercise {
   nameEn: string;
   category: string;
   bodyPart: string;
+  targetMuscles?: Record<string, number>;
   equipment: string;
   description: string;
+  imagePath?: string;
   createdAt: string;
+  isCustom?: boolean;
   targetSets?: number;
   targetReps?: number;
   targetWeight?: number;
@@ -82,4 +85,9 @@ export interface PageExerciseHistoryResponse {
   number: number;
   sort: { sorted: boolean; unsorted: boolean; empty: boolean };
   empty: boolean;
+}
+
+export interface ExerciseHistoryDetailResponse {
+  exercise: Exercise;
+  history: PageExerciseHistoryResponse;
 }

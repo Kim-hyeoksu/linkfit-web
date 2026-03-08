@@ -12,7 +12,7 @@ export const GreetingWidget = ({ user, summary }: GreetingProps) => {
   return (
     <div className="bg-white rounded-2xl py-6 px-5 shadow-sm flex flex-col gap-7">
       {/* 상단 인사말 */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-pcenter">
         <div className="space-y-1.5">
           <h1 className="text-[20px] font-bold text-gray-900 leading-tight tracking-tight">
             안녕하세요,{" "}
