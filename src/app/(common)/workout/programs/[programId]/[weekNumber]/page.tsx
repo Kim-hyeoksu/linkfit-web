@@ -93,7 +93,9 @@ export default function WorkoutProgramWeekPage() {
           lastExercisedPlanId={planData.lastExercisedPlanId}
         />
       </div>
-      <ImportProgramButton programId={programId} />
+      {planData.programType === "POPULAR" && (
+        <ImportProgramButton programId={programId} />
+      )}
     </div>
   );
 }

@@ -53,4 +53,5 @@ export interface PlanListResponse {
   maxWeekNumber: number | null;
   plans: PlanListItemResponse[];
   lastExercisedPlanId: number | null;
+  programType: string;
 }
