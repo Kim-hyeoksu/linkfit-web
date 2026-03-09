@@ -41,11 +41,7 @@ export default function Home() {
 
   return (
     <div className="bg-[#f2f4f6] min-h-screen pb-32">
-      <Header
-        title="DASHBOARD"
-        showBackButton={false}
-        className="!bg-transparent !border-none"
-      >
+      <Header title="DASHBOARD" showBackButton={false} className="!border-none">
         <button className="p-2 -mr-2 text-slate-400 hover:text-main transition-colors relative">
           <Bell size={24} strokeWidth={2} />
           <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-red-500 rounded-full border border-white"></span>
