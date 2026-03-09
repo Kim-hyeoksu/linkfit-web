@@ -1,12 +1,14 @@
 import { api } from "@/shared/api";
 import { PlanDetailDto } from "../model/types";
 
-interface UpdatePlanParams {
+export const updatePlan = async ({
+  planId,
+  plan,
+}: {
   planId: number;
-  plan: Partial<PlanDetailDto>;
-}
-
-export const updatePlan = async ({ planId, plan }) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  plan: any;
+}) => {
   const response = await api.put<PlanDetailDto>(`/api/plans/${planId}`, plan);
   return response.data;
 };

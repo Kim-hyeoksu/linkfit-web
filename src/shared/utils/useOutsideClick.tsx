@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 
 /**
  * useOutsideClick
@@ -10,7 +10,7 @@ import { useEffect, useRef } from "react";
  */
 export function useOutsideClick<T extends HTMLElement>(
   ref: React.RefObject<T | null>,
-  handler: () => void
+  handler: () => void,
 ) {
   useEffect(() => {
     const listener = (event: MouseEvent | TouchEvent) => {

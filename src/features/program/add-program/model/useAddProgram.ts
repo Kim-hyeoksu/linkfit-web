@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { addProgram } from "@/entities/program";
-import { Program, ProgramCreateRequest } from "@/entities/program";
+import { ProgramCreateRequest } from "@/entities/program";
 
 export const useAddProgram = () => {
   const [loading, setLoading] = useState(false);

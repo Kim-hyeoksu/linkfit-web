@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+
 import { useAtom } from "jotai";
 import {
   startSession,
@@ -18,11 +18,9 @@ export const useSessionLogic = (
   initialPlanDetail: PlanDetailDto | ActiveSessionDto,
   initialExercises: ClientExercise[],
 ) => {
-  const router = useRouter();
-
   // Recoil Global State -> Jotai Global State
   const [sessionState, setSessionState] = useAtom(sessionStateAtom);
-  const [returnUrl, setReturnUrl] = useAtom(sessionReturnUrlAtom);
+  const [, setReturnUrl] = useAtom(sessionReturnUrlAtom);
 
   // Local UI State
   // exercises는 세션 로직에서 빈번하게 업데이트되므로 여기서 메인으로 관리
@@ -45,9 +43,9 @@ export const useSessionLogic = (
 
   // Initialize from Server Data and Sync to Recoil
   useEffect(() => {
-    const startedAt = (initialPlanDetail as any)?.startedAt;
+    const startedAt = (initialPlanDetail as Record<string, unknown>)?.startedAt;
 
-    if (startedAt) {
+    if (startedAt && typeof startedAt === "string") {
       // If server says session is active, sync to global state
       setSessionState((prev) => ({
         ...prev,

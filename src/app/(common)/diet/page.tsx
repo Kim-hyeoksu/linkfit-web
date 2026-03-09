@@ -8,13 +8,14 @@ export default function DietPage() {
     window.ReactNativeWebView?.postMessage(
       JSON.stringify({
         type: "choose-image",
-      })
+      }),
     );
   }
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
       // 1) RN WebView 환경인지 체크
-      const isWebView = !!(window as any).ReactNativeWebView;
+      const isWebView = !!(window as unknown as { ReactNativeWebView: unknown })
+        .ReactNativeWebView;
       if (!isWebView) return; // ← 웹 환경에서는 무시
 
       try {
@@ -24,7 +25,7 @@ export default function DietPage() {
         if (data.type === "image-selected") {
           setImageUri(data.uri);
         }
-      } catch (err) {
+      } catch {
         // 웹 환경 / 포맷 무효일 때 에러 방지
         console.warn("Invalid WebView message:", event.data);
       }

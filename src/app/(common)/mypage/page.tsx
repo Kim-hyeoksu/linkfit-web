@@ -11,10 +11,16 @@ import { User, LogOut, ChevronRight, Settings } from "lucide-react";
 import { getLatestBodyMetric } from "@/entities/user/api/getLatestBodyMetric";
 import { getBodyMetrics } from "@/entities/user/api/getBodyMetrics";
 import { BodyMetric } from "@/entities/user/model/types";
-import { BodyMetricsChart } from "@/widgets/user";
-import { ActiveSessionDto } from "@/entities/session";
 import { getMuscleHeatmap } from "@/entities/exercise";
-import { MuscleHeatmap } from "@/widgets/exercise";
+import dynamic from "next/dynamic";
+const BodyMetricsChart = dynamic(
+  () => import("@/widgets/user").then((mod) => mod.BodyMetricsChart),
+  { ssr: false },
+);
+const MuscleHeatmap = dynamic(
+  () => import("@/widgets/exercise").then((mod) => mod.MuscleHeatmap),
+  { ssr: false },
+);
 
 export default function MyPage() {
   const user = useAtomValue(userState);

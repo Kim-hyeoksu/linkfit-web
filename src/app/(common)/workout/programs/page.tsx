@@ -13,7 +13,7 @@ import { PlanListItemResponse } from "@/entities/plan/model/types";
 import Link from "next/link";
 import { initMsw } from "@/shared/api/msw/initMsw";
 import { Header } from "@/shared";
-import { Calendar, Plus, Dumbbell, ClipboardList, X } from "lucide-react";
+import { Calendar, Plus, Dumbbell, ClipboardList } from "lucide-react";
 
 export default function ProgramsPage() {
   const [popularPrograms, setPopularPrograms] = useState<Program[]>([]);

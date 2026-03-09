@@ -8,7 +8,9 @@ import { userState } from "@/entities/user/model/userState";
 import { getUserMe } from "@/entities/user/api/getUserMe";
 import { useToast } from "@/shared/ui/toast";
 
-export default function AuthCallbackPage() {
+import { Suspense } from "react";
+
+function AuthCallbackContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const setAccessToken = useSetAtom(accessTokenState);
@@ -67,5 +69,13 @@ export default function AuthCallbackPage() {
         <p className="text-gray-500 font-medium">로그인 처리 중입니다...</p>
       </div>
     </div>
+  );
+}
+
+export default function AuthCallbackPage() {
+  return (
+    <Suspense fallback={null}>
+      <AuthCallbackContent />
+    </Suspense>
   );
 }

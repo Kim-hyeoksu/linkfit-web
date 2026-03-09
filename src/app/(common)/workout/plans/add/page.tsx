@@ -182,9 +182,10 @@ const PlanAddPage = () => {
       <Header title="나만의 플랜 만들기" showBackButton={true}>
         <button
           onClick={handleSavePlan}
-          className="text-blue-500 font-bold text-sm hover:text-blue-600 transition-colors"
+          disabled={isSaving}
+          className={`font-bold text-sm transition-colors ${isSaving ? "text-gray-400 cursor-not-allowed" : "text-blue-500 hover:text-blue-600"}`}
         >
-          저장
+          {isSaving ? "저장 중..." : "저장"}
         </button>
       </Header>
 

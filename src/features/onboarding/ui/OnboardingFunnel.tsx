@@ -30,7 +30,6 @@ export const OnboardingFunnel = ({ initialData, mode = "signup" }: Props) => {
   // 전체 스텝: Welcome(0) -> Profile(1) -> Body(2) -> ExerciseLevel(3) -> Complete(4)
   // Edit 모드일 땐 Welcome(0)이랑 Complete(4) 스킵하고 바로 Profile(1)부터 시작해도 좋습니다.
   const [step, setStep] = useState(mode === "edit" ? 1 : 0);
-  const totalSteps = mode === "edit" ? 3 : 5; // 보여지는 진행률 계산용
 
   const [data, setData] = useState<OnboardingData>({
     name: initialData?.name || "",
@@ -83,7 +82,7 @@ export const OnboardingFunnel = ({ initialData, mode = "signup" }: Props) => {
 
       try {
         // 수정 모드인 경우 신체 정보 API는 생략 (건너뛰었으므로)
-        const apiCalls: Promise<any>[] = [updateMyInfo(userInfoRequest)];
+        const apiCalls: Promise<unknown>[] = [updateMyInfo(userInfoRequest)];
         if (mode !== "edit") {
           apiCalls.push(saveBodyMetric(bodyMetricRequest));
         }
@@ -98,7 +97,7 @@ export const OnboardingFunnel = ({ initialData, mode = "signup" }: Props) => {
           // 실패 시 Toast 띄우기
           showToast("정보 저장에 실패했습니다. 다시 시도해 주세요.", "error");
         }
-      } catch (error) {
+      } catch {
         showToast("오류가 발생했습니다. 잠시 후 다시 시도해 주세요.", "error");
       }
       return;
@@ -138,7 +137,6 @@ export const OnboardingFunnel = ({ initialData, mode = "signup" }: Props) => {
   };
 
   // 진행률 (Welcome과 Complete는 제외하고 중간 1,2,3 단계에서만 프로그레스바 증가)
-  const currentProgress = mode === "edit" ? step : step;
 
   return (
     <div className="flex flex-col min-h-screen bg-white overflow-hidden relative">

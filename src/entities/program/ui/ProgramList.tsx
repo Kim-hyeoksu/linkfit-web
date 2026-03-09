@@ -20,9 +20,7 @@ export const ProgramList = ({
   programs,
   title,
   moreLink,
-  addLink,
   emptyMessage = "아직 항목이 없어요",
-  emptyButtonLabel = "첫 번째 항목 만들기",
   helpMessage,
 }: ProgramListProps) => {
   const [showHelp, setShowHelp] = useState(false);

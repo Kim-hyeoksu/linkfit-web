@@ -1,10 +1,10 @@
 import React from "react";
 import Image from "next/image";
-import { User as UserIcon, Flame, CalendarCheck } from "lucide-react";
+import { User as UserIcon } from "lucide-react";
 import { DashboardSummary } from "@/entities/dashboard";
 
 interface GreetingProps {
-  user: any;
+  user: { name?: string; profileImage?: string } | null;
   summary: DashboardSummary | null;
 }
 

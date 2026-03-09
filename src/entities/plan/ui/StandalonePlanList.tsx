@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from "react";
 import { PlanListItemResponse } from "../model/types";
 import { StandalonePlanCard } from "@/entities/plan/ui/StandalonePlanCard";
 import Link from "next/link";
-import Image from "next/image";
 import { Info } from "lucide-react";
 
 interface StandalonePlanListProps {
@@ -19,7 +18,6 @@ export const StandalonePlanList = ({
   plans,
   title,
   moreLink,
-  onCreateNewPlan,
   helpMessage,
 }: StandalonePlanListProps) => {
   const [showHelp, setShowHelp] = useState(false);

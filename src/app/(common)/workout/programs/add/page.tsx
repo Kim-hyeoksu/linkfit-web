@@ -8,14 +8,12 @@ import { userState } from "@/entities/user/model/userState";
 import { useAddProgram } from "@/features/program/add-program";
 import { ExerciseList, type Exercise, getExercises } from "@/entities/exercise";
 import {
-  ChevronRight,
   PlusCircle,
   Calendar,
   Settings2,
   Check,
   ArrowRight,
   Info,
-  X,
   Minus,
   Trash2,
   Copy,
@@ -242,7 +240,9 @@ const ProgramAddPage = () => {
         categoryId: programCategory || 1, // 미선택시 기본값 1
         programName: programTitle,
         description: programDescription,
-        level: (programLevel as any) || "BEGINNER",
+        level:
+          (programLevel as "BEGINNER" | "INTERMEDIATE" | "ADVANCED") ||
+          "BEGINNER",
         programType: "PERSONAL" as const,
         status: "DRAFT" as const,
         plans: mappedPlans,
@@ -429,7 +429,14 @@ const ProgramAddPage = () => {
                     return (
                       <button
                         key={level.value}
-                        onClick={() => setProgramLevel(level.value as any)}
+                        onClick={() =>
+                          setProgramLevel(
+                            level.value as
+                              | "BEGINNER"
+                              | "INTERMEDIATE"
+                              | "ADVANCED",
+                          )
+                        }
                         className={`flex-1 h-11 rounded-xl text-[14px] font-bold transition-all border ${
                           isSelected
                             ? "bg-slate-800 text-white border-slate-800 shadow-md"

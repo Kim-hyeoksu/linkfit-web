@@ -5,7 +5,9 @@ import { useAtomValue } from "jotai";
 import { OnboardingFunnel } from "@/features/onboarding/ui/OnboardingFunnel";
 import { userState } from "@/entities/user/model/userState";
 
-export default function OnboardingPage() {
+import { Suspense } from "react";
+
+function OnboardingContent() {
   const searchParams = useSearchParams();
   const user = useAtomValue(userState);
   const mode = searchParams.get("mode") as "signup" | "edit" | null;
@@ -36,5 +38,13 @@ export default function OnboardingPage() {
       mode={mode === "edit" ? "edit" : "signup"}
       initialData={initialData}
     />
+  );
+}
+
+export default function OnboardingPage() {
+  return (
+    <Suspense fallback={null}>
+      <OnboardingContent />
+    </Suspense>
   );
 }

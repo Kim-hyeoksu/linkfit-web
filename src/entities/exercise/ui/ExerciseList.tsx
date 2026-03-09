@@ -5,16 +5,13 @@ import { Dumbbell } from "lucide-react";
 import { Exercise } from "@/entities/exercise";
 
 interface ExerciseListProps {
-  exercises: (Partial<Exercise> & {
-    id: number;
-    name: string;
-    bodyPart: string;
-  })[];
-  onSelect?: (exercise: any) => void;
+  exercises: Exercise[];
+  onSelect?: (exercise: Exercise) => void;
 }
 
-const getImageUrl = (ex: any) => {
-  const path = ex.imagePath || ex.exerciseImagePath || ex.imageUrl;
+const getImageUrl = (ex: Exercise) => {
+  const exRecord = ex as unknown as Record<string, string>;
+  const path = ex.imagePath || exRecord.exerciseImagePath || exRecord.imageUrl;
   if (!path) return null;
   if (path.startsWith("http")) return path;
   return `${process.env.NEXT_PUBLIC_API_URL}${path}`;
@@ -34,9 +31,9 @@ export function ExerciseList({ exercises, onSelect }: ExerciseListProps) {
             <div className="text-sm text-gray-500">{exercise.bodyPart}</div>
           </div>
           <div className="w-16 h-16 bg-slate-50 flex-shrink-0 rounded-xl overflow-hidden shadow-inner border border-slate-100 flex items-center justify-center relative">
-            {getImageUrl(exercise as any) ? (
+            {getImageUrl(exercise) ? (
               <Image
-                src={getImageUrl(exercise as any)!}
+                src={getImageUrl(exercise)!}
                 alt={exercise.name}
                 fill
                 className="object-cover"

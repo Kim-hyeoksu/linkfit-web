@@ -12,6 +12,7 @@ import {
   Tooltip,
   Legend,
   ChartOptions,
+  ChartData,
 } from "chart.js";
 import { Chart } from "react-chartjs-2";
 import zoomPlugin from "chartjs-plugin-zoom";
@@ -215,7 +216,11 @@ export const ExerciseHistoryChart = ({
         </div>
       </div>
       <div className="flex-1 w-full relative h-[300px] min-h-[250px]">
-        <Chart type="bar" data={chartData as any} options={options as any} />
+        <Chart
+          type="bar"
+          data={chartData as unknown as ChartData}
+          options={options as unknown as ChartOptions}
+        />
       </div>
       <div className="text-center text-[10px] text-gray-400 mt-2">
         손가락으로 벌려 확대(Pinch) 하거나 밀어볼(Pan) 수 있습니다.

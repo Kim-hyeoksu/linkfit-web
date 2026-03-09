@@ -9,8 +9,9 @@ export const getActiveSessionServer = async (
   try {
     const response = await api.get(url);
     return response.data;
-  } catch (error: any) {
-    if (error.response?.status === 404) {
+  } catch (error: unknown) {
+    const err = error as { response?: { status: number } };
+    if (err.response?.status === 404) {
       return null; // 활성 세션 없음
     }
     console.error("❌ [getActiveSessionServer] 요청 실패:", error);

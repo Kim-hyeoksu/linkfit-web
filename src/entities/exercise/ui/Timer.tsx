@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import type { SessionSet } from "@/entities/session";
+
 import Image from "next/image";
 
 declare global {
@@ -34,8 +34,6 @@ export const Timer = ({
   onStartWorkout?: () => void;
   isSessionStarted?: boolean;
 }) => {
-  const isFirstRender = useRef(true);
-
   const [remainingMs, setRemainingMs] = useState(restSeconds * 1000); // 밀리초
   const [totalMs, setTotalMs] = useState(restSeconds * 1000); // 총 시간
   const [isRunning, setIsRunning] = useState(false);
@@ -47,10 +45,13 @@ export const Timer = ({
   const rafRef = useRef<number | null>(null);
   const prevTimeRef = useRef<number | null>(null);
 
-  const changeShowType = (type: "full" | "bar") => {
-    setInternalShowType(type);
-    onShowTypeChange?.(type);
-  };
+  const changeShowType = React.useCallback(
+    (type: "full" | "bar") => {
+      setInternalShowType(type);
+      onShowTypeChange?.(type);
+    },
+    [onShowTypeChange],
+  );
   // 타이머 시작
   const startTimer = () => {
     const totalInputMs = restSeconds * 1000;
@@ -137,12 +138,54 @@ export const Timer = ({
     }
   };
 
+  const lastTriggerRef = useRef(startTrigger);
+
   useEffect(() => {
-    console.log("restSeconds changed", restSeconds);
-    if (startTrigger === 0) return;
-    startTimer();
-    changeShowType("full");
-  }, [startTrigger]);
+    // startTrigger가 0이거나 이전과 같으면 리셋하지 않음 (다른 의존성 변화로 인한 불필요한 리셋 방지)
+    if (startTrigger === 0 || startTrigger === lastTriggerRef.current) {
+      lastTriggerRef.current = startTrigger;
+      return;
+    }
+    lastTriggerRef.current = startTrigger;
+
+    // 타이머 시작
+    const totalInputMs = restSeconds * 1000;
+    if (totalInputMs > 0) {
+      stopTimer();
+      setRemainingMs(totalInputMs);
+      setTotalMs(totalInputMs);
+      setIsRunning(true);
+      prevTimeRef.current = performance.now();
+
+      const tick = (now: number) => {
+        if (prevTimeRef.current === null) return;
+        const delta = now - prevTimeRef.current;
+        prevTimeRef.current = now;
+
+        setRemainingMs((prev) => {
+          const next = Math.max(prev - delta, 0);
+          if (next === 0) {
+            if (rafRef.current) {
+              cancelAnimationFrame(rafRef.current);
+              rafRef.current = null;
+            }
+            setIsRunning(false);
+            sendRestFinishedToRN(
+              "휴식 끝! 🤸‍♀️",
+              "이제 다음 운동 세트를 시작할 시간이에요!",
+            );
+          }
+          return next;
+        });
+        if (rafRef.current !== null)
+          rafRef.current = requestAnimationFrame(tick);
+      };
+      rafRef.current = requestAnimationFrame(tick);
+    }
+
+    setInternalShowType("full");
+    onShowTypeChange?.("full");
+  }, [startTrigger, restSeconds, onShowTypeChange]);
   // 언마운트 시 rAF 정리
   useEffect(() => {
     return () => stopTimer();
@@ -174,7 +217,7 @@ export const Timer = ({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [internalShowType]);
+  }, [internalShowType, changeShowType]);
 
   const handleWrapperClick = () => {
     if (internalShowType === "bar") {
@@ -320,17 +363,6 @@ export const Timer = ({
       )}
     </div>
   );
-};
-
-const inputStyle: React.CSSProperties = {
-  padding: "10px 15px",
-  fontSize: "1.2em",
-  borderRadius: "8px",
-  border: "1px solid #ccc",
-  width: "80px",
-  textAlign: "center",
-  outline: "none",
-  transition: "border-color 0.3s ease",
 };
 
 export default Timer;

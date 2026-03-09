@@ -16,13 +16,13 @@ export const normalizeExercises = (
 
       return {
         sessionExerciseId,
-        exerciseId: (exercise as any).exerciseId, // Common field
+        exerciseId: (exercise as { exerciseId: number }).exerciseId, // Common field
         exerciseName: exercise.exerciseName,
         bodyPart: exercise.bodyPart,
         exerciseImagePath: exercise.exerciseImagePath,
         restSeconds:
           exercise.targetRestSeconds ??
-          (exercise as any).targetRestSeconds ??
+          (exercise as { targetRestSeconds?: number }).targetRestSeconds ??
           0,
         orderIndex: exercise.orderIndex,
         reps: exercise.targetReps ?? 0,
@@ -30,20 +30,23 @@ export const normalizeExercises = (
         targetReps: exercise.targetReps ?? 0,
         targetSets: exercise.targetSets ?? 0,
         targetWeight: exercise.targetWeight ?? 0,
-        sets: exercise.sets.map((set: any, index: number) => ({
-          id: set.id ?? -(Date.now() + index),
-          sessionExerciseId,
-          setOrder: set.setOrder ?? index + 1,
-          reps: set.reps ?? set.targetReps ?? 0,
-          weight: set.weight ?? set.targetWeight ?? 0,
-          restSeconds: set.restSeconds ?? set.targetRestSeconds ?? 0,
-          targetReps: set.targetReps ?? 0,
-          targetWeight: set.targetWeight ?? 0,
-          targetRestSeconds: set.targetRestSeconds ?? 0,
-          completedAt: set.completedAt ?? null,
-          status: set.status ?? "PENDING",
-          rpe: set.rpe,
-        })),
+        sets: exercise.sets.map(
+          (s: Record<string, unknown>, index: number) => ({
+            id: (s.id as number) ?? -(Date.now() + index),
+            sessionExerciseId,
+            setOrder: (s.setOrder as number) ?? index + 1,
+            reps: (s.reps as number) ?? (s.targetReps as number) ?? 0,
+            weight: (s.weight as number) ?? (s.targetWeight as number) ?? 0,
+            restSeconds:
+              (s.restSeconds as number) ?? (s.targetRestSeconds as number) ?? 0,
+            targetReps: (s.targetReps as number) ?? 0,
+            targetWeight: (s.targetWeight as number) ?? 0,
+            targetRestSeconds: (s.targetRestSeconds as number) ?? 0,
+            completedAt: (s.completedAt as string) ?? null,
+            status: (s.status as string) ?? "PENDING",
+            rpe: s.rpe as number | undefined,
+          }),
+        ),
       };
     },
   );

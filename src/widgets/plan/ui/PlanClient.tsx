@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import type { PlanDetailDto, PlanDetailExerciseDto } from "@/entities/plan";
-import type { ActiveSessionDto, SessionExerciseDto } from "@/entities/session";
+import type { PlanDetailDto } from "@/entities/plan";
+import type { ActiveSessionDto } from "@/entities/session";
 import {
   ExerciseCard,
   type ClientSet,
@@ -88,6 +88,10 @@ export default function PlanClient({
 
   // UI 상태 관리
   const [showType, setShowType] = useState<"bar" | "full">("bar");
+
+  const handleShowTypeChange = React.useCallback((newType: "bar" | "full") => {
+    setShowType(newType);
+  }, []);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [isEndConfirmOpen, setIsEndConfirmOpen] = useState(false);
   const [isEndConfirmLoading, setIsEndConfirmLoading] = useState(false);
@@ -96,55 +100,61 @@ export default function PlanClient({
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   // ✅ View Helper Logic
-  const handleExerciseClick = (id: number) => {
-    if (startTrigger === 0) return;
-    setCurrentExerciseId(id);
-    setTimeout(() => {
-      const el = exerciseRefs.current.get(id);
-      if (el && wrapperRef.current) {
-        wrapperRef.current.scrollTo({
-          top: el.offsetTop - 56,
-          behavior: "smooth",
-        });
-      }
-    }, 50);
-  };
+  const handleExerciseClick = React.useCallback(
+    (id: number) => {
+      if (startTrigger === 0) return;
+      setCurrentExerciseId(id);
+      setTimeout(() => {
+        const el = exerciseRefs.current.get(id);
+        if (el && wrapperRef.current) {
+          wrapperRef.current.scrollTo({
+            top: el.offsetTop - 56,
+            behavior: "smooth",
+          });
+        }
+      }, 50);
+    },
+    [startTrigger, setCurrentExerciseId],
+  );
 
-  const handleNextSet = (exerciseId: number) => {
-    const exercise = exercises.find(
-      (ex) => ex.sessionExerciseId === exerciseId,
-    );
-    if (!exercise) return;
-    const nextIncompleteSet = exercise.sets.find(
-      (set) => set.status !== "COMPLETED",
-    );
-
-    if (nextIncompleteSet) {
-      setCurrentExerciseSetId(nextIncompleteSet.sessionExerciseId ?? -1);
-    } else {
-      const currentExerciseIndex = exercises.findIndex(
-        (item) => item.sessionExerciseId === exerciseId,
+  const handleNextSet = React.useCallback(
+    (exerciseId: number) => {
+      const exercise = exercises.find(
+        (ex) => ex.sessionExerciseId === exerciseId,
       );
-      const nextExercise = exercises[currentExerciseIndex + 1];
+      if (!exercise) return;
+      const nextIncompleteSet = exercise.sets.find(
+        (set) => set.status !== "COMPLETED",
+      );
 
-      if (nextExercise) {
-        const nextExerciseFirstIncompleteSet = nextExercise.sets.find(
-          (set) => set.status !== "COMPLETED",
+      if (nextIncompleteSet) {
+        setCurrentExerciseSetId(nextIncompleteSet.sessionExerciseId ?? -1);
+      } else {
+        const currentExerciseIndex = exercises.findIndex(
+          (item) => item.sessionExerciseId === exerciseId,
         );
+        const nextExercise = exercises[currentExerciseIndex + 1];
 
-        if (nextExerciseFirstIncompleteSet) {
-          setCurrentExerciseSetId(
-            nextExerciseFirstIncompleteSet.sessionExerciseId ?? -1,
+        if (nextExercise) {
+          const nextExerciseFirstIncompleteSet = nextExercise.sets.find(
+            (set) => set.status !== "COMPLETED",
           );
+
+          if (nextExerciseFirstIncompleteSet) {
+            setCurrentExerciseSetId(
+              nextExerciseFirstIncompleteSet.sessionExerciseId ?? -1,
+            );
+          } else {
+            setCurrentExerciseSetId(-1);
+          }
+          handleExerciseClick(nextExercise.sessionExerciseId);
         } else {
           setCurrentExerciseSetId(-1);
         }
-        handleExerciseClick(nextExercise.sessionExerciseId);
-      } else {
-        setCurrentExerciseSetId(-1);
       }
-    }
-  };
+    },
+    [exercises, setCurrentExerciseSetId, handleExerciseClick],
+  );
 
   const nextExercise = (exerciseId: number) => {
     const currentIndex = exercises.findIndex(
@@ -179,7 +189,7 @@ export default function PlanClient({
       handleNextSet(pendingExerciseId);
       setPendingExerciseId(-1);
     }
-  }, [exercises, pendingExerciseId]);
+  }, [pendingExerciseId, handleNextSet, setPendingExerciseId]);
 
   useEffect(() => {
     if (!isSessionStarted || exercises.length === 0) return;
@@ -329,7 +339,7 @@ export default function PlanClient({
           }
           nextExercise={nextExercise}
           showType={showType}
-          onShowTypeChange={(newType) => setShowType(newType)}
+          onShowTypeChange={handleShowTypeChange}
           onCompleteSet={handleCompleteCurrentSetFromTimer}
           currentExerciseId={currentExerciseId}
           currentExerciseSetId={currentExerciseSetId}

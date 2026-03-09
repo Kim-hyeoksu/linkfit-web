@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { getMyPrograms, ProgramCard, Program } from "@/entities/program";
 import { Header } from "@/shared";
-import { Calendar, Plus, Dumbbell, ClipboardList, X } from "lucide-react";
+import { Calendar, Plus } from "lucide-react";
 import Link from "next/link";
 
 export default function MyProgramsPage() {

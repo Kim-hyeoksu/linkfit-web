@@ -1,5 +1,5 @@
 import React from "react";
-import { ChevronRight, TrendingUp, Scale, Activity, Award } from "lucide-react";
+import { ChevronRight, TrendingUp, Scale, Award } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 

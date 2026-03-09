@@ -12,7 +12,7 @@ interface AnimatedLottieProps {
 }
 
 export const AnimatedLottie = ({ url, className }: AnimatedLottieProps) => {
-  const [animationData, setAnimationData] = useState<any>(null);
+  const [animationData, setAnimationData] = useState<unknown>(null);
   const [error, setError] = useState(false);
 
   useEffect(() => {
@@ -52,7 +52,8 @@ export const AnimatedLottie = ({ url, className }: AnimatedLottieProps) => {
 
   return (
     <div className={className}>
-      <Lottie animationData={animationData} loop={true} />
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+      <Lottie animationData={animationData as any} loop={true} />
     </div>
   );
 };

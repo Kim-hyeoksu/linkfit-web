@@ -2,7 +2,11 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import { Header } from "@/shared";
-import { BodyMetricsChart } from "@/widgets/user";
+import dynamic from "next/dynamic";
+const BodyMetricsChart = dynamic(
+  () => import("@/widgets/user").then((mod) => mod.BodyMetricsChart),
+  { ssr: false },
+);
 import { getBodyMetrics } from "@/entities/user/api/getBodyMetrics";
 import { BodyMetric } from "@/entities/user/model/types";
 import { TrendingDown, TrendingUp, Minus } from "lucide-react";

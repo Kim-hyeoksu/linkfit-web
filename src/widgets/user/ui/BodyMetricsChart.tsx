@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -14,7 +14,10 @@ import {
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import zoomPlugin from "chartjs-plugin-zoom";
-import "hammerjs";
+if (typeof window !== "undefined") {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  require("hammerjs");
+}
 import { BodyMetric } from "@/entities/user/model/types";
 
 ChartJS.register(

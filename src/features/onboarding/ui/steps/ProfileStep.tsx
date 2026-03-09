@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import Image from "next/image";
 import { Camera } from "lucide-react";
 import { OnboardingData } from "../../model/types";
 import { StepLayout } from "./StepLayout";
@@ -60,10 +61,12 @@ export const ProfileStep = ({ data, updateData, onNext }: Props) => {
               >
                 <div className="w-full h-full rounded-full bg-slate-100 border-2 border-slate-200 overflow-hidden flex items-center justify-center transition-all group-hover:border-main">
                   {data.profileImage ? (
-                    <img
+                    <Image
                       src={data.profileImage}
                       alt="Profile"
-                      className="w-full h-full object-cover"
+                      fill
+                      unoptimized
+                      className="object-cover"
                     />
                   ) : (
                     <div className="flex flex-col items-center text-slate-400">

@@ -17,19 +17,6 @@ const formatDuration = (durationSeconds: number) => {
   )}`;
 };
 
-const formatDateTime = (value: string | Date | null | undefined) => {
-  if (!value) return "-";
-  const date = typeof value === "string" ? new Date(value) : value;
-  if (Number.isNaN(date.getTime())) return "-";
-  return date.toLocaleString("ko-KR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
-
 export default function WorkoutCompletePage({
   params,
 }: {
@@ -37,7 +24,7 @@ export default function WorkoutCompletePage({
 }) {
   const router = useRouter();
   const { sessionId } = use(params);
-  const [session, setSession] = useState<any | null>(null);
+  const [session, setSession] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,7 +36,7 @@ export default function WorkoutCompletePage({
       try {
         const data = await getSession(Number(sessionId));
         if (mounted) setSession(data);
-      } catch (e: any) {
+      } catch {
         if (mounted) setError("세션 정보를 불러오지 못했습니다.");
       } finally {
         if (mounted) setLoading(false);
@@ -65,11 +52,15 @@ export default function WorkoutCompletePage({
   const summary = useMemo(() => {
     if (!session) return null;
 
-    const startedAt = session.startedAt ? new Date(session.startedAt) : null;
-    const endedAt = session.endedAt ? new Date(session.endedAt) : null;
+    const startedAt = session.startedAt
+      ? new Date(session.startedAt as string)
+      : null;
+    const endedAt = session.endedAt
+      ? new Date(session.endedAt as string)
+      : null;
     const durationSeconds =
-      session.totalDuraionSeconds ??
-      session.totalDurationSeconds ??
+      (session.totalDuraionSeconds as number) ??
+      (session.totalDurationSeconds as number) ??
       (startedAt && endedAt
         ? Math.max(
             Math.floor((endedAt.getTime() - startedAt.getTime()) / 1000),
@@ -78,39 +69,56 @@ export default function WorkoutCompletePage({
         : null);
 
     const sessionExercises =
-      session.exercises ??
-      session.sessionExercises ??
-      session.sessionExerciseList ??
+      (session.exercises as Record<string, unknown>[]) ??
+      (session.sessionExercises as Record<string, unknown>[]) ??
+      (session.sessionExerciseList as Record<string, unknown>[]) ??
       [];
 
-    const normalizedExercises = (sessionExercises as any[]).map((ex) => {
-      const name = ex.exerciseName ?? ex.name ?? ex.title ?? "운동";
-      const sets = ex.sets ?? ex.sessionSets ?? ex.exerciseSets ?? [];
-      const completedSets = (sets as any[]).filter(
-        (s) => s.status === "COMPLETED",
+    const normalizedExercises = sessionExercises.map((ex) => {
+      const name =
+        (ex.exerciseName as string) ??
+        (ex.name as string) ??
+        (ex.title as string) ??
+        "운동";
+      const sets =
+        (ex.sets as Record<string, unknown>[]) ??
+        (ex.sessionSets as Record<string, unknown>[]) ??
+        (ex.exerciseSets as Record<string, unknown>[]) ??
+        [];
+      const completedSets = sets.filter((s) => s.status === "COMPLETED");
+      const volume = completedSets.reduce(
+        (acc: number, s: Record<string, unknown>) => {
+          const reps = Number(s.reps ?? s.actualReps ?? s.targetReps ?? 0);
+          const weight = Number(
+            s.weight ?? s.actualWeight ?? s.targetWeight ?? 0,
+          );
+          return acc + reps * weight;
+        },
+        0,
       );
-      const volume = completedSets.reduce((acc: number, s: any) => {
-        const reps = Number(s.reps ?? s.actualReps ?? s.targetReps ?? 0);
-        const weight = Number(
-          s.weight ?? s.actualWeight ?? s.targetWeight ?? 0,
-        );
-        return acc + reps * weight;
-      }, 0);
 
       return {
         name,
         completedSetsCount: completedSets.length,
-        totalSetsCount: (sets as any[]).length,
+        totalSetsCount: sets.length,
         volume,
-        sets: (sets as any[])
+        sets: sets
           .map((s) => ({
-            setOrder: s.setOrder ?? s.order ?? null,
-            reps: s.reps ?? s.actualReps ?? s.targetReps ?? null,
-            weight: s.weight ?? s.actualWeight ?? s.targetWeight ?? null,
+            setOrder: (s.setOrder as number) ?? (s.order as number) ?? null,
+            reps:
+              (s.reps as number) ??
+              (s.actualReps as number) ??
+              (s.targetReps as number) ??
+              null,
+            weight:
+              (s.weight as number) ??
+              (s.actualWeight as number) ??
+              (s.targetWeight as number) ??
+              null,
             restSeconds:
-              s.restSeconds ??
-              s.actualRestSeconds ??
-              s.targetRestSeconds ??
+              (s.restSeconds as number) ??
+              (s.actualRestSeconds as number) ??
+              (s.targetRestSeconds as number) ??
               null,
             completed: Boolean(s.status === "COMPLETED"),
           }))
@@ -212,7 +220,7 @@ export default function WorkoutCompletePage({
 
                   {ex.sets.length > 0 && (
                     <div className="flex flex-col gap-2">
-                      {ex.sets.map((s: any, sIdx: number) => (
+                      {ex.sets.map((s, sIdx: number) => (
                         <div
                           key={`${idx}-${sIdx}`}
                           className="flex justify-between items-center px-3 py-2 bg-gray-50 rounded-lg text-sm"

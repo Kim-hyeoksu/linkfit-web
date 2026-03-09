@@ -2,7 +2,6 @@
 
 import React, { useMemo } from "react";
 import Model from "react-body-highlighter";
-import { ActiveSessionDto } from "@/entities/session";
 
 // Define our own IExerciseData since Model exports it, but just in case
 interface HeatmapData {
@@ -88,10 +87,11 @@ export function MuscleHeatmap({ volumeMap }: MuscleHeatmapProps) {
       });
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return result as any;
   }, [volumeMap]);
 
-  const handleMuscleClick = (params: any) => {
+  const handleMuscleClick = (params: { muscle: string }) => {
     const muscleKey = params.muscle;
     // 명시적인 세부 명칭 매핑에서 먼저 찾고, 없으면 기본 키 사용
     const displayName = MUSCLE_DISPLAY_NAME[muscleKey] || muscleKey;

@@ -12,7 +12,23 @@ import {
   Dumbbell,
   ArrowUpDown,
 } from "lucide-react";
-type SessionLike = any;
+type SessionLike = {
+  id?: number | string;
+  startedAt?: string | null;
+  endedAt?: string | null;
+  sessionDate?: string | null;
+  createdAt?: string | null;
+  totalDurationSeconds?: number | null;
+  totalVolumeKg?: number | null;
+  totalVolume?: number | null;
+  planTitle?: string | null;
+  programName?: string | null;
+  exercises?: unknown[];
+  sessionExercises?: unknown[];
+  sessionExerciseList?: unknown[];
+  program?: { name?: string };
+  plan?: { programName?: string };
+};
 
 const pad2 = (n: number) => String(n).padStart(2, "0");
 
@@ -57,15 +73,6 @@ const getSessionDateKey = (session: SessionLike) => {
   return toDateKeyLocal(startedAt);
 };
 
-const getSessionProgramName = (session: SessionLike) => {
-  return (
-    session.programName ??
-    session.program?.name ??
-    session.plan?.programName ??
-    null
-  );
-};
-
 const getSessionExercises = (session: SessionLike) => {
   return (
     session.exercises ??
@@ -79,26 +86,41 @@ const getSessionTotalVolumeKg = (session: SessionLike) => {
   if (typeof session.totalVolumeKg === "number") return session.totalVolumeKg;
   if (typeof session.totalVolume === "number") return session.totalVolume;
 
-  const exercises = getSessionExercises(session) as any[];
-  const total = exercises.reduce((acc: number, ex: any) => {
-    const sets = getExerciseSets(ex) as any[];
-    const completedSets = sets.filter(isCompletedSet);
-    const volume = completedSets.reduce((sum: number, s: any) => {
-      const reps = Number(s.reps ?? s.actualReps ?? s.targetReps ?? 0);
-      const weight = Number(s.weight ?? s.actualWeight ?? s.targetWeight ?? 0);
-      return sum + reps * weight;
-    }, 0);
-    return acc + volume;
-  }, 0);
+  const exercises = getSessionExercises(session);
+  const total = (exercises as Record<string, unknown>[]).reduce(
+    (acc: number, ex: Record<string, unknown>) => {
+      const sets = getExerciseSets(ex);
+      const completedSets = (sets as Record<string, unknown>[]).filter(
+        isCompletedSet,
+      );
+      const volume = completedSets.reduce(
+        (sum: number, s: Record<string, unknown>) => {
+          const reps = Number(s.reps ?? s.actualReps ?? s.targetReps ?? 0);
+          const weight = Number(
+            s.weight ?? s.actualWeight ?? s.targetWeight ?? 0,
+          );
+          return sum + reps * weight;
+        },
+        0,
+      );
+      return acc + volume;
+    },
+    0,
+  );
 
   return total;
 };
 
-const getExerciseSets = (exercise: any) => {
-  return exercise.sets ?? exercise.sessionSets ?? exercise.exerciseSets ?? [];
+const getExerciseSets = (exercise: Record<string, unknown>) => {
+  return (
+    (exercise.sets as unknown[]) ??
+    (exercise.sessionSets as unknown[]) ??
+    (exercise.sessionExerciseSets as unknown[]) ??
+    []
+  );
 };
 
-const isCompletedSet = (set: any) => {
+const isCompletedSet = (set: Record<string, unknown>) => {
   return Boolean(set.status === "COMPLETED");
 };
 
@@ -132,8 +154,11 @@ const SessionCard = ({
               {planTitle ?? "완료된 운동"}
             </>
           ) : (
-            (exercises as any[])
-              .map((ex) => ex.exerciseName ?? ex.name ?? "운동")
+            (exercises as Record<string, unknown>[])
+              .map(
+                (ex) =>
+                  (ex.exerciseName as string) ?? (ex.name as string) ?? "운동",
+              )
               .join(", ")
           )}
         </div>
@@ -200,7 +225,7 @@ export default function WorkoutCalendarPage() {
         });
         const list = Array.isArray(data) ? data : (data?.content ?? []);
         if (mounted) setSessions(list);
-      } catch (e) {
+      } catch {
         if (mounted) setError("운동 기록을 불러오지 못했습니다.");
       } finally {
         if (mounted) setLoading(false);

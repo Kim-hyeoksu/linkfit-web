@@ -3,7 +3,7 @@ import { http, HttpResponse } from "msw";
 import { Program } from "@/entities/program";
 import { mockPrograms, mockWorkout, mockWorkoutDay } from "../data/programs";
 export const programHandlers = [
-  http.get("*/api/exercises/:routineId", ({ params }) => {
+  http.get("*/api/exercises/:routineId", () => {
     return HttpResponse.json(mockWorkout);
   }),
 
@@ -18,9 +18,9 @@ export const programHandlers = [
     const body = (await request.json()) as Omit<Program, "id">;
     const newProgram: Program = {
       ...body,
-      id: mockPrograms.length + 1,
+      id: mockPrograms.content.length + 1,
     };
-    mockPrograms.push(newProgram);
+    (mockPrograms.content as unknown[]).push(newProgram);
 
     return HttpResponse.json(newProgram, { status: 201 });
   }),

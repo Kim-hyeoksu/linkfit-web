@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { updatePlan, type PlanDetailDto } from "@/entities/plan";
 import type { ClientExercise } from "@/entities/exercise";
+import type { ActiveSessionDto } from "@/entities/session";
 
-export const usePlanLogic = (initialPlanDetail: PlanDetailDto | any) => {
+export const usePlanLogic = (
+  initialPlanDetail: PlanDetailDto | ActiveSessionDto,
+) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
