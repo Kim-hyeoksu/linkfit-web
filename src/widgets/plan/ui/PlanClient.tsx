@@ -288,11 +288,11 @@ export default function PlanClient({
         }}
       >
         <div className="flex flex-col gap-[14px] pb-[100px] max-w-2xl mx-auto">
-          {exercises.map((exercise) => {
+          {exercises.map((exercise, index) => {
             const exerciseSets = exercise.sets ?? [];
             return (
               <div
-                key={exercise.sessionExerciseId}
+                key={`${exercise.sessionExerciseId}-${index}`}
                 className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out"
                 ref={(el) => {
                   if (el)

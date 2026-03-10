@@ -8,11 +8,12 @@ export const normalizeExercises = (
   if (!plan?.exercises || !Array.isArray(plan.exercises)) return [];
 
   return plan.exercises.map(
-    (exercise: PlanDetailExerciseDto | SessionExerciseDto) => {
+    (exercise: PlanDetailExerciseDto | SessionExerciseDto, index) => {
       const isSessionMode = "sessionExerciseId" in exercise;
-      const sessionExerciseId = isSessionMode
-        ? (exercise as SessionExerciseDto).sessionExerciseId
-        : (exercise as PlanDetailExerciseDto).exerciseId;
+      const sessionExerciseId =
+        isSessionMode && (exercise as SessionExerciseDto).sessionExerciseId
+          ? (exercise as SessionExerciseDto).sessionExerciseId
+          : (exercise as PlanDetailExerciseDto).exerciseId * 10000 + index;
 
       return {
         sessionExerciseId,
