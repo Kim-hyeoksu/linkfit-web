@@ -2,6 +2,9 @@ import axios from "axios";
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true, // 쿠키 포함 설정
+  headers: {
+    "ngrok-skip-browser-warning": "69420", // ngrok 경고 페이지 우회
+  },
 });
 
 // 요청 인터셉터
