@@ -188,7 +188,11 @@ export default function ExerciseHistoryDetailPage() {
         {!isLoading && exercise?.imagePath && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative aspect-[4/3] w-full">
             <Image
-              src={`${process.env.NEXT_PUBLIC_API_URL}${exercise.imagePath}`}
+              src={
+                exercise.imagePath.startsWith("http")
+                  ? exercise.imagePath
+                  : `${process.env.NEXT_PUBLIC_API_URL}${exercise.imagePath}`
+              }
               alt={exercise.name}
               fill
               className={`object-cover ${
@@ -197,7 +201,11 @@ export default function ExerciseHistoryDetailPage() {
               priority
             />
             <Image
-              src={`${process.env.NEXT_PUBLIC_API_URL}${exercise.imagePath.replace(/\.png$/, "2.png")}`}
+              src={
+                exercise.imagePath.startsWith("http")
+                  ? exercise.imagePath.replace(/\.png$/, "2.png")
+                  : `${process.env.NEXT_PUBLIC_API_URL}${exercise.imagePath.replace(/\.png$/, "2.png")}`
+              }
               alt={exercise.name}
               fill
               className={`object-cover ${

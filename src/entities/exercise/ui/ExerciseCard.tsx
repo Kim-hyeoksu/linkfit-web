@@ -119,7 +119,13 @@ export const ExerciseCard = ({
           <div className="flex items-start gap-2">
             <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-inner bg-slate-100 border border-slate-50 shrink-0">
               <Image
-                src={`${process.env.NEXT_PUBLIC_API_URL}${exercise.exerciseImagePath ?? "/next.svg"}`}
+                src={
+                  exercise.exerciseImagePath
+                    ? exercise.exerciseImagePath.startsWith("http")
+                      ? exercise.exerciseImagePath
+                      : `${process.env.NEXT_PUBLIC_API_URL}${exercise.exerciseImagePath}`
+                    : "/next.svg"
+                }
                 width={64}
                 height={64}
                 alt={exerciseName}
