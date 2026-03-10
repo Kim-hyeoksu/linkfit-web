@@ -196,8 +196,11 @@ export default function WorkoutCalendarPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
+  const [viewMode, setViewMode] = useState<"date" | "month" | "year">("date");
 
   useEffect(() => {
+    if (viewMode !== "date") return;
+
     let mounted = true;
     const run = async () => {
       setLoading(true);
@@ -236,7 +239,7 @@ export default function WorkoutCalendarPage() {
     return () => {
       mounted = false;
     };
-  }, [monthCursor, userId]);
+  }, [monthCursor, userId, viewMode]);
 
   const sessionsByDate = useMemo(() => {
     const map = new Map<string, SessionLike[]>();
@@ -297,89 +300,175 @@ export default function WorkoutCalendarPage() {
           <div className="flex items-center justify-between mb-6">
             <button
               className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100 active:scale-95 transition-all"
-              onClick={() =>
-                setMonthCursor(
-                  (prev) =>
-                    new Date(prev.getFullYear(), prev.getMonth() - 1, 1),
-                )
-              }
+              onClick={() => {
+                if (viewMode === "date") {
+                  setMonthCursor(
+                    (prev) =>
+                      new Date(prev.getFullYear(), prev.getMonth() - 1, 1),
+                  );
+                } else if (viewMode === "month") {
+                  setMonthCursor(
+                    (prev) =>
+                      new Date(prev.getFullYear() - 1, prev.getMonth(), 1),
+                  );
+                } else if (viewMode === "year") {
+                  setMonthCursor(
+                    (prev) =>
+                      new Date(prev.getFullYear() - 10, prev.getMonth(), 1),
+                  );
+                }
+              }}
             >
               <ChevronLeft size={20} />
             </button>
-            <div className="text-lg font-extrabold tracking-tight text-slate-800">
-              {monthLabel}
-            </div>
+            <button
+              className="text-lg font-extrabold tracking-tight text-slate-800 hover:text-main transition-colors px-4 py-1 rounded-lg hover:bg-slate-50 active:scale-95"
+              onClick={() => {
+                if (viewMode === "date") setViewMode("month");
+                else if (viewMode === "month") setViewMode("year");
+                else setViewMode("date");
+              }}
+            >
+              {viewMode === "date" && monthLabel}
+              {viewMode === "month" && `${monthCursor.getFullYear()}년`}
+              {viewMode === "year" &&
+                `${monthCursor.getFullYear() - 4} ~ ${monthCursor.getFullYear() + 7}년`}
+            </button>
             <button
               className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100 active:scale-95 transition-all"
-              onClick={() =>
-                setMonthCursor(
-                  (prev) =>
-                    new Date(prev.getFullYear(), prev.getMonth() + 1, 1),
-                )
-              }
+              onClick={() => {
+                if (viewMode === "date") {
+                  setMonthCursor(
+                    (prev) =>
+                      new Date(prev.getFullYear(), prev.getMonth() + 1, 1),
+                  );
+                } else if (viewMode === "month") {
+                  setMonthCursor(
+                    (prev) =>
+                      new Date(prev.getFullYear() + 1, prev.getMonth(), 1),
+                  );
+                } else if (viewMode === "year") {
+                  setMonthCursor(
+                    (prev) =>
+                      new Date(prev.getFullYear() + 10, prev.getMonth(), 1),
+                  );
+                }
+              }}
             >
               <ChevronRight size={20} />
             </button>
           </div>
 
-          <div className="grid grid-cols-7 gap-1 mt-3 text-center text-[13px] font-semibold text-slate-400">
-            {["일", "월", "화", "수", "목", "금", "토"].map((d, i) => (
-              <div
-                key={d}
-                className={`py-2 ${i === 0 ? "text-red-400" : i === 6 ? "text-blue-400" : ""}`}
-              >
-                {d}
-              </div>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-7 gap-y-3 gap-x-1 mt-2">
-            {calendarCells.map((cell, idx) => {
-              const hasWorkout =
-                cell.dateKey != null &&
-                (sessionsByDate.get(cell.dateKey)?.length ?? 0) > 0;
-              const isSelected =
-                cell.dateKey != null && cell.dateKey === selectedDateKey;
-
-              const isToday = cell.dateKey === toDateKeyLocal(new Date());
-
-              return (
-                <button
-                  key={`${cell.dateKey ?? "empty"}-${idx}`}
-                  type="button"
-                  disabled={!cell.dateKey}
-                  onClick={() => {
-                    if (!cell.dateKey) return;
-                    setSelectedDateKey((prev) =>
-                      prev === cell.dateKey ? null : cell.dateKey,
-                    );
-                  }}
-                  className={`relative h-12 rounded-xl flex flex-col items-center justify-center transition-all ${
-                    !cell.dateKey
-                      ? "bg-transparent cursor-default"
-                      : isSelected
-                        ? "bg-main text-white shadow-md shadow-blue-500/20 font-bold"
-                        : hasWorkout
-                          ? "bg-blue-50 text-slate-700 font-semibold hover:bg-blue-100"
-                          : "bg-transparent text-slate-600 hover:bg-slate-50 font-medium"
-                  } ${isToday && !isSelected ? "ring-2 ring-main ring-inset text-main font-bold" : ""}`}
-                >
-                  <span className="text-[15px] z-10 leading-none mt-0.5">
-                    {cell.day ?? ""}
-                  </span>
-
-                  {/* 작은 점 표시 (기록이 있고 선택되지 않았을 때만 보이거나, 조금 다르게 처리) */}
-                  <div className="h-1.5 w-full flex justify-center items-center mt-1">
-                    {hasWorkout && (
-                      <div
-                        className={`w-1 h-1 rounded-full ${isSelected ? "bg-white" : "bg-main"}`}
-                      />
-                    )}
+          {viewMode === "date" && (
+            <>
+              <div className="grid grid-cols-7 gap-1 mt-3 text-center text-[13px] font-semibold text-slate-400">
+                {["일", "월", "화", "수", "목", "금", "토"].map((d, i) => (
+                  <div
+                    key={d}
+                    className={`py-2 ${i === 0 ? "text-red-400" : i === 6 ? "text-blue-400" : ""}`}
+                  >
+                    {d}
                   </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-7 gap-y-3 gap-x-1 mt-2">
+                {calendarCells.map((cell, idx) => {
+                  const hasWorkout =
+                    cell.dateKey != null &&
+                    (sessionsByDate.get(cell.dateKey)?.length ?? 0) > 0;
+                  const isSelected =
+                    cell.dateKey != null && cell.dateKey === selectedDateKey;
+
+                  const isToday = cell.dateKey === toDateKeyLocal(new Date());
+
+                  return (
+                    <button
+                      key={`${cell.dateKey ?? "empty"}-${idx}`}
+                      type="button"
+                      disabled={!cell.dateKey}
+                      onClick={() => {
+                        if (!cell.dateKey) return;
+                        setSelectedDateKey(
+                          selectedDateKey === cell.dateKey
+                            ? null
+                            : cell.dateKey,
+                        );
+                      }}
+                      className={`relative h-12 rounded-xl flex flex-col items-center justify-center transition-all ${
+                        !cell.dateKey
+                          ? "bg-transparent cursor-default"
+                          : isSelected
+                            ? "bg-main text-white shadow-md shadow-blue-200"
+                            : "bg-transparent text-slate-600 hover:bg-slate-50 font-medium"
+                      } ${isToday && !isSelected ? "ring-2 ring-main ring-inset text-main font-bold" : ""}`}
+                    >
+                      <span className="text-[15px] z-10 leading-none mt-0.5">
+                        {cell.day ?? ""}
+                      </span>
+
+                      {/* 작은 점 표시 */}
+                      <div className="h-1.5 w-full flex justify-center items-center mt-1">
+                        {hasWorkout && (
+                          <div
+                            className={`w-1 h-1 rounded-full ${isSelected ? "bg-white" : "bg-main"}`}
+                          />
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
+
+          {viewMode === "month" && (
+            <div className="grid grid-cols-3 gap-3 mt-4 mb-2 animate-in fade-in duration-200">
+              {Array.from({ length: 12 }).map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => {
+                    setMonthCursor(new Date(monthCursor.getFullYear(), i, 1));
+                    setViewMode("date");
+                  }}
+                  className={`py-4 rounded-2xl text-[15px] font-bold transition-all ${
+                    monthCursor.getMonth() === i
+                      ? "bg-main text-white shadow-md shadow-blue-200"
+                      : "bg-slate-50 text-slate-700 hover:bg-slate-100"
+                  }`}
+                >
+                  {i + 1}월
                 </button>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          )}
+
+          {viewMode === "year" && (
+            <div className="mt-4 mb-2 h-[260px] overflow-y-auto grid grid-cols-3 gap-3 pr-2 scrollbar-hide animate-in fade-in duration-200">
+              {Array.from({ length: 12 }).map((_, i) => {
+                // 현재 보여주는 연도 기준으로 -4년 ~ +7년 구간 보여주기
+                const targetYear = monthCursor.getFullYear() - 4 + i;
+                return (
+                  <button
+                    key={targetYear}
+                    onClick={() => {
+                      setMonthCursor(
+                        new Date(targetYear, monthCursor.getMonth(), 1),
+                      );
+                      setViewMode("month");
+                    }}
+                    className={`py-4 rounded-2xl text-[15px] font-bold transition-all ${
+                      monthCursor.getFullYear() === targetYear
+                        ? "bg-main text-white shadow-md shadow-blue-200"
+                        : "bg-slate-50 text-slate-700 hover:bg-slate-100"
+                    }`}
+                  >
+                    {targetYear}년
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
         {/* 리스트 영역 */}
         <div className="px-1">
