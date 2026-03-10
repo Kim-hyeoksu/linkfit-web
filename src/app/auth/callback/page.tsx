@@ -22,6 +22,7 @@ function AuthCallbackContent() {
       const accessToken = searchParams.get("token");
       const refreshToken = searchParams.get("refreshToken");
       const error = searchParams.get("error");
+      const isNewUser = searchParams.get("isNewUser");
 
       if (error) {
         console.error("Login failed via callback:", error);
@@ -54,8 +55,12 @@ function AuthCallbackContent() {
           showToast("로그인되었습니다! (정보 조회 실패)", "error");
         }
 
-        // 5. 메인 페이지로 이동
-        router.push("/");
+        // 5. 메인 페이지 또는 회원가입 단계로 이동
+        if (isNewUser === "true") {
+          router.push("/onboarding");
+        } else {
+          router.push("/");
+        }
       }
     };
 
