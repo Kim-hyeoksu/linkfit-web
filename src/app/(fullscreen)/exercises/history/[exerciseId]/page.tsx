@@ -10,7 +10,11 @@ import {
   Exercise,
   ExerciseHistoryResponse,
 } from "@/entities/exercise";
-import { ExerciseHistoryChart } from "@/widgets/exercise";
+import dynamic from "next/dynamic";
+const ExerciseHistoryChart = dynamic(
+  () => import("@/widgets/exercise").then((mod) => mod.ExerciseHistoryChart),
+  { ssr: false },
+);
 import { Settings, History, Info, Save, ArrowUpDown } from "lucide-react";
 import { useToast } from "@/shared/ui/toast";
 import Image from "next/image";
