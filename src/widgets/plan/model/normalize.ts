@@ -7,8 +7,8 @@ export const normalizeExercises = (
 ): ClientExercise[] => {
   if (!plan?.exercises || !Array.isArray(plan.exercises)) return [];
 
-  return plan.exercises.map(
-    (exercise: PlanDetailExerciseDto | SessionExerciseDto, index) => {
+  return plan.exercises
+    .map((exercise: PlanDetailExerciseDto | SessionExerciseDto, index) => {
       const isSessionMode = "sessionExerciseId" in exercise;
       const sessionExerciseId =
         isSessionMode && (exercise as SessionExerciseDto).sessionExerciseId
@@ -49,6 +49,6 @@ export const normalizeExercises = (
           }),
         ),
       };
-    },
-  );
+    })
+    .sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
 };

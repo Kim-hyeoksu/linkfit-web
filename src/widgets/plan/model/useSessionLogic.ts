@@ -111,7 +111,18 @@ export const useSessionLogic = (
       });
       setReturnUrl(window.location.pathname);
 
-      setExercises(normalizeExercises(session)); // 데이터 갱신
+      const normalized = normalizeExercises(session);
+      setExercises(normalized); // 데이터 갱신
+
+      // 첫 번째 운동 정보가 있으면 포커스(펼치기)
+      if (normalized.length > 0) {
+        const firstEx = normalized[0];
+        setCurrentExerciseId(firstEx.sessionExerciseId);
+
+        if (firstEx.sets && firstEx.sets.length > 0) {
+          setCurrentExerciseSetId(firstEx.sets[0].id);
+        }
+      }
     } catch (e) {
       console.error("세션 시작 실패", e);
       alert("운동 시작에 실패했습니다.");
@@ -201,7 +212,6 @@ export const useSessionLogic = (
     if (!exercise) return;
 
     const lastSet = exercise.sets[exercise.sets.length - 1];
-    const newSetOrder = exercise.sets.length + 1;
     const reps = lastSet?.reps ?? exercise.targetReps ?? 0;
     const weight = lastSet?.weight ?? exercise.targetWeight ?? 0;
 
@@ -209,11 +219,9 @@ export const useSessionLogic = (
       // 서버에 세트 생성 요청
       const body = {
         sessionExerciseId: exerciseId,
-        setOrder: newSetOrder,
         reps,
         weight,
         restSeconds: exercise.restSeconds,
-        status: "PENDING",
       };
       const realSet = await addSessionSet(body);
 
@@ -229,6 +237,9 @@ export const useSessionLogic = (
                 ...realSet,
                 id: realSet.id,
                 sessionExerciseId: ex.sessionExerciseId,
+                status: realSet.status || "IN_PROGRESS",
+                reps: realSet.reps || reps,
+                weight: realSet.weight || weight,
                 targetReps: reps,
                 targetWeight: weight,
                 targetRestSeconds: ex.restSeconds,
