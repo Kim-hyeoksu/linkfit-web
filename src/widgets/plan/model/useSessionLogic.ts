@@ -7,6 +7,7 @@ import {
   addSessionSet,
   deleteSessionSet,
   completeSession,
+  addSessionExercise,
 } from "@/features/session-control";
 import type { ActiveSessionDto, StartSessionRequest } from "@/entities/session";
 import type { PlanDetailDto } from "@/entities/plan";
@@ -343,43 +344,91 @@ export const useSessionLogic = (
   };
 
   // 운동 추가
-  const handleAddExercise = (exercise: Exercise) => {
+  const handleAddExercise = async (exercise: Exercise) => {
     const tempSessionExerciseId = -(
       Date.now() + Math.floor(Math.random() * 1000)
     );
 
+    const orderIndex = exercises.length;
+    const targetSets = exercise.targetSets || 3;
+    const targetReps = exercise.targetReps || 10;
+    const targetWeight = exercise.targetWeight || 0;
+    const targetRestSeconds = exercise.targetRestSeconds || 60;
+
+    // 세션이 이미 시작된 경우 API 호출
+    if (sessionState.isSessionStarted && sessionState.sessionId) {
+      try {
+        const response = await addSessionExercise({
+          sessionId: sessionState.sessionId,
+          exerciseId: exercise.id,
+          orderIndex: orderIndex,
+          targetSets: targetSets,
+          targetReps: targetReps,
+          targetWeight: targetWeight,
+          targetRestSeconds: targetRestSeconds,
+        });
+
+        if (response && response.exercises) {
+          const normalized = normalizeExercises(response);
+          setExercises(normalized);
+
+          // 방금 추가된 운동(배열의 마지막)으로 포커싱
+          if (normalized.length > 0) {
+            const addedEx = normalized[normalized.length - 1];
+            setCurrentExerciseId(addedEx.sessionExerciseId);
+            if (addedEx.sets && addedEx.sets.length > 0) {
+              setCurrentExerciseSetId(addedEx.sets[0].id);
+            }
+          }
+          return; // API 호출 성공 시 여기서 종료
+        }
+      } catch (error) {
+        console.error("세션 운동 추가 실패:", error);
+        showToast("운동 추가에 실패했습니다.", "error");
+        return;
+      }
+    }
+
+    // [세션이 시작되지 않은 경우 로컬 상태 업데이트 로직]
+    let finalSessionExerciseId = tempSessionExerciseId;
     const newClientExercise: ClientExercise = {
-      sessionExerciseId: tempSessionExerciseId,
+      sessionExerciseId: finalSessionExerciseId,
       exerciseId: exercise.id,
       exerciseName: exercise.name,
       bodyPart: exercise.bodyPart,
-      targetSets: exercise.targetSets || 3,
-      targetReps: exercise.targetReps || 10,
-      targetWeight: exercise.targetWeight || 0,
-      restSeconds: exercise.targetRestSeconds || 60,
-      orderIndex: exercises.length,
+      targetSets: targetSets,
+      targetReps: targetReps,
+      targetWeight: targetWeight,
+      restSeconds: targetRestSeconds,
+      orderIndex: orderIndex,
       sets: [],
     };
 
-    // 기본 세트 생성
+    // 로컬 모드 기본 세트 생성
     const initialSets: ClientSet[] = Array.from(
-      { length: newClientExercise.targetSets },
+      { length: targetSets },
       (_, i) => ({
         id: -(Date.now() + i + Math.floor(Math.random() * 1000)),
-        sessionExerciseId: tempSessionExerciseId,
+        sessionExerciseId: finalSessionExerciseId,
         setOrder: i + 1,
-        reps: newClientExercise.targetReps,
-        weight: newClientExercise.targetWeight,
-        restSeconds: newClientExercise.restSeconds,
-        targetReps: newClientExercise.targetReps,
-        targetWeight: newClientExercise.targetWeight,
-        targetRestSeconds: newClientExercise.restSeconds,
+        reps: targetReps,
+        weight: targetWeight,
+        restSeconds: targetRestSeconds,
+        targetReps: targetReps,
+        targetWeight: targetWeight,
+        targetRestSeconds: targetRestSeconds,
         status: "IN_PROGRESS",
       }),
     );
-
     newClientExercise.sets = initialSets;
+
     setExercises((prev) => [...prev, newClientExercise]);
+
+    // 추가된 운동으로 바로 포커스
+    setCurrentExerciseId(finalSessionExerciseId);
+    if (newClientExercise.sets.length > 0) {
+      setCurrentExerciseSetId(newClientExercise.sets[0].id);
+    }
   };
 
   // 운동 종료
