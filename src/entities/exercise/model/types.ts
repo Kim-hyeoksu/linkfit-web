@@ -39,6 +39,7 @@ export interface ClientExercise {
   targetReps: number;
   targetWeight: number;
   targetSets: number;
+  targetRestSeconds: number;
   restSeconds: number;
   bodyPart?: string;
   exerciseImagePath?: string;

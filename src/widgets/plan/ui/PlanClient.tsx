@@ -32,17 +32,9 @@ export default function PlanClient({
   const TIMER_HEIGHT = 375;
   const router = useRouter();
 
-  // ✅ Custom Hooks 사용
-  const {
-    isEditing,
-    isUpdating,
-    handleUpdatePlan,
-    toggleEditMode,
-    setIsEditing,
-  } = usePlanLogic(initialPlanDetail);
-
   const {
     exercises,
+    setExercises,
     sessionId,
     isSessionStarted,
     totalExerciseMs,
@@ -64,6 +56,18 @@ export default function PlanClient({
     handleSaveSet,
   } = useSessionLogic(initialPlanDetail, initialExercises);
 
+  // ✅ Custom Hooks 사용
+  const {
+    isEditing,
+    isUpdating,
+    handleUpdatePlan,
+    toggleEditMode,
+    setIsEditing,
+    handleAddExerciseToPlan,
+    handleAddSetToPlan,
+    handleDeleteSetFromPlan,
+  } = usePlanLogic(initialPlanDetail, setExercises);
+
   const [isExerciseSelectorOpen, setIsExerciseSelectorOpen] = useState(false);
   const [availableExercises, setAvailableExercises] = useState<Exercise[]>([]);
 
@@ -82,8 +86,31 @@ export default function PlanClient({
   }, [isExerciseSelectorOpen]);
 
   const handleExerciseSelect = (exercise: Exercise) => {
-    handleAddExercise(exercise);
+    if (isSessionStarted) {
+      handleAddExercise(exercise);
+    } else {
+      handleAddExerciseToPlan(exercise, exercises.length);
+    }
     setIsExerciseSelectorOpen(false);
+  };
+
+  const handleAddSetsCombined = (exerciseId: number) => {
+    if (isSessionStarted) {
+      addSets(exerciseId);
+    } else {
+      handleAddSetToPlan(exerciseId);
+    }
+  };
+
+  const handleDeleteSetCombined = (
+    exerciseId: number | string,
+    setId: number | string,
+  ) => {
+    if (isSessionStarted) {
+      handleDeleteSet(exerciseId, setId);
+    } else {
+      handleDeleteSetFromPlan(exerciseId, setId);
+    }
   };
 
   // UI 상태 관리
@@ -308,10 +335,10 @@ export default function PlanClient({
                   currentExerciseSetId={currentExerciseSetId}
                   onClickExercise={handleExerciseClick}
                   onClickSetCheckBtn={toggleSetCompletion}
-                  addSets={addSets}
+                  addSets={handleAddSetsCombined}
                   onUpdateSet={handleUpdateSet}
                   onSaveSet={handleSaveSet}
-                  onDeleteSet={handleDeleteSet}
+                  onDeleteSet={handleDeleteSetCombined}
                   onUpdateDefault={handleUpdateDefault}
                   onToggleEdit={() => setIsEditing((prev: boolean) => !prev)}
                 />
