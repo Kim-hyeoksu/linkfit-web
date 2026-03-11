@@ -13,6 +13,7 @@ import type { PlanDetailDto } from "@/entities/plan";
 import type { ClientExercise, ClientSet, Exercise } from "@/entities/exercise";
 import { normalizeExercises } from "./normalize";
 import { sessionStateAtom, sessionReturnUrlAtom } from "@/entities/session";
+import { useToast } from "@/shared/ui/toast/ToastProvider";
 
 export const useSessionLogic = (
   initialPlanDetail: PlanDetailDto | ActiveSessionDto,
@@ -21,6 +22,7 @@ export const useSessionLogic = (
   // Recoil Global State -> Jotai Global State
   const [sessionState, setSessionState] = useAtom(sessionStateAtom);
   const [, setReturnUrl] = useAtom(sessionReturnUrlAtom);
+  const { showToast } = useToast();
 
   // Local UI State
   // exercises는 세션 로직에서 빈번하게 업데이트되므로 여기서 메인으로 관리
@@ -148,30 +150,21 @@ export const useSessionLogic = (
 
     let updatedSet;
 
-    if (set.id && Number(set.id) > 0) {
-      // 기존 세트 업데이트
-      const body = {
-        reps,
-        weight,
-        rpe: set.rpe,
-        restSeconds: set.restSeconds,
-        status: newStatus,
-        completedAt: newCompletedAt,
-      };
-      updatedSet = await updateSessionSet(set.id, body);
-    } else {
-      // 새 세트 추가 (ID가 음수거나 없을 때)
-      const body = {
-        sessionExerciseId: set.sessionExerciseId,
-        setOrder: set.setOrder,
-        reps,
-        weight,
-        restSeconds: set.restSeconds,
-        status: newStatus,
-        completedAt: newCompletedAt,
-      };
-      updatedSet = await addSessionSet(body);
+    if (!set.id || Number(set.id) <= 0) {
+      showToast("세트 정보를 찾을 수 없습니다. (ID 누락)", "error");
+      return;
     }
+
+    // 기존 세트 업데이트
+    const body = {
+      reps,
+      weight,
+      rpe: set.rpe,
+      restSeconds: set.restSeconds,
+      status: newStatus,
+      completedAt: newCompletedAt,
+    };
+    updatedSet = await updateSessionSet(set.id, body);
 
     // 상태 업데이트
     setExercises((prev) =>
@@ -381,7 +374,7 @@ export const useSessionLogic = (
         targetReps: newClientExercise.targetReps,
         targetWeight: newClientExercise.targetWeight,
         targetRestSeconds: newClientExercise.restSeconds,
-        status: "PENDING",
+        status: "IN_PROGRESS",
       }),
     );
 
