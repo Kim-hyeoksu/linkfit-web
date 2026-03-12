@@ -285,7 +285,11 @@ export default function PlanClient({
     <div className="min-h-screen bg-[#f8fafc]">
       <Header
         showBackButton={true}
-        title={formatTime(totalExerciseMs)}
+        title={
+          isSessionStarted
+            ? formatTime(totalExerciseMs)
+            : (initialPlanDetail as PlanDetailDto).title
+        }
         className="backdrop-blur-md bg-white/70 sticky top-0 z-50 border-b border-slate-200/50"
       >
         <div className="flex items-center gap-2.5">
@@ -298,7 +302,7 @@ export default function PlanClient({
           >
             정보
           </button>
-          {totalExerciseMs > 0 ? (
+          {isSessionStarted ? (
             <button
               onClick={(e) => {
                 e.stopPropagation();

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useParams } from "next/navigation";
 import { updatePlan, type PlanDetailDto } from "@/entities/plan";
 import type { ClientExercise, ClientSet, Exercise } from "@/entities/exercise";
 import type { ActiveSessionDto } from "@/entities/session";
@@ -9,6 +10,8 @@ export const usePlanLogic = (
 ) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const params = useParams();
+  const routePlanId = params?.planId ? Number(params.planId) : null;
 
   const handleUpdatePlan = async (exercises: ClientExercise[]) => {
     setIsUpdating(true);
@@ -37,8 +40,10 @@ export const usePlanLogic = (
         })),
       };
 
+      const actualPlanId = routePlanId ?? planDetail.id;
+
       await updatePlan({
-        planId: planDetail.id,
+        planId: actualPlanId,
         plan: planUpdatePayload,
       });
 

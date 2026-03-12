@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useParams } from "next/navigation";
 
 import { useAtom } from "jotai";
 import {
@@ -21,10 +22,11 @@ export const useSessionLogic = (
   initialPlanDetail: PlanDetailDto | ActiveSessionDto,
   initialExercises: ClientExercise[],
 ) => {
-  // Recoil Global State -> Jotai Global State
   const [sessionState, setSessionState] = useAtom(sessionStateAtom);
   const [, setReturnUrl] = useAtom(sessionReturnUrlAtom);
   const { showToast } = useToast();
+  const params = useParams();
+  const routePlanId = params?.planId ? Number(params.planId) : null;
 
   // Local UI State
   // exercises는 세션 로직에서 빈번하게 업데이트되므로 여기서 메인으로 관리
@@ -50,13 +52,19 @@ export const useSessionLogic = (
     const startedAt = (initialPlanDetail as Record<string, unknown>)?.startedAt;
 
     if (startedAt && typeof startedAt === "string") {
+      const currentPlanId =
+        routePlanId ??
+        ("planId" in initialPlanDetail
+          ? initialPlanDetail.planId
+          : initialPlanDetail.id);
+
       // If server says session is active, sync to global state
       setSessionState((prev) => ({
         ...prev,
         sessionId: initialPlanDetail.id,
         isSessionStarted: true,
         startedAt: startedAt,
-        planId: initialPlanDetail.id,
+        planId: Number(currentPlanId),
       }));
       setReturnUrl(window.location.pathname);
 
@@ -94,11 +102,16 @@ export const useSessionLogic = (
 
   // 운동 시작
   const handleStartWorkout = async () => {
-    if (sessionState.isSessionStarted) return;
+    if (sessionState.isSessionStarted) {
+      showToast("이미 진행 중인 운동이 있습니다.", "error");
+      return;
+    }
     try {
       const now = new Date().toISOString();
+      const actualPlanId = routePlanId ?? ("planId" in initialPlanDetail ? initialPlanDetail.planId : initialPlanDetail.id);
+      
       const body: StartSessionRequest = {
-        planId: initialPlanDetail.id,
+        planId: actualPlanId,
         sessionDate: now,
         memo: "",
       };
@@ -110,7 +123,7 @@ export const useSessionLogic = (
         sessionId: session.id,
         isSessionStarted: true,
         startedAt: session.startedAt,
-        planId: initialPlanDetail.id,
+        planId: actualPlanId,
         totalExerciseMs: 0,
       });
       setReturnUrl(window.location.pathname);
@@ -447,11 +460,21 @@ export const useSessionLogic = (
     return response;
   };
 
+  const currentPlanId =
+    routePlanId ??
+    ("planId" in initialPlanDetail
+      ? initialPlanDetail.planId
+      : initialPlanDetail.id);
+
+  const isCurrentPlanSession =
+    sessionState.isSessionStarted &&
+    Number(sessionState.planId) === Number(currentPlanId);
+
   return {
     exercises,
     setExercises, // 필요 시 외부 주입
-    sessionId: sessionState.sessionId,
-    isSessionStarted: sessionState.isSessionStarted,
+    sessionId: isCurrentPlanSession ? sessionState.sessionId : null,
+    isSessionStarted: isCurrentPlanSession,
     totalExerciseMs,
     startTrigger,
     currentExerciseId,
