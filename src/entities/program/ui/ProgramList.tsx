@@ -39,7 +39,7 @@ export const ProgramList = ({
   }, [showHelp]);
 
   const TitleWithHelp = () => (
-    <div className="flex items-center gap-1.5 relative px-1" ref={helpRef}>
+    <div className="flex items-center gap-1.5 relative" ref={helpRef}>
       {helpMessage && (
         <button
           onClick={(e) => {
@@ -76,7 +76,7 @@ export const ProgramList = ({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between px-1">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <TitleWithHelp />
         </div>
