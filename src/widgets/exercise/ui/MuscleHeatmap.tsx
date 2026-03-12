@@ -17,6 +17,8 @@ interface MuscleHeatmapProps {
 // Map linkfit Korean body parts to react-body-highlighter muscles
 const BODY_PART_TO_MUSCLES: Record<string, string[]> = {
   // 세부 부위 (추가 및 한글명 매핑)
+  chest: ["chest"],
+  deltoids: ["front-deltoids", "back-deltoids"],
   triceps: ["triceps"],
   biceps: ["biceps"],
   forearm: ["forearm"],
@@ -38,6 +40,7 @@ const BODY_PART_TO_MUSCLES: Record<string, string[]> = {
 // Tooltip에 표시할 세부 근육 명칭 매핑
 const MUSCLE_DISPLAY_NAME: Record<string, string> = {
   chest: "가슴",
+  deltoids: "어깨",
   "upper-back": "등 상부",
   "lower-back": "등 하부",
   trapezius: "승모근",
@@ -56,13 +59,33 @@ const MUSCLE_DISPLAY_NAME: Record<string, string> = {
   abductors: "외전근",
 };
 
-export function MuscleHeatmap({ volumeMap }: MuscleHeatmapProps) {
+import { BottomSheet } from "@/shared/ui";
+import { getMuscleSessions } from "@/entities/exercise/api/getMuscleSessions";
+import type { MuscleSession } from "@/entities/exercise/api/getMuscleSessions";
+
+interface MuscleHeatmapProps {
+  volumeMap: Record<string, { score: number; volume: number }>;
+  startDate?: string;
+  endDate?: string;
+}
+
+export function MuscleHeatmap({
+  volumeMap,
+  startDate,
+  endDate,
+}: MuscleHeatmapProps) {
   const [selectedMuscle, setSelectedMuscle] = React.useState<{
+    id: string;
     name: string;
     volume: number;
     x: number;
     y: number;
   } | null>(null);
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = React.useState(false);
+  const [muscleSessions, setMuscleSessions] = React.useState<MuscleSession[]>(
+    [],
+  );
+  const [isLoadingSessions, setIsLoadingSessions] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const lastMouseEvent = React.useRef<React.MouseEvent | null>(null);
 
@@ -100,6 +123,7 @@ export function MuscleHeatmap({ volumeMap }: MuscleHeatmapProps) {
     if (dataObj && containerRef.current && lastMouseEvent.current) {
       const rect = containerRef.current.getBoundingClientRect();
       setSelectedMuscle({
+        id: muscleKey,
         name: displayName,
         volume: dataObj.volume || 0,
         x: lastMouseEvent.current.clientX - rect.left,
@@ -110,8 +134,29 @@ export function MuscleHeatmap({ volumeMap }: MuscleHeatmapProps) {
 
   // Close tooltip when clicking outside
   const handleContainerClick = (e: React.MouseEvent) => {
+    // Prevent clearing if clicking on tooltip
     if (e.target === e.currentTarget) {
       setSelectedMuscle(null);
+    }
+  };
+
+  const handleTooltipClick = async () => {
+    if (!selectedMuscle || !startDate || !endDate) return;
+
+    setIsBottomSheetOpen(true);
+    setIsLoadingSessions(true);
+    try {
+      const data = await getMuscleSessions({
+        muscleName: selectedMuscle.id,
+        startDate,
+        endDate,
+      });
+      setMuscleSessions(data || []);
+    } catch (e) {
+      console.error(e);
+      setMuscleSessions([]);
+    } finally {
+      setIsLoadingSessions(false);
     }
   };
 
@@ -166,7 +211,8 @@ export function MuscleHeatmap({ volumeMap }: MuscleHeatmapProps) {
       {/* Floating Tooltip */}
       {selectedMuscle && (
         <div
-          className="absolute z-50 pointer-events-none transform -translate-x-1/2 -translate-y-full mb-2 bg-white text-black p-3 rounded-xl shadow-xl animate-in fade-in zoom-in-95 duration-200"
+          onClick={handleTooltipClick}
+          className="absolute z-50 transform -translate-x-1/2 -translate-y-full mb-2 bg-white text-black p-3 rounded-xl shadow-xl animate-in fade-in zoom-in-95 duration-200 cursor-pointer hover:scale-105 transition-transform"
           style={{
             left: selectedMuscle.x,
             top: selectedMuscle.y - 10,
@@ -190,6 +236,86 @@ export function MuscleHeatmap({ volumeMap }: MuscleHeatmapProps) {
           근력 운동 기록이 없습니다. 운동을 시작해보세요!
         </div>
       )}
+
+      <BottomSheet
+        isOpen={isBottomSheetOpen}
+        onClose={() => setIsBottomSheetOpen(false)}
+        title={`${selectedMuscle?.name || ""} 운동 세션 목록`}
+      >
+        <div className="flex flex-col gap-4 mt-2">
+          {isLoadingSessions ? (
+            <div className="text-center text-slate-500 py-10">
+              세션 정보를 불러오는 중입니다...
+            </div>
+          ) : muscleSessions.length === 0 ? (
+            <div className="text-center text-slate-500 py-10">
+              해당 근육의 운동 기록이 없습니다.
+            </div>
+          ) : (
+            muscleSessions.map((session) => (
+              <div
+                key={session.sessionId}
+                className="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex flex-col gap-3"
+              >
+                <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+                  <span className="font-bold text-slate-800">
+                    {session.sessionDate}
+                  </span>
+                  <div className="flex gap-3 text-sm">
+                    <span className="text-slate-500">
+                      볼륨:{" "}
+                      <span className="font-semibold text-slate-700">
+                        {session.totalVolume.toLocaleString()}kg
+                      </span>
+                    </span>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  {session.exercises.map((ex, idx) => {
+                    // Normalize muscle role to Korean if possible
+                    const roleMapping: Record<string, string> = {
+                      TARGET: "주동근",
+                      SYNERGIST: "협응근",
+                      STABILIZER: "보조근",
+                    };
+                    const roleName =
+                      roleMapping[ex.muscleRole?.toUpperCase()] ||
+                      ex.muscleRole;
+
+                    return (
+                      <div
+                        key={idx}
+                        className="flex justify-between items-center bg-white p-2 rounded-xl text-sm shadow-sm"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-slate-700">
+                            {ex.exerciseName}
+                          </span>
+                          <span
+                            className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                              roleName === "주동근"
+                                ? "bg-blue-100 text-blue-600"
+                                : "bg-slate-100 text-slate-500"
+                            }`}
+                          >
+                            {roleName}
+                          </span>
+                        </div>
+                        <div className="flex gap-2 text-slate-500 text-xs">
+                          <span>
+                            기여도 {Math.round(ex.contributionRatio)}%
+                          </span>
+                          <span>{ex.volume.toLocaleString()}kg</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </BottomSheet>
     </div>
   );
 }

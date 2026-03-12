@@ -34,20 +34,24 @@ export default function MyPage() {
     Record<string, { score: number; volume: number }>
   >({});
 
+  const { startDate, endDate } = React.useMemo(() => {
+    const toDate = new Date();
+    const fromDate = new Date();
+    fromDate.setDate(toDate.getDate() - 30);
+    return {
+      startDate: fromDate.toISOString().split("T")[0],
+      endDate: toDate.toISOString().split("T")[0],
+    };
+  }, []);
+
   useEffect(() => {
     const fetchData = async () => {
       if (user) {
-        const toDate = new Date();
-        const fromDate = new Date();
-        fromDate.setDate(toDate.getDate() - 30);
-        const toStr = toDate.toISOString().split("T")[0];
-        const fromStr = fromDate.toISOString().split("T")[0];
-
         try {
           const [latest, all, heatmapData] = await Promise.all([
             getLatestBodyMetric(),
             getBodyMetrics(),
-            getMuscleHeatmap({ startDate: fromStr, endDate: toStr }),
+            getMuscleHeatmap({ startDate, endDate }),
           ]);
           setBodyMetric(latest);
           if (all) setAllMetrics(all);
@@ -181,7 +185,11 @@ export default function MyPage() {
             최근 수행한 운동의 총 볼륨(무게×횟수)을 기준으로 한 근육
             활성도입니다.
           </p>
-          <MuscleHeatmap volumeMap={volumeMap} />
+          <MuscleHeatmap
+            volumeMap={volumeMap}
+            startDate={startDate}
+            endDate={endDate}
+          />
         </section>
 
         {/* 메뉴 리스트 */}
