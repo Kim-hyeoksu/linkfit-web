@@ -127,7 +127,7 @@ export default function MyPage() {
         </section>
 
         {/* 신체 기록 대시보드 */}
-        <section className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col gap-4">
+        <section className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <h3 className="font-bold text-gray-800">최근 신체 기록</h3>
             <div className="flex items-center gap-2">

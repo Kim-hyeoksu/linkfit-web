@@ -184,6 +184,9 @@ export default function BodyMetricsHistoryPage() {
         </div>
 
         {/* 지표 요약 카드 */}
+        <span className="text-xs text-gray-400 flex justify-end">
+          {metrics[0]?.measuredDate} 업데이트
+        </span>
         <div className="grid grid-cols-3 gap-3">
           {insights &&
             Object.values(insights).map((item) => (
@@ -192,24 +195,24 @@ export default function BodyMetricsHistoryPage() {
                 onClick={() => toggleMetric(item.key)}
                 className={`p-3 rounded-2xl flex flex-col gap-1 transition-all border-2 text-left ${
                   activeMetrics.includes(item.key)
-                    ? "bg-white border-blue-100 shadow-sm"
+                    ? "bg-white border-main shadow-sm"
                     : "bg-gray-50 border-transparent opacity-60"
                 }`}
               >
                 <span
-                  className="text-[10px] font-bold"
+                  className="text-[12px] font-bold"
                   style={{ color: item.color }}
                 >
                   {item.label}
                 </span>
                 <div className="flex items-baseline gap-0.5">
-                  <span className="text-sm font-black text-gray-800">
+                  <span className="text-lg font-black text-gray-800">
                     {item.current || "-"}
                   </span>
-                  <span className="text-[9px] text-gray-400">{item.unit}</span>
+                  <span className="text-sm text-gray-400">{item.unit}</span>
                 </div>
                 <div
-                  className={`flex items-center text-[9px] font-bold ${
+                  className={`flex items-center text-sm font-bold ${
                     item.diff.status === "up"
                       ? "text-red-500"
                       : item.diff.status === "down"
