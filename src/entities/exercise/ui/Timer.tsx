@@ -274,6 +274,7 @@ export const Timer = ({
         isOpen={internalShowType === "full"}
         onClose={() => changeShowType("bar")}
         hideHeader
+        backdropClassName="backdrop-blur-none"
       >
         <div className="flex flex-col w-full h-[360px] justify-between items-center pt-2">
           {/* +/- 버튼 */}
