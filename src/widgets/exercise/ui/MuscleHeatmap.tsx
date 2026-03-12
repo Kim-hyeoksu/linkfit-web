@@ -274,9 +274,9 @@ export function MuscleHeatmap({
                   {session.exercises.map((ex, idx) => {
                     // Normalize muscle role to Korean if possible
                     const roleMapping: Record<string, string> = {
-                      TARGET: "주동근",
+                      PRIMARY: "주동근",
+                      SECONDARY: "보조근",
                       SYNERGIST: "협응근",
-                      STABILIZER: "보조근",
                     };
                     const roleName =
                       roleMapping[ex.muscleRole?.toUpperCase()] ||
@@ -302,9 +302,6 @@ export function MuscleHeatmap({
                           </span>
                         </div>
                         <div className="flex gap-2 text-slate-500 text-xs">
-                          <span>
-                            기여도 {Math.round(ex.contributionRatio)}%
-                          </span>
                           <span>{ex.volume.toLocaleString()}kg</span>
                         </div>
                       </div>
