@@ -5,3 +5,4 @@ export { addSessionSet } from "./api/addSessionSet";
 export { deleteSessionSet } from "./api/deleteSessionSet";
 export { completeSession } from "./api/completeSession";
 export { addSessionExercise } from "./api/addSessionExercise";
+export { deleteSessionExercise } from "./api/deleteSessionExercise";
