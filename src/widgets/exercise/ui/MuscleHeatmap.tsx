@@ -62,6 +62,7 @@ const MUSCLE_DISPLAY_NAME: Record<string, string> = {
 import { BottomSheet } from "@/shared/ui";
 import { getMuscleSessions } from "@/entities/exercise/api/getMuscleSessions";
 import type { MuscleSession } from "@/entities/exercise/api/getMuscleSessions";
+import { ArrowUpDown } from "lucide-react";
 
 interface MuscleHeatmapProps {
   volumeMap: Record<string, { score: number; volume: number }>;
@@ -86,6 +87,7 @@ export function MuscleHeatmap({
     [],
   );
   const [isLoadingSessions, setIsLoadingSessions] = React.useState(false);
+  const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">("desc");
   const containerRef = React.useRef<HTMLDivElement>(null);
   const lastMouseEvent = React.useRef<React.MouseEvent | null>(null);
 
@@ -243,6 +245,19 @@ export function MuscleHeatmap({
         title={`${selectedMuscle?.name || ""} 운동 세션 목록`}
       >
         <div className="flex flex-col gap-4 mt-2">
+          {/* Sorting Toggle Button */}
+          <div className="flex justify-end mb-2">
+            <button
+              onClick={() =>
+                setSortOrder((prev) => (prev === "desc" ? "asc" : "desc"))
+              }
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-gray-100 shadow-sm text-[11px] font-bold text-slate-500 hover:text-main hover:border-main transition-all active:scale-95"
+            >
+              <ArrowUpDown size={12} />
+              {sortOrder === "desc" ? "최신순" : "오래된순"}
+            </button>
+          </div>
+
           {isLoadingSessions ? (
             <div className="text-center text-slate-500 py-10">
               세션 정보를 불러오는 중입니다...
@@ -252,64 +267,70 @@ export function MuscleHeatmap({
               해당 근육의 운동 기록이 없습니다.
             </div>
           ) : (
-            muscleSessions.map((session) => (
-              <div
-                key={session.sessionId}
-                className="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex flex-col gap-3"
-              >
-                <div className="flex justify-between items-center border-b border-slate-200 pb-2">
-                  <span className="font-bold text-slate-800">
-                    {session.sessionDate}
-                  </span>
-                  <div className="flex gap-3 text-sm">
-                    <span className="text-slate-500">
-                      볼륨:{" "}
-                      <span className="font-semibold text-slate-700">
-                        {session.totalVolume.toLocaleString()}kg
-                      </span>
+            [...muscleSessions]
+              .sort((a, b) => {
+                const dateA = new Date(a.sessionDate).getTime();
+                const dateB = new Date(b.sessionDate).getTime();
+                return sortOrder === "desc" ? dateB - dateA : dateA - dateB;
+              })
+              .map((session) => (
+                <div
+                  key={session.sessionId}
+                  className="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex flex-col gap-3"
+                >
+                  <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+                    <span className="font-bold text-slate-800">
+                      {session.sessionDate}
                     </span>
+                    <div className="flex gap-3 text-sm">
+                      <span className="text-slate-500">
+                        볼륨:{" "}
+                        <span className="font-semibold text-slate-700">
+                          {session.totalVolume.toLocaleString()}kg
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    {session.exercises.map((ex, idx) => {
+                      // Normalize muscle role to Korean if possible
+                      const roleMapping: Record<string, string> = {
+                        PRIMARY: "주동근",
+                        SECONDARY: "보조근",
+                        SYNERGIST: "협응근",
+                      };
+                      const roleName =
+                        roleMapping[ex.muscleRole?.toUpperCase()] ||
+                        ex.muscleRole;
+
+                      return (
+                        <div
+                          key={idx}
+                          className="flex justify-between items-center bg-white p-2 rounded-xl text-sm shadow-sm"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-slate-700">
+                              {ex.exerciseName}
+                            </span>
+                            <span
+                              className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                                roleName === "주동근"
+                                  ? "bg-blue-100 text-blue-600"
+                                  : "bg-slate-100 text-slate-500"
+                              }`}
+                            >
+                              {roleName}
+                            </span>
+                          </div>
+                          <div className="flex gap-2 text-slate-500 text-xs">
+                            <span>{ex.volume.toLocaleString()}kg</span>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
-                <div className="flex flex-col gap-2">
-                  {session.exercises.map((ex, idx) => {
-                    // Normalize muscle role to Korean if possible
-                    const roleMapping: Record<string, string> = {
-                      PRIMARY: "주동근",
-                      SECONDARY: "보조근",
-                      SYNERGIST: "협응근",
-                    };
-                    const roleName =
-                      roleMapping[ex.muscleRole?.toUpperCase()] ||
-                      ex.muscleRole;
-
-                    return (
-                      <div
-                        key={idx}
-                        className="flex justify-between items-center bg-white p-2 rounded-xl text-sm shadow-sm"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-slate-700">
-                            {ex.exerciseName}
-                          </span>
-                          <span
-                            className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                              roleName === "주동근"
-                                ? "bg-blue-100 text-blue-600"
-                                : "bg-slate-100 text-slate-500"
-                            }`}
-                          >
-                            {roleName}
-                          </span>
-                        </div>
-                        <div className="flex gap-2 text-slate-500 text-xs">
-                          <span>{ex.volume.toLocaleString()}kg</span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ))
+              ))
           )}
         </div>
       </BottomSheet>
