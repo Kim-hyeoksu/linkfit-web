@@ -317,7 +317,7 @@ export default function PlanClient({
 
       <div
         ref={wrapperRef}
-        className="overflow-y-auto px-4 pt-4 scroll-smooth"
+        className="overflow-y-auto px-4 pt-4 scroll-smooth scrollbar-hide"
         style={{
           height: `calc(100vh - 60px - ${
             showType === "full" ? TIMER_HEIGHT : 0

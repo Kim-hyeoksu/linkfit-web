@@ -93,12 +93,25 @@ export const ExerciseCard = ({
       onClick={() => onClickExercise(exerciseId)}
     >
       <div
-        className={`px-5 pt-5 transition-all duration-300 ${isExpanded ? "pb-5" : "pb-4"}`}
+        className={`px-4 pt-4 transition-all duration-300 ${isExpanded ? "pb-5" : "pb-4"}`}
       >
         {/* Header */}
         <div
           className={`flex justify-between items-start transition-all duration-300 ${isExpanded ? "mb-6" : "mb-0"}`}
         >
+          {/* 접기/펴기 버튼 */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsExpanded(!isExpanded);
+            }}
+            className="p-1 hover:bg-slate-50 rounded-lg transition-colors mr-2"
+          >
+            <ChevronDown
+              size={24}
+              className={`text-slate-400 transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}
+            />
+          </button>
           <div className="flex-grow space-y-1.5">
             <h2 className="text-[20px] font-extrabold text-[#1e293b] leading-tight tracking-tight">
               {exerciseName}
@@ -149,19 +162,6 @@ export const ExerciseCard = ({
                 />
               </button>
             )}
-            {/* 접기/펴기 버튼 */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsExpanded(!isExpanded);
-              }}
-              className="p-1 hover:bg-slate-50 rounded-lg transition-colors"
-            >
-              <ChevronDown
-                size={24}
-                className={`text-slate-400 transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}
-              />
-            </button>
           </div>
         </div>
 
