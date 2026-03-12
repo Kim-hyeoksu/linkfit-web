@@ -11,8 +11,6 @@ export const StandalonePlanCard = ({ plan }: Props) => {
       href={`/workout/plans/${plan.id}`}
       className="flex flex-col p-5 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-slate-200 transition-all active:scale-[0.98] group relative overflow-hidden"
     >
-      <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-slate-200 group-hover:bg-main transition-colors" />
-
       <div className="flex items-start justify-between mb-3 pl-1">
         <h3 className="text-[17px] font-bold text-slate-800 leading-tight pr-4">
           {plan.title}
