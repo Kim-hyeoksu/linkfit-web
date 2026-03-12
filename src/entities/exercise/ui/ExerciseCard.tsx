@@ -67,12 +67,12 @@ export const ExerciseCard = ({
 
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // 현재 진행 중인 세트가 있는 운동은 자동으로 펼침 상태 유지 (세션 시)
+  // 포커스된 운동은 자동으로 펼침 상태 유지
   useEffect(() => {
-    if (isCurrent && isSessionStarted) {
+    if (isCurrent) {
       setIsExpanded(true);
     }
-  }, [isCurrent, isSessionStarted]);
+  }, [isCurrent]);
 
   const toggleChecked = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
@@ -90,7 +90,10 @@ export const ExerciseCard = ({
           ? "border-main shadow-md transform scale-[1.01] z-10"
           : "border-transparent hover:border-slate-200"
       }`}
-      onClick={() => onClickExercise(exerciseId)}
+      onClick={() => {
+        onClickExercise(exerciseId);
+        setIsExpanded(true);
+      }}
     >
       <div
         className={`px-4 pt-4 transition-all duration-300 ${isExpanded ? "pb-5" : "pb-4"}`}

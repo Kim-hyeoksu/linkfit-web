@@ -150,19 +150,21 @@ export default function PlanClient({
   // ✅ View Helper Logic
   const handleExerciseClick = React.useCallback(
     (id: number) => {
-      if (startTrigger === 0) return;
       setCurrentExerciseId(id);
-      setTimeout(() => {
-        const el = exerciseRefs.current.get(id);
-        if (el && wrapperRef.current) {
-          wrapperRef.current.scrollTo({
-            top: el.offsetTop - 56,
-            behavior: "smooth",
-          });
-        }
-      }, 50);
+      // 포커스가 바뀌면서 이전 운동이 접히고 현재 운동이 펼쳐지는 등 레이아웃 변화를 기다립니다.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const el = exerciseRefs.current.get(id);
+          if (el && wrapperRef.current) {
+            wrapperRef.current.scrollTo({
+              top: el.offsetTop - 70,
+              behavior: "smooth",
+            });
+          }
+        });
+      });
     },
-    [startTrigger, setCurrentExerciseId],
+    [setCurrentExerciseId],
   );
 
   const handleNextSet = React.useCallback(
