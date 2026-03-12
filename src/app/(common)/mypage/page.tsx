@@ -6,8 +6,8 @@ import { userState } from "@/entities/user/model/userState";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { accessTokenState } from "@/features/auth/model/accessTokenState";
-import { Header } from "@/shared";
 import { User, LogOut, ChevronRight, Settings } from "lucide-react";
+import { ConfirmModal, Header } from "@/shared";
 import { getLatestBodyMetric } from "@/entities/user/api/getLatestBodyMetric";
 import { getBodyMetrics } from "@/entities/user/api/getBodyMetrics";
 import { BodyMetric } from "@/entities/user/model/types";
@@ -33,6 +33,7 @@ export default function MyPage() {
   const [volumeMap, setVolumeMap] = useState<
     Record<string, { score: number; volume: number }>
   >({});
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
 
   const { startDate, endDate } = React.useMemo(() => {
     const toDate = new Date();
@@ -65,13 +66,15 @@ export default function MyPage() {
   }, [user]);
 
   const handleLogout = () => {
-    if (confirm("정말 로그아웃 하시겠습니까?")) {
-      sessionStorage.removeItem("accessToken");
-      sessionStorage.removeItem("refreshToken");
-      setAccessToken(null);
-      setUser(null);
-      router.push("/login");
-    }
+    setIsLogoutConfirmOpen(true);
+  };
+
+  const confirmLogout = () => {
+    sessionStorage.removeItem("accessToken");
+    sessionStorage.removeItem("refreshToken");
+    setAccessToken(null);
+    setUser(null);
+    router.push("/login");
   };
 
   if (!user) {
@@ -223,6 +226,16 @@ export default function MyPage() {
           앱 버전 1.0.0
         </div>
       </main>
+
+      <ConfirmModal
+        isOpen={isLogoutConfirmOpen}
+        onClose={() => setIsLogoutConfirmOpen(false)}
+        onConfirm={confirmLogout}
+        title="로그아웃"
+        description="정말 로그아웃 하시겠습니까?"
+        confirmText="로그아웃"
+        confirmButtonClassName="bg-red-500 text-white"
+      />
     </div>
   );
 }

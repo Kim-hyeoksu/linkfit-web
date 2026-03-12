@@ -115,12 +115,23 @@ export default function PlanClient({
     }
   };
 
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [exerciseToDelete, setExerciseToDelete] = useState<number | null>(null);
+
   const handleDeleteExerciseCombined = (exerciseId: number) => {
+    setExerciseToDelete(exerciseId);
+    setIsDeleteConfirmOpen(true);
+  };
+
+  const confirmDeleteExercise = () => {
+    if (exerciseToDelete === null) return;
     if (isSessionStarted) {
-      handleDeleteExercise(exerciseId);
+      handleDeleteExercise(exerciseToDelete);
     } else {
-      handleDeleteExerciseFromPlan(exerciseId);
+      handleDeleteExerciseFromPlan(exerciseToDelete);
     }
+    setIsDeleteConfirmOpen(false);
+    setExerciseToDelete(null);
   };
 
   // UI 상태 관리
@@ -415,6 +426,18 @@ export default function PlanClient({
         cancelText="취소"
         isConfirmLoading={isEndConfirmLoading}
         onConfirm={handleConfirmEndWorkout}
+      />
+      <ConfirmModal
+        isOpen={isDeleteConfirmOpen}
+        onClose={() => {
+          setIsDeleteConfirmOpen(false);
+          setExerciseToDelete(null);
+        }}
+        onConfirm={confirmDeleteExercise}
+        title="운동 삭제"
+        description="이 운동을 삭제하시겠습니까? 등록된 모든 세트 기록이 사라집니다."
+        confirmText="삭제"
+        confirmButtonClassName="bg-red-500 text-white"
       />
       <Modal
         isOpen={isExerciseSelectorOpen}

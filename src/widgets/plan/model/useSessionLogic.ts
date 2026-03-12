@@ -386,11 +386,8 @@ export const useSessionLogic = (
     }
   };
 
-  // 운동 삭제 (서버 연동)
   const handleDeleteExercise = async (sessionExerciseId: number) => {
     if (!sessionState.isSessionStarted || !sessionState.sessionId) return;
-
-    if (!confirm("이 운동을 삭제하시겠습니까?")) return;
 
     try {
       const response = await deleteSessionExercise(sessionExerciseId);
