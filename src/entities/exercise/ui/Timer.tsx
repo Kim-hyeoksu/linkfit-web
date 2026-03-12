@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 
 import Image from "next/image";
+import { BottomSheet } from "@/shared";
 
 declare global {
   interface Window {
@@ -202,23 +203,6 @@ export const Timer = ({
     )}`;
   };
 
-  useEffect(() => {
-    if (internalShowType !== "full") return;
-
-    const handleClickOutside = (event: MouseEvent) => {
-      if (!wrapperRef.current) return;
-      // 타이머 영역 안에서의 클릭은 무시
-      if (wrapperRef.current.contains(event.target as Node)) return;
-
-      changeShowType("bar"); // 영역 밖 클릭 시만 닫기
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [internalShowType, changeShowType]);
-
   const handleWrapperClick = () => {
     if (internalShowType === "bar") {
       changeShowType("full");
@@ -231,8 +215,8 @@ export const Timer = ({
       onClick={handleWrapperClick}
       className="transition-all duration-500 ease-in-out"
     >
-      {internalShowType === "bar" ? (
-        <div className="fixed bottom-4 left-4 right-4 backdrop-blur-xl bg-white/80 border border-slate-200/50 flex h-[72px] items-center justify-between px-5 z-[100] gap-[16px] rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.08)] animate-in slide-in-from-bottom-5">
+      {internalShowType === "bar" && (
+        <div className="fixed bottom-4 left-4 right-4 backdrop-blur-xl bg-white/80 border border-slate-200/50 flex h-[72px] items-center justify-between px-5 z-[100] gap-[16px] rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.08)] animate-in slide-in-from-bottom-5 transition-all active:scale-95 cursor-pointer">
           <div
             className={`text-[16px] font-black h-[44px] w-[100px] rounded-2xl flex items-center justify-center transition-all duration-300 shadow-sm ${
               isRunning
@@ -255,7 +239,10 @@ export const Timer = ({
           {!isSessionStarted ? (
             <button
               className="flex-1 h-[44px] flex items-center justify-center rounded-2xl bg-main text-white font-black text-[15px] shadow-sm shadow-blue-100 hover:shadow-md transition-all active:scale-95"
-              onClick={onStartWorkout}
+              onClick={(e) => {
+                e.stopPropagation();
+                onStartWorkout?.();
+              }}
             >
               운동 시작
             </button>
@@ -281,12 +268,16 @@ export const Timer = ({
             </button>
           )}
         </div>
-      ) : (
-        <div className="flex flex-col w-full px-6 h-[400px] justify-between items-center fixed bottom-0 bg-white/95 backdrop-blur-2xl left-0 right-0 pt-8 pb-10 z-[110] border-t border-slate-200/60 rounded-t-[40px] shadow-[0_-10px_40px_rgba(0,0,0,0.05)] animate-in slide-in-from-bottom-full duration-500 ease-out">
-          <div className="w-12 h-1.5 bg-slate-200 rounded-full mb-2 opacity-50" />
+      )}
 
+      <BottomSheet
+        isOpen={internalShowType === "full"}
+        onClose={() => changeShowType("bar")}
+        hideHeader
+      >
+        <div className="flex flex-col w-full h-[360px] justify-between items-center pt-2">
           {/* +/- 버튼 */}
-          <div className="w-full flex justify-between px-4">
+          <div className="w-full flex justify-between px-4 mt-2">
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -313,8 +304,8 @@ export const Timer = ({
               className="flex justify-center items-center rounded-full w-[180px] h-[180px] transition-all duration-300"
               style={{
                 background: `conic-gradient(
-                  #0ea5e9 ${(remainingMs / totalMs) * 100}%,
-                  #f1f5f9 ${(remainingMs / totalMs) * 100}% 100%
+                  #0ea5e9 ${(remainingMs / (totalMs || 1)) * 100}%,
+                  #f1f5f9 ${(remainingMs / (totalMs || 1)) * 100}% 100%
                 )`,
                 boxShadow:
                   "inset 0 0 20px rgba(0,0,0,0.02), 0 10px 30px rgba(14, 165, 233, 0.1)",
@@ -332,7 +323,7 @@ export const Timer = ({
           </div>
 
           {/* 리셋 및 컨트롤 버튼 */}
-          <div className="w-full flex gap-4 px-4">
+          <div className="w-full flex gap-4 px-4 pb-4">
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -360,7 +351,7 @@ export const Timer = ({
             </button>
           </div>
         </div>
-      )}
+      </BottomSheet>
     </div>
   );
 };
