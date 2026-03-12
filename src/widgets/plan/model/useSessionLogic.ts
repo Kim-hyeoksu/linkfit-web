@@ -8,6 +8,7 @@ import {
   deleteSessionSet,
   completeSession,
   addSessionExercise,
+  deleteSessionExercise,
 } from "@/features/session-control";
 import type { ActiveSessionDto, StartSessionRequest } from "@/entities/session";
 import type { PlanDetailDto } from "@/entities/plan";
@@ -385,6 +386,38 @@ export const useSessionLogic = (
     }
   };
 
+  // 운동 삭제 (서버 연동)
+  const handleDeleteExercise = async (sessionExerciseId: number) => {
+    if (!sessionState.isSessionStarted || !sessionState.sessionId) return;
+
+    if (!confirm("이 운동을 삭제하시겠습니까?")) return;
+
+    try {
+      const response = await deleteSessionExercise(sessionExerciseId);
+      if (response && response.exercises) {
+        const normalized = normalizeExercises(response);
+        setExercises(normalized);
+
+        // 포커스 유지 또는 변경
+        if (currentExerciseId === sessionExerciseId) {
+          if (normalized.length > 0) {
+            setCurrentExerciseId(normalized[0].sessionExerciseId);
+            if (normalized[0].sets && normalized[0].sets.length > 0) {
+              setCurrentExerciseSetId(normalized[0].sets[0].id);
+            }
+          } else {
+            setCurrentExerciseId(-1);
+            setCurrentExerciseSetId(-1);
+          }
+        }
+        showToast("운동이 삭제되었습니다.", "success");
+      }
+    } catch (error) {
+      console.error("세션 운동 삭제 실패:", error);
+      showToast("운동 삭제에 실패했습니다.", "error");
+    }
+  };
+
   // 운동 종료
   const handleSave = async () => {
     if (!sessionState.sessionId) return;
@@ -438,6 +471,7 @@ export const useSessionLogic = (
     handleSave,
     handleUpdateDefault,
     handleAddExercise,
+    handleDeleteExercise,
     handleSaveSet,
   };
 };

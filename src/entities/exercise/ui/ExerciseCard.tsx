@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { Check, Edit2, Plus, Minus, ChevronDown } from "lucide-react";
+import { Check, Edit2, Plus, Minus, ChevronDown, Trash2 } from "lucide-react";
 import type { ClientSet, ClientExercise } from "../model/types";
 
 interface ExerciseProps {
@@ -20,6 +20,7 @@ interface ExerciseProps {
     values: { weight: number; reps: number },
   ) => void;
   onDeleteSet: (sessionExerciseId: number, setId: number) => void;
+  onDeleteExercise: (sessionExerciseId: number) => void;
   onToggleEdit?: () => void;
   isSessionStarted?: boolean;
   onSaveSet?: (sessionExerciseId: number, setId: number) => void;
@@ -41,6 +42,7 @@ export const ExerciseCard = ({
   onClickSetCheckBtn,
   onUpdateSet,
   onDeleteSet,
+  onDeleteExercise,
   onToggleEdit,
   onSaveSet,
   onUpdateDefault,
@@ -132,6 +134,21 @@ export const ExerciseCard = ({
                 className="object-cover w-full h-full transform transition-transform duration-500 hover:scale-110"
               />
             </div>
+            {/* 삭제 버튼 */}
+            {(isEditing || isSessionStarted) && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDeleteExercise(exerciseId);
+                }}
+                className="p-1 hover:bg-red-50 rounded-lg transition-colors group"
+              >
+                <Trash2
+                  size={20}
+                  className="text-slate-300 group-hover:text-red-500 transition-colors"
+                />
+              </button>
+            )}
             {/* 접기/펴기 버튼 */}
             <button
               onClick={(e) => {

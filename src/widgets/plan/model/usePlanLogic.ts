@@ -151,6 +151,13 @@ export const usePlanLogic = (
     );
   };
 
+  // 플랜 모드: 운동 삭제 (로컬 상태만 업데이트)
+  const handleDeleteExerciseFromPlan = (exerciseId: number | string) => {
+    setExercises((prev) =>
+      prev.filter((ex) => ex.sessionExerciseId !== exerciseId),
+    );
+  };
+
   return {
     isEditing,
     isUpdating,
@@ -160,5 +167,6 @@ export const usePlanLogic = (
     handleAddExerciseToPlan,
     handleAddSetToPlan,
     handleDeleteSetFromPlan,
+    handleDeleteExerciseFromPlan,
   };
 };

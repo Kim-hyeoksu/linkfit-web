@@ -53,6 +53,7 @@ export default function PlanClient({
     handleSave,
     handleUpdateDefault,
     handleAddExercise,
+    handleDeleteExercise,
     handleSaveSet,
   } = useSessionLogic(initialPlanDetail, initialExercises);
 
@@ -66,6 +67,7 @@ export default function PlanClient({
     handleAddExerciseToPlan,
     handleAddSetToPlan,
     handleDeleteSetFromPlan,
+    handleDeleteExerciseFromPlan,
   } = usePlanLogic(initialPlanDetail, setExercises);
 
   const [isExerciseSelectorOpen, setIsExerciseSelectorOpen] = useState(false);
@@ -110,6 +112,14 @@ export default function PlanClient({
       handleDeleteSet(exerciseId, setId);
     } else {
       handleDeleteSetFromPlan(exerciseId, setId);
+    }
+  };
+
+  const handleDeleteExerciseCombined = (exerciseId: number) => {
+    if (isSessionStarted) {
+      handleDeleteExercise(exerciseId);
+    } else {
+      handleDeleteExerciseFromPlan(exerciseId);
     }
   };
 
@@ -339,6 +349,7 @@ export default function PlanClient({
                   onUpdateSet={handleUpdateSet}
                   onSaveSet={handleSaveSet}
                   onDeleteSet={handleDeleteSetCombined}
+                  onDeleteExercise={handleDeleteExerciseCombined}
                   onUpdateDefault={handleUpdateDefault}
                   onToggleEdit={() => setIsEditing((prev: boolean) => !prev)}
                 />
