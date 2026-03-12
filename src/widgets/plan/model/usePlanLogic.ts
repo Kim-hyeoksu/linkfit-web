@@ -77,6 +77,7 @@ export const usePlanLogic = (
       targetSets,
       targetReps,
       targetWeight,
+      targetRestSeconds,
       restSeconds: targetRestSeconds,
       orderIndex: currentExercisesLength,
       sets: [],

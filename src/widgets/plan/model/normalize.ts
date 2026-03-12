@@ -31,6 +31,10 @@ export const normalizeExercises = (
         targetReps: exercise.targetReps ?? 0,
         targetSets: exercise.targetSets ?? 0,
         targetWeight: exercise.targetWeight ?? 0,
+        targetRestSeconds:
+          exercise.targetRestSeconds ??
+          (exercise as { targetRestSeconds?: number }).targetRestSeconds ??
+          0,
         sets: exercise.sets.map(
           (s: Record<string, unknown>, index: number) => ({
             id: (s.id as number) ?? -(Date.now() + index),
