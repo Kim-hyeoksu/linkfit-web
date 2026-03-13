@@ -1,6 +1,6 @@
 import { OnboardingData } from "../../model/types";
 import { StepLayout } from "./StepLayout";
-import { AnimatedLottie } from "../AnimatedLottie";
+import { LottiePlayer } from "@/shared";
 
 interface Props {
   data: OnboardingData;
@@ -42,7 +42,7 @@ export const ExerciseLevelStep = ({ data, updateData, onNext }: Props) => {
         </div>
 
         <div className="flex justify-center -mx-5 -my-6">
-          <AnimatedLottie
+          <LottiePlayer
             url="https://lottie.host/8c37905c-7fa8-47ea-b5c2-dba2c81ccf93/l0z2HaSBwO.json"
             className="w-full h-auto"
           />

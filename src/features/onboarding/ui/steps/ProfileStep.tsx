@@ -3,8 +3,7 @@ import Image from "next/image";
 import { Camera } from "lucide-react";
 import { OnboardingData } from "../../model/types";
 import { StepLayout } from "./StepLayout";
-import { AnimatedLottie } from "../AnimatedLottie";
-
+import { LottiePlayer } from "@/shared";
 interface Props {
   data: OnboardingData;
   updateData: (fields: Partial<OnboardingData>) => void;
@@ -42,8 +41,8 @@ export const ProfileStep = ({ data, updateData, onNext }: Props) => {
         </div>
 
         <div className="flex justify-center -mx-5 -my-4">
-          <AnimatedLottie
-            url="https://lottie.host/d860a8d7-3cc3-4f31-a6bc-a8193a2eceb0/OQJJYUs9Iy.json"
+          <LottiePlayer
+            url="https://lottie.host/4e8c7831-8b14-4345-8e0d-d595e5d4f082/ptoTwPih8K.lottie"
             className="w-full h-auto"
           />
         </div>

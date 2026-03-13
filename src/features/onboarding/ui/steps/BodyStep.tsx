@@ -1,7 +1,6 @@
 import { OnboardingData } from "../../model/types";
 import { StepLayout } from "./StepLayout";
-import { AnimatedLottie } from "../AnimatedLottie";
-
+import { LottiePlayer } from "@/shared";
 interface Props {
   data: OnboardingData;
   updateData: (fields: Partial<OnboardingData>) => void;
@@ -28,8 +27,8 @@ export const BodyStep = ({ data, updateData, onNext }: Props) => {
         </div>
 
         <div className="flex justify-center -mx-5 -my-4">
-          <AnimatedLottie
-            url="https://lottie.host/6f44310f-8e56-46ba-8044-af60799fa22c/OJu4TaqU0E.json"
+          <LottiePlayer
+            url="https://lottie.host/72e987ff-f167-4f42-a161-e4baf34381b9/TRMEFd5k8O.lottie"
             className="w-full h-auto"
           />
         </div>

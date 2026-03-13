@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatedLottie } from "../AnimatedLottie";
+import { LottiePlayer } from "@/shared";
 import { StepLayout } from "./StepLayout";
 
 interface Props {
@@ -23,7 +23,7 @@ export const CompleteStep = ({ onNext, mode = "signup" }: Props) => {
 
         <div className="flex-1 max-w-[280px] w-full flex items-center justify-center">
           {/* 완료 로티 애니메이션 */}
-          <AnimatedLottie
+          <LottiePlayer
             url="/images/success.json"
             className="w-[200px] h-[200px]"
           />
