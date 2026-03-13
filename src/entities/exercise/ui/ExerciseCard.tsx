@@ -2,7 +2,17 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { Check, Edit2, Plus, Minus, ChevronDown, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import {
+  Check,
+  Edit2,
+  Plus,
+  Minus,
+  ChevronDown,
+  Trash2,
+  MoreVertical,
+  History,
+} from "lucide-react";
 import type { ClientSet, ClientExercise } from "../model/types";
 
 interface ExerciseProps {
@@ -48,6 +58,8 @@ export const ExerciseCard = ({
   onUpdateDefault,
   isSessionStarted = false,
 }: ExerciseProps) => {
+  const router = useRouter();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const exerciseId = exercise.sessionExerciseId;
   const exerciseName = exercise.exerciseName;
 
@@ -85,7 +97,7 @@ export const ExerciseCard = ({
 
   return (
     <div
-      className={`relative bg-white rounded-[24px] shadow-sm transition-all duration-300 border-[1.5px] overflow-hidden ${
+      className={`relative bg-white rounded-[24px] shadow-sm transition-all duration-300 border-[1.5px] ${
         isCurrent
           ? "border-main shadow-md transform scale-[1.01] z-10"
           : "border-transparent hover:border-slate-200"
@@ -102,40 +114,23 @@ export const ExerciseCard = ({
         <div
           className={`flex justify-between items-start transition-all duration-300 ${isExpanded ? "mb-6" : "mb-0"}`}
         >
-          {/* 접기/펴기 버튼 */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsExpanded(!isExpanded);
-            }}
-            className="p-1 hover:bg-slate-50 rounded-lg transition-colors mr-2"
-          >
-            <ChevronDown
-              size={24}
-              className={`text-slate-400 transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}
-            />
-          </button>
-          <div className="flex-grow space-y-1.5">
-            <h2 className="text-[20px] font-extrabold text-[#1e293b] leading-tight tracking-tight">
-              {exerciseName}
-            </h2>
-            <div className="flex flex-wrap gap-1 items-center">
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 uppercase tracking-wider">
-                {exercise.bodyPart ?? "전신"}
-              </span>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#eff6ff] text-main uppercase tracking-wider">
-                {sets?.length} SETS
-              </span>
-              {!isExpanded && completedSetsCount > 0 && (
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-green-50 text-green-600 uppercase tracking-wider animate-in fade-in zoom-in duration-300">
-                  {completedSetsCount}/{sets?.length} DONE
-                </span>
-              )}
-            </div>
-          </div>
+          <div className="flex items-center gap-2 ">
+            {/* 접기/펴기 버튼 */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsExpanded(!isExpanded);
+              }}
+              className="p-1 hover:bg-slate-50 rounded-lg transition-colors"
+            >
+              <ChevronDown
+                size={22}
+                className={`text-slate-400 transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}
+              />
+            </button>
 
-          <div className="flex items-start gap-2">
-            <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-inner bg-slate-100 border border-slate-50 shrink-0">
+            {/* 운동 이미지 위치 이동 */}
+            <div className="w-12 h-12 rounded-xl overflow-hidden shadow-inner bg-slate-100 border border-slate-50 shrink-0">
               <Image
                 src={
                   exercise.exerciseImagePath
@@ -144,28 +139,82 @@ export const ExerciseCard = ({
                       : `${process.env.NEXT_PUBLIC_API_URL}${exercise.exerciseImagePath}`
                     : "/next.svg"
                 }
-                width={64}
-                height={64}
+                width={48}
+                height={48}
                 alt={exerciseName}
-                className="object-cover w-full h-full transform transition-transform duration-500 hover:scale-110"
+                className="object-cover w-full h-full"
               />
             </div>
-            {/* 삭제 버튼 */}
-            {(isEditing || isSessionStarted) && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDeleteExercise(exerciseId);
-                }}
-                className="p-1 hover:bg-red-50 rounded-lg transition-colors group"
-              >
-                <Trash2
-                  size={20}
-                  className="text-slate-300 group-hover:text-red-500 transition-colors"
-                />
-              </button>
-            )}
           </div>
+
+          <div className="flex-grow ml-3 space-y-1">
+            <h2 className="text-[18px] font-extrabold text-[#1e293b] leading-tight tracking-tight">
+              {exerciseName}
+            </h2>
+            <div className="flex flex-wrap gap-1 items-center">
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 uppercase tracking-wider">
+                {exercise.bodyPart ?? "전신"}
+              </span>
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#eff6ff] text-main uppercase tracking-wider">
+                {sets?.length} SETS
+              </span>
+              {!isExpanded && completedSetsCount > 0 && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-50 text-green-600 uppercase tracking-wider">
+                  {completedSetsCount}/{sets?.length} DONE
+                </span>
+              )}
+            </div>
+          </div>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsMenuOpen(!isMenuOpen);
+            }}
+            className="p-2 hover:bg-slate-50 rounded-full transition-colors text-slate-400 relative"
+          >
+            <MoreVertical size={22} />
+
+            {/* Dropdown Menu */}
+            {isMenuOpen && (
+              <>
+                <div
+                  className="fixed inset-0 z-20"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsMenuOpen(false);
+                  }}
+                />
+                <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-xl shadow-xl border border-slate-100 py-1.5 z-100 animate-in fade-in zoom-in-95 duration-200 origin-top-right">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsMenuOpen(false);
+                      router.push(`/exercises/history/${exercise.exerciseId}`);
+                    }}
+                    className="flex items-center gap-3 w-full px-4 py-2.5 hover:bg-slate-50 text-slate-700 transition-colors text-sm font-bold"
+                  >
+                    <History size={16} className="text-blue-500" />
+                    <span>운동 히스토리</span>
+                  </button>
+
+                  {(isEditing || isSessionStarted) && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsMenuOpen(false);
+                        onDeleteExercise(exerciseId);
+                      }}
+                      className="flex items-center gap-3 w-full px-4 py-2.5 hover:bg-red-50 text-red-500 transition-colors text-sm font-bold"
+                    >
+                      <Trash2 size={16} />
+                      <span>운동 삭제하기</span>
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
+          </button>
         </div>
 
         {/* 접고 펼쳐지는 영역 */}
