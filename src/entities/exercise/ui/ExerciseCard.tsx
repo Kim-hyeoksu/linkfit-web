@@ -185,7 +185,7 @@ export const ExerciseCard = ({
                     setIsMenuOpen(false);
                   }}
                 />
-                <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-xl shadow-xl border border-slate-100 py-1.5 z-100 animate-in fade-in zoom-in-95 duration-200 origin-top-right">
+                <div className="absolute right-[-10px] top-full mt-1 w-48 bg-white rounded-xl shadow-xl border border-slate-100 py-1.5 z-100 animate-in fade-in zoom-in-95 duration-200 origin-top-right">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
