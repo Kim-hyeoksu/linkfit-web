@@ -94,7 +94,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
               </div>
             )}
 
-            <div className="flex-grow overflow-y-auto px-6 pb-10">
+            <div className="flex-grow overflow-y-auto px-5 pb-5">
               {children}
             </div>
           </motion.div>

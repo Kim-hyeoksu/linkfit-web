@@ -216,9 +216,9 @@ export const Timer = ({
       className="transition-all duration-500 ease-in-out"
     >
       {internalShowType === "bar" && (
-        <div className="fixed bottom-4 left-4 right-4 backdrop-blur-xl bg-white/80 border border-slate-200/50 flex h-[72px] items-center justify-between px-5 z-[100] gap-[16px] rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.08)] animate-in slide-in-from-bottom-5 transition-all active:scale-95 cursor-pointer">
+        <div className="fixed bottom-4 left-4 right-4 backdrop-blur-xl bg-white/80 border border-slate-200/50 flex h-[80px] items-center justify-between px-5 z-[100] gap-[16px] rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.08)] animate-in slide-in-from-bottom-5 transition-all active:scale-95 cursor-pointer">
           <div
-            className={`text-[16px] font-black h-[44px] w-[100px] rounded-2xl flex items-center justify-center transition-all duration-300 shadow-sm ${
+            className={`text-[16px] font-black h-[50px] w-[100px] rounded-2xl flex items-center justify-center transition-all duration-300 shadow-sm ${
               isRunning
                 ? "bg-main text-white shadow-blue-200 ring-4 ring-blue-50"
                 : "bg-slate-100 text-slate-400 border border-slate-100"
@@ -238,7 +238,7 @@ export const Timer = ({
           </div>
           {!isSessionStarted ? (
             <button
-              className="flex-1 h-[44px] flex items-center justify-center rounded-2xl bg-main text-white font-black text-[15px] shadow-sm shadow-blue-100 hover:shadow-md transition-all active:scale-95"
+              className="flex-1 h-[50px] flex items-center justify-center rounded-2xl bg-main text-white font-black text-[15px] shadow-sm shadow-blue-100 hover:shadow-md transition-all active:scale-95"
               onClick={(e) => {
                 e.stopPropagation();
                 onStartWorkout?.();
@@ -253,7 +253,7 @@ export const Timer = ({
                 stopTimer();
                 setRemainingMs(0);
               }}
-              className="flex-1 h-[44px] flex items-center justify-center rounded-2xl bg-slate-100 text-slate-600 font-bold text-[14px] hover:bg-slate-200 transition-all active:scale-95"
+              className="flex-1 h-[50px] flex items-center justify-center rounded-2xl bg-slate-100 text-slate-600 font-bold text-[14px] hover:bg-slate-200 transition-all active:scale-95"
             >
               타이머 스킵
             </button>
@@ -263,7 +263,7 @@ export const Timer = ({
                 e.stopPropagation();
                 onCompleteSet(currentExerciseId, currentExerciseSetId);
               }}
-              className="flex-1 h-[44px] flex items-center justify-center rounded-2xl bg-main text-white font-black text-[15px] shadow-sm shadow-blue-100 hover:shadow-md transition-all active:scale-95"
+              className="flex-1 h-[50px] flex items-center justify-center rounded-2xl bg-main text-white font-black text-[15px] shadow-sm shadow-blue-100 hover:shadow-md transition-all active:scale-95"
             >
               현재 세트 완료
             </button>
