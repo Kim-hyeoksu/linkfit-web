@@ -5,6 +5,7 @@ export interface Program {
   level: "beginner" | "intermediate" | "advanced";
   dayNumber: number;
   likeCount: number;
+  isRecent?: boolean;
 }
 
 export interface ProgramPlanSetCreateRequest {

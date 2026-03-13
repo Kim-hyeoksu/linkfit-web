@@ -12,6 +12,7 @@ export default function PopularProgramsPage() {
   const [isLast, setIsLast] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -56,7 +57,11 @@ export default function PopularProgramsPage() {
       <div className="p-5 bg-white gap-3 flex flex-col flex-1">
         <div className="gap-3 flex flex-col">
           {programs.map((program) => (
-            <ProgramCard key={program.id} {...program} />
+            <ProgramCard
+              key={program.id}
+              {...program}
+              isRecent={program.isRecent}
+            />
           ))}
         </div>
 

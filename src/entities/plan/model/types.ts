@@ -46,6 +46,7 @@ export type PlanListItemResponse = {
   totalVolume: number;
   programId: number;
   weekNumber: number;
+  isRecent?: boolean;
 };
 export interface PlanListResponse {
   programId: number;

@@ -104,7 +104,11 @@ export const StandalonePlanList = ({
 
       <div className="flex flex-col gap-[14px]">
         {plans.map((plan) => (
-          <StandalonePlanCard key={plan.id} plan={plan} />
+          <StandalonePlanCard
+            key={plan.id}
+            plan={plan}
+            isRecent={plan.isRecent}
+          />
         ))}
       </div>
     </div>

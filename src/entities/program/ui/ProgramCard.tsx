@@ -2,22 +2,34 @@ import { Program } from "../";
 import Link from "next/link";
 import { Heart, ChevronRight } from "lucide-react";
 
+interface Props extends Program {
+  isRecent?: boolean;
+}
+
 export const ProgramCard = ({
   id,
   programName,
   period,
   dayNumber,
   likeCount,
-}: Program) => {
+  isRecent,
+}: Props) => {
   return (
     <Link
       href={`/workout/programs/${id}/1`}
       className="flex items-center justify-between p-5 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-blue-100 transition-all active:scale-[0.98] group"
     >
       <div className="flex flex-col">
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-blue-50 text-blue-600 text-[11px] font-bold mb-2 w-fit">
-          {dayNumber}일차
-        </span>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-blue-50 text-blue-600 text-[11px] font-bold w-fit">
+            {dayNumber}일차
+          </span>
+          {isRecent && (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-amber-50 text-amber-600 text-[11px] font-bold w-fit border border-amber-100">
+              최근 완료
+            </span>
+          )}
+        </div>
         <h3 className="text-[17px] font-bold text-slate-800 leading-tight mb-1">
           {programName}
         </h3>

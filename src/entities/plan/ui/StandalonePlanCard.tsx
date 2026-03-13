@@ -3,18 +3,26 @@ import Link from "next/link";
 
 interface Props {
   plan: PlanListItemResponse;
+  isRecent?: boolean;
 }
 
-export const StandalonePlanCard = ({ plan }: Props) => {
+export const StandalonePlanCard = ({ plan, isRecent }: Props) => {
   return (
     <Link
       href={`/workout/plans/${plan.id}`}
       className="flex flex-col p-5 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-slate-200 transition-all active:scale-[0.98] group relative overflow-hidden"
     >
       <div className="flex items-start justify-between mb-3 pl-1">
-        <h3 className="text-[17px] font-bold text-slate-800 leading-tight pr-4">
-          {plan.title}
-        </h3>
+        <div className="flex flex-col gap-2">
+          {isRecent && (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-amber-50 text-amber-600 text-[10px] font-bold w-fit border border-amber-100">
+              최근 완료
+            </span>
+          )}
+          <h3 className="text-[17px] font-bold text-slate-800 leading-tight pr-4">
+            {plan.title}
+          </h3>
+        </div>
         <div className="text-slate-300 group-hover:text-main transition-colors">
           <svg
             width="20"

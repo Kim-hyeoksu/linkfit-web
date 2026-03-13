@@ -104,7 +104,11 @@ export const ProgramList = ({
       </div>
       <div className="flex flex-col gap-[14px]">
         {programs.map((program) => (
-          <ProgramCard key={program.id} {...program} />
+          <ProgramCard
+            key={program.id}
+            {...program}
+            isRecent={program.isRecent}
+          />
         ))}
       </div>
     </div>

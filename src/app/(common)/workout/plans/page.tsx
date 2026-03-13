@@ -15,6 +15,7 @@ export default function MyPlansPage() {
   const [isLast, setIsLast] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -69,7 +70,11 @@ export default function MyPlansPage() {
         ) : (
           <div className="flex flex-col gap-[14px]">
             {plans.map((plan) => (
-              <StandalonePlanCard key={plan.id} plan={plan} />
+              <StandalonePlanCard
+                key={plan.id}
+                plan={plan}
+                isRecent={plan.isRecent}
+              />
             ))}
           </div>
         )}
