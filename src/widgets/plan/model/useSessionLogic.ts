@@ -76,6 +76,53 @@ export const useSessionLogic = (
     }
   }, [initialPlanDetail, setSessionState, setReturnUrl]);
 
+  // 세션 진행 중 자동 포커스(운동/세트) 관리
+  useEffect(() => {
+    if (!sessionState.isSessionStarted || exercises.length === 0) return;
+
+    // 1. 현재 선택된 운동(currentExerciseId)에서 미완료 세트가 있는지 확인
+    const currentEx = exercises.find(
+      (ex) => ex.sessionExerciseId === currentExerciseId,
+    );
+
+    if (currentEx) {
+      const firstIncomplete = currentEx.sets.find(
+        (s) => s.status !== "COMPLETED",
+      );
+      if (firstIncomplete) {
+        if (currentExerciseSetId !== firstIncomplete.id) {
+          setCurrentExerciseSetId(firstIncomplete.id);
+        }
+        return;
+      }
+    }
+
+    // 2. 현재 운동이 다 끝났다면, 미완료 세트가 있는 첫 번째 운동 찾기
+    const currentIndex = exercises.findIndex(
+      (ex) => ex.sessionExerciseId === currentExerciseId,
+    );
+    const sortedExs = [
+      ...exercises.slice(currentIndex + 1),
+      ...exercises.slice(0, Math.max(0, currentIndex)),
+    ];
+
+    const targetEx = sortedExs.find((ex) =>
+      ex.sets.some((s) => s.status !== "COMPLETED"),
+    );
+
+    if (targetEx) {
+      const newExId = targetEx.sessionExerciseId;
+      const newSetId = targetEx.sets.find((s) => s.status !== "COMPLETED")?.id;
+
+      if (newExId !== currentExerciseId) {
+        setCurrentExerciseId(newExId);
+      }
+      if (newSetId !== undefined && newSetId !== currentExerciseSetId) {
+        setCurrentExerciseSetId(newSetId);
+      }
+    }
+  }, [exercises, currentExerciseId, sessionState.isSessionStarted, currentExerciseSetId]);
+
   // Timer Logic (Based on Global startedAt)
   useEffect(() => {
     if (sessionState.isSessionStarted && sessionState.startedAt) {
@@ -202,10 +249,11 @@ export const useSessionLogic = (
       }),
     );
 
-    // 다음 세트 준비
+    // 다음 세트 포커스 (상태 업데이트 후 useEffect에서 자동 처리되지만 명시적 의도 표현)
     setPendingExerciseId(sessionExerciseId);
-    setCurrentExerciseId(sessionExerciseId);
-    setCurrentExerciseSetId(set.id ?? -1);
+    if (!isCurrentlyCompleted) {
+      setCurrentExerciseId(sessionExerciseId);
+    }
 
     if (newStatus === "COMPLETED") {
       setStartTrigger((prev) => prev + 1);
@@ -388,9 +436,6 @@ export const useSessionLogic = (
         if (normalized.length > 0) {
           const addedEx = normalized[normalized.length - 1];
           setCurrentExerciseId(addedEx.sessionExerciseId);
-          if (addedEx.sets && addedEx.sets.length > 0) {
-            setCurrentExerciseSetId(addedEx.sets[0].id);
-          }
         }
       }
     } catch (error) {
@@ -412,9 +457,6 @@ export const useSessionLogic = (
         if (currentExerciseId === sessionExerciseId) {
           if (normalized.length > 0) {
             setCurrentExerciseId(normalized[0].sessionExerciseId);
-            if (normalized[0].sets && normalized[0].sets.length > 0) {
-              setCurrentExerciseSetId(normalized[0].sets[0].id);
-            }
           } else {
             setCurrentExerciseId(-1);
             setCurrentExerciseSetId(-1);

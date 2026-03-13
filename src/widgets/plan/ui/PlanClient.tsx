@@ -151,10 +151,28 @@ export default function PlanClient({
   const handleExerciseClick = React.useCallback(
     (id: number) => {
       setCurrentExerciseId(id);
-      // 포커스가 바뀌면서 이전 운동이 접히고 현재 운동이 펼쳐지는 등 레이아웃 변화를 기다립니다.
+    },
+    [setCurrentExerciseId],
+  );
+
+
+
+  const nextExercise = (exerciseId: number) => {
+    const currentIndex = exercises.findIndex(
+      (item) => item.sessionExerciseId === exerciseId,
+    );
+    if (currentIndex !== -1 && currentIndex + 1 < exercises.length) {
+      const nextExerciseId = exercises[currentIndex + 1].sessionExerciseId;
+      setCurrentExerciseId(nextExerciseId);
+    }
+  };
+
+  // 현재 운동이 바뀌면 해당 위치로 스무스하게 스크롤
+  useEffect(() => {
+    if (currentExerciseId !== -1) {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          const el = exerciseRefs.current.get(id);
+          const el = exerciseRefs.current.get(currentExerciseId);
           if (el && wrapperRef.current) {
             wrapperRef.current.scrollTo({
               top: el.offsetTop - 70,
@@ -163,58 +181,8 @@ export default function PlanClient({
           }
         });
       });
-    },
-    [setCurrentExerciseId],
-  );
-
-  const handleNextSet = React.useCallback(
-    (exerciseId: number) => {
-      const exercise = exercises.find(
-        (ex) => ex.sessionExerciseId === exerciseId,
-      );
-      if (!exercise) return;
-      const nextIncompleteSet = exercise.sets.find(
-        (set) => set.status !== "COMPLETED",
-      );
-
-      if (nextIncompleteSet) {
-        setCurrentExerciseSetId(nextIncompleteSet.sessionExerciseId ?? -1);
-      } else {
-        const currentExerciseIndex = exercises.findIndex(
-          (item) => item.sessionExerciseId === exerciseId,
-        );
-        const nextExercise = exercises[currentExerciseIndex + 1];
-
-        if (nextExercise) {
-          const nextExerciseFirstIncompleteSet = nextExercise.sets.find(
-            (set) => set.status !== "COMPLETED",
-          );
-
-          if (nextExerciseFirstIncompleteSet) {
-            setCurrentExerciseSetId(
-              nextExerciseFirstIncompleteSet.sessionExerciseId ?? -1,
-            );
-          } else {
-            setCurrentExerciseSetId(-1);
-          }
-          handleExerciseClick(nextExercise.sessionExerciseId);
-        } else {
-          setCurrentExerciseSetId(-1);
-        }
-      }
-    },
-    [exercises, setCurrentExerciseSetId, handleExerciseClick],
-  );
-
-  const nextExercise = (exerciseId: number) => {
-    const currentIndex = exercises.findIndex(
-      (item) => item.sessionExerciseId === exerciseId,
-    );
-    if (currentIndex !== -1 && currentIndex + 1 < exercises.length) {
-      const nextExerciseId = exercises[currentIndex + 1].sessionExerciseId;
-      handleExerciseClick(nextExerciseId);
     }
-  };
+  }, [currentExerciseId]);
 
   const handleCompleteCurrentSetFromTimer = async (
     sessionExerciseId: number,
@@ -234,12 +202,7 @@ export default function PlanClient({
 
   const [allCompletedTriggered, setAllCompletedTriggered] = useState(false);
 
-  useEffect(() => {
-    if (pendingExerciseId !== -1) {
-      handleNextSet(pendingExerciseId);
-      setPendingExerciseId(-1);
-    }
-  }, [pendingExerciseId, handleNextSet, setPendingExerciseId]);
+
 
   useEffect(() => {
     if (!isSessionStarted || exercises.length === 0) return;

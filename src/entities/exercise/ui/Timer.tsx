@@ -250,11 +250,12 @@ export const Timer = ({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                nextExercise(currentExerciseId);
+                stopTimer();
+                setRemainingMs(0);
               }}
               className="flex-1 h-[44px] flex items-center justify-center rounded-2xl bg-slate-100 text-slate-600 font-bold text-[14px] hover:bg-slate-200 transition-all active:scale-95"
             >
-              다음 운동 스킵
+              타이머 스킵
             </button>
           ) : (
             <button
@@ -343,12 +344,13 @@ export const Timer = ({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                nextExercise(currentExerciseId);
+                stopTimer();
+                setRemainingMs(0);
                 changeShowType("bar");
               }}
               className="flex-1 h-[52px] flex items-center justify-center rounded-2xl bg-[#eff6ff] text-main font-black text-[16px] border border-blue-50 hover:bg-main hover:text-white transition-all active:scale-95 shadow-sm shadow-blue-50"
             >
-              다음 운동으로 넘어가기
+              타이머 스킵
             </button>
           </div>
         </div>
