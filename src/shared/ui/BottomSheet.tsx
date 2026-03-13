@@ -85,12 +85,12 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
                 <h2 className="text-[20px] font-black text-slate-800 leading-tight tracking-tight">
                   {title}
                 </h2>
-                <button
+                {/* <button
                   onClick={onClose}
                   className="p-2 -mr-2 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-full transition-all active:scale-95"
                 >
                   <X size={24} strokeWidth={2.5} />
-                </button>
+                </button> */}
               </div>
             )}
 

@@ -1,48 +1,10 @@
-"use client";
-import { useEffect, useState } from "react";
-import Image from "next/image";
+import { ReadyScreen } from "@/shared/ui";
+
 export default function DietPage() {
-  const [imageUri, setImageUri] = useState("");
-  function sendMessageToNative() {
-    console.log("Sending message to React Native WebView");
-    window.ReactNativeWebView?.postMessage(
-      JSON.stringify({
-        type: "choose-image",
-      }),
-    );
-  }
-  useEffect(() => {
-    const onMessage = (event: MessageEvent) => {
-      // 1) RN WebView 환경인지 체크
-      const isWebView = !!(window as unknown as { ReactNativeWebView: unknown })
-        .ReactNativeWebView;
-      if (!isWebView) return; // ← 웹 환경에서는 무시
-
-      try {
-        // 2) 안전한 JSON 파싱
-        const data = JSON.parse(event.data);
-
-        if (data.type === "image-selected") {
-          setImageUri(data.uri);
-        }
-      } catch {
-        // 웹 환경 / 포맷 무효일 때 에러 방지
-        console.warn("Invalid WebView message:", event.data);
-      }
-    };
-
-    window.addEventListener("message", onMessage);
-
-    return () => window.removeEventListener("message", onMessage);
-  }, []);
-
   return (
-    <div>
-      {imageUri && (
-        <Image alt="image" src={imageUri} width={300} height={300} />
-      )}
-      {imageUri}
-      <button onClick={sendMessageToNative}>Sample Button</button>
-    </div>
+    <ReadyScreen
+      title="더 맛있는 식단 기능을 준비 중이에요!"
+      description={`여러분의 완벽한 몸매를 위해\n균형 잡힌 식단 관리 기능을 열심히 조리하고 있어요.\n잠시만 기다려 주시면 든든한 모습으로 찾아올게요!`}
+    />
   );
 }

@@ -3,4 +3,6 @@ export { Header } from "./Header";
 export { Modal } from "./Modal";
 export { ConfirmModal } from "./ConfirmModal";
 export { BottomSheet } from "./BottomSheet";
+export { ReadyScreen } from "./ReadyScreen";
+export { LottiePlayer } from "./LottiePlayer";
 export * from "./toast";
