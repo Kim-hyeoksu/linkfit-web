@@ -15,7 +15,7 @@ import {
 import { Timer } from "@/entities/exercise";
 import { ConfirmModal, Header, Modal } from "@/shared";
 import { formatTime } from "@/shared";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Trash2 } from "lucide-react";
 
 import { usePlanLogic } from "../model/usePlanLogic";
 import { useSessionLogic } from "../model/useSessionLogic";
@@ -241,19 +241,30 @@ export default function PlanClient({
     }
   };
 
-  const handleDiscardWorkout = () => {
-    handleDiscard();
-    setIsEndConfirmOpen(false);
-    router.replace('/workout/plans');
+  const handleDiscardWorkout = async () => {
+    setIsEndConfirmLoading(true);
+    try {
+      await handleDiscard();
+      setIsEndConfirmOpen(false);
+      router.replace("/workout");
+    } catch (e) {
+      console.error("세션 삭제 실패", e);
+      alert("운동 삭제에 실패했습니다.");
+    } finally {
+      setIsEndConfirmLoading(false);
+    }
   };
 
   const totalVolume = exercises.reduce((acc, ex) => {
-    return acc + (ex.sets ?? []).reduce((setAcc, set) => {
-      if (set.status === "COMPLETED") {
-        return setAcc + (Number(set.reps) || 0) * (Number(set.weight) || 0);
-      }
-      return setAcc;
-    }, 0);
+    return (
+      acc +
+      (ex.sets ?? []).reduce((setAcc, set) => {
+        if (set.status === "COMPLETED") {
+          return setAcc + (Number(set.reps) || 0) * (Number(set.weight) || 0);
+        }
+        return setAcc;
+      }, 0)
+    );
   }, 0);
 
   return (
@@ -406,20 +417,28 @@ export default function PlanClient({
             <p className="text-slate-600">운동을 종료하고 기록을 저장할까요?</p>
             <div className="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100">
               <div className="flex flex-col gap-1">
-                <span className="text-[12px] text-slate-400 font-bold uppercase tracking-wider">총 운동 시간</span>
-                <span className="text-[16px] text-slate-700 font-black">{formatTime(totalExerciseMs)}</span>
+                <span className="text-[12px] text-slate-400 font-bold uppercase tracking-wider">
+                  총 운동 시간
+                </span>
+                <span className="text-[16px] text-slate-700 font-black">
+                  {formatTime(totalExerciseMs)}
+                </span>
               </div>
               <div className="flex flex-col gap-1">
-                <span className="text-[12px] text-slate-400 font-bold uppercase tracking-wider">총 볼륨 (kg)</span>
-                <span className="text-[16px] text-slate-700 font-black">{totalVolume.toLocaleString()} kg</span>
+                <span className="text-[12px] text-slate-400 font-bold uppercase tracking-wider">
+                  총 볼륨 (kg)
+                </span>
+                <span className="text-[16px] text-slate-700 font-black">
+                  {totalVolume.toLocaleString()} kg
+                </span>
               </div>
             </div>
           </div>
         }
         confirmText="기록 저장"
-        cancelText="운동 삭제"
-        confirmButtonClassName="bg-main text-white"
-        cancelButtonClassName="bg-red-50 text-red-500 hover:bg-red-100 border-none"
+        cancelText={<Trash2 size={20} className="mx-auto" />}
+        confirmButtonClassName="bg-main text-white flex-1"
+        cancelButtonClassName="bg-slate-100 text-slate-400 hover:bg-slate-200 border-none w-[60px] flex-none"
         isConfirmLoading={isEndConfirmLoading}
         onConfirm={handleConfirmEndWorkout}
         onCancel={handleDiscardWorkout}

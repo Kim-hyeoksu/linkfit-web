@@ -10,6 +10,7 @@ import {
   completeSession,
   addSessionExercise,
   deleteSessionExercise,
+  deleteSession,
 } from "@/features/session-control";
 import type { ActiveSessionDto, StartSessionRequest } from "@/entities/session";
 import type { PlanDetailDto } from "@/entities/plan";
@@ -502,7 +503,14 @@ export const useSessionLogic = (
     return response;
   };
 
-  const handleDiscard = () => {
+  const handleDiscard = async () => {
+    if (sessionState.sessionId) {
+      try {
+        await deleteSession(sessionState.sessionId);
+      } catch (error) {
+        console.error("세션 삭제 실패:", error);
+      }
+    }
     setSessionState({
       sessionId: null,
       isSessionStarted: false,

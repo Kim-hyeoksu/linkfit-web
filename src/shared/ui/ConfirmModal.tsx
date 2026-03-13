@@ -7,8 +7,8 @@ type ConfirmModalProps = {
   isOpen: boolean;
   title?: string;
   description?: React.ReactNode;
-  confirmText?: string;
-  cancelText?: string;
+  confirmText?: React.ReactNode;
+  cancelText?: React.ReactNode;
   confirmButtonClassName?: string;
   cancelButtonClassName?: string;
   isConfirmLoading?: boolean;
@@ -44,7 +44,9 @@ export const ConfirmModal = ({
       <div className="flex gap-3 mt-8">
         <button
           type="button"
-          className={`h-12 flex-1 rounded-2xl font-bold text-[14px] transition-all active:scale-95 bg-slate-100 text-slate-500 hover:bg-slate-200 ${cancelButtonClassName}`}
+          className={`h-12 rounded-2xl font-bold text-[14px] transition-all active:scale-95 ${
+            cancelButtonClassName.includes("flex-") ? "" : "flex-1"
+          } ${cancelButtonClassName}`}
           onClick={onCancel || onClose}
           disabled={isConfirmLoading}
         >
@@ -52,7 +54,9 @@ export const ConfirmModal = ({
         </button>
         <button
           type="button"
-          className={`h-12 flex-1 rounded-2xl font-black text-[14px] transition-all active:scale-95 bg-main text-white shadow-sm shadow-blue-100 hover:shadow-md ${confirmButtonClassName} ${
+          className={`h-12 rounded-2xl font-black text-[14px] transition-all active:scale-95 ${
+            confirmButtonClassName.includes("flex-") ? "" : "flex-1"
+          } ${confirmButtonClassName} ${
             isConfirmLoading ? "opacity-60" : ""
           }`}
           onClick={onConfirm}
