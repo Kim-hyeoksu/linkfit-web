@@ -92,7 +92,7 @@ export const ExerciseCard = ({
       }`}
       onClick={() => {
         onClickExercise(exerciseId);
-        setIsExpanded(true);
+        setIsExpanded(!isExpanded);
       }}
     >
       <div

@@ -50,7 +50,7 @@ export const WorkoutStatusWidget = ({ summary }: WorkoutStatusProps) => {
 
       {/* 주간 볼륨 차트 */}
       <section className="bg-white p-7 rounded-2xl shadow-sm flex flex-col gap-6 border border-white">
-        <div className="flex justify-between items-start">
+        <div className="flex justify-between items-start mb-5">
           <div className="flex flex-col gap-1.5">
             <h2 className="text-[18px] font-bold text-gray-900 tracking-tight">
               주간 운동 볼륨
