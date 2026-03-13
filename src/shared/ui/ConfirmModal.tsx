@@ -14,6 +14,7 @@ type ConfirmModalProps = {
   isConfirmLoading?: boolean;
   onConfirm: () => void | Promise<void>;
   onClose: () => void;
+  onCancel?: () => void;
   hideCloseButton?: boolean;
 };
 
@@ -28,6 +29,7 @@ export const ConfirmModal = ({
   isConfirmLoading = false,
   onConfirm,
   onClose,
+  onCancel,
   hideCloseButton = true,
 }: ConfirmModalProps) => {
   return (
@@ -43,7 +45,7 @@ export const ConfirmModal = ({
         <button
           type="button"
           className={`h-12 flex-1 rounded-2xl font-bold text-[14px] transition-all active:scale-95 bg-slate-100 text-slate-500 hover:bg-slate-200 ${cancelButtonClassName}`}
-          onClick={onClose}
+          onClick={onCancel || onClose}
           disabled={isConfirmLoading}
         >
           {cancelText}

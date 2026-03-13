@@ -502,6 +502,17 @@ export const useSessionLogic = (
     return response;
   };
 
+  const handleDiscard = () => {
+    setSessionState({
+      sessionId: null,
+      isSessionStarted: false,
+      startedAt: null,
+      planId: null,
+      totalExerciseMs: 0,
+    });
+    setReturnUrl(null);
+  };
+
   const currentPlanId =
     routePlanId ??
     ("planId" in initialPlanDetail
@@ -531,6 +542,7 @@ export const useSessionLogic = (
     handleDeleteSet,
     handleUpdateSet,
     handleSave,
+    handleDiscard,
     handleUpdateDefault,
     handleAddExercise,
     handleDeleteExercise,

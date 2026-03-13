@@ -51,6 +51,7 @@ export default function PlanClient({
     handleDeleteSet,
     handleUpdateSet,
     handleSave,
+    handleDiscard,
     handleUpdateDefault,
     handleAddExercise,
     handleDeleteExercise,
@@ -155,8 +156,6 @@ export default function PlanClient({
     [setCurrentExerciseId],
   );
 
-
-
   const nextExercise = (exerciseId: number) => {
     const currentIndex = exercises.findIndex(
       (item) => item.sessionExerciseId === exerciseId,
@@ -202,8 +201,6 @@ export default function PlanClient({
 
   const [allCompletedTriggered, setAllCompletedTriggered] = useState(false);
 
-
-
   useEffect(() => {
     if (!isSessionStarted || exercises.length === 0) return;
 
@@ -243,6 +240,21 @@ export default function PlanClient({
       setIsEndConfirmLoading(false);
     }
   };
+
+  const handleDiscardWorkout = () => {
+    handleDiscard();
+    setIsEndConfirmOpen(false);
+    router.replace('/workout/plans');
+  };
+
+  const totalVolume = exercises.reduce((acc, ex) => {
+    return acc + (ex.sets ?? []).reduce((setAcc, set) => {
+      if (set.status === "COMPLETED") {
+        return setAcc + (Number(set.reps) || 0) * (Number(set.weight) || 0);
+      }
+      return setAcc;
+    }, 0);
+  }, 0);
 
   return (
     <div className="min-h-screen bg-[#f8fafc]">
@@ -304,7 +316,7 @@ export default function PlanClient({
           }px)`,
         }}
       >
-        <div className="flex flex-col gap-[14px] pb-[100px] max-w-2xl mx-auto">
+        <div className="flex flex-col gap-[14px] pb-[110px] max-w-2xl mx-auto">
           {exercises.map((exercise, index) => {
             const exerciseSets = exercise.sets ?? [];
             return (
@@ -388,13 +400,31 @@ export default function PlanClient({
       </Modal>
       <ConfirmModal
         isOpen={isEndConfirmOpen}
-        onClose={() => setIsEndConfirmOpen(false)}
         title="운동 종료"
-        description="운동을 종료하고 기록을 저장할까요?"
-        confirmText="종료"
-        cancelText="취소"
+        description={
+          <div className="flex flex-col gap-4">
+            <p className="text-slate-600">운동을 종료하고 기록을 저장할까요?</p>
+            <div className="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+              <div className="flex flex-col gap-1">
+                <span className="text-[12px] text-slate-400 font-bold uppercase tracking-wider">총 운동 시간</span>
+                <span className="text-[16px] text-slate-700 font-black">{formatTime(totalExerciseMs)}</span>
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-[12px] text-slate-400 font-bold uppercase tracking-wider">총 볼륨 (kg)</span>
+                <span className="text-[16px] text-slate-700 font-black">{totalVolume.toLocaleString()} kg</span>
+              </div>
+            </div>
+          </div>
+        }
+        confirmText="기록 저장"
+        cancelText="운동 삭제"
+        confirmButtonClassName="bg-main text-white"
+        cancelButtonClassName="bg-red-50 text-red-500 hover:bg-red-100 border-none"
         isConfirmLoading={isEndConfirmLoading}
         onConfirm={handleConfirmEndWorkout}
+        onCancel={handleDiscardWorkout}
+        onClose={() => setIsEndConfirmOpen(false)}
+        hideCloseButton={false}
       />
       <ConfirmModal
         isOpen={isDeleteConfirmOpen}
