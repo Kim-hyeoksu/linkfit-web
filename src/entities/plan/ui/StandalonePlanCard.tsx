@@ -10,16 +10,16 @@ export const StandalonePlanCard = ({ plan, isRecent }: Props) => {
   return (
     <Link
       href={`/workout/plans/${plan.id}`}
-      className="flex flex-col p-5 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-slate-200 transition-all active:scale-[0.98] group relative overflow-hidden"
+      className="flex flex-col p-4 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-slate-200 transition-all active:scale-[0.98] group relative overflow-hidden"
     >
       <div className="flex items-start justify-between mb-3 pl-1">
-        <div className="flex flex-col gap-2">
-          {isRecent && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-amber-50 text-amber-600 text-[10px] font-bold w-fit border border-amber-100">
-              최근 완료
-            </span>
-          )}
+        <div className="flex flex-col">
           <h3 className="text-[17px] font-bold text-slate-800 leading-tight pr-4">
+            {isRecent && (
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 text-[10px] font-bold mr-1.5 border border-amber-100 align-middle">
+                최근
+              </span>
+            )}
             {plan.title}
           </h3>
         </div>
