@@ -216,12 +216,10 @@ export const DietForm = ({
                 <div className="relative">
                   <input
                     type="number"
-                    value={item.calories === 0 ? "" : item.calories}
-                    onChange={(e) =>
-                      handleItemChange(index, "calories", e.target.value)
-                    }
+                    value={item.calories === 0 ? "0" : item.calories}
+                    readOnly
                     placeholder="0"
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-[15px] font-extrabold text-slate-800 focus:bg-white focus:border-main transition-all outline-none"
+                    className="w-full bg-slate-100/50 border border-slate-100 rounded-2xl px-4 py-3 text-[15px] font-extrabold text-slate-800 cursor-not-allowed outline-none"
                   />
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">
                     kcal
