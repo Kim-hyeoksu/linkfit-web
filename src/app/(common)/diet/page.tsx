@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Calendar } from "lucide-react";
 import {
   DietResponse,
   DietSummary,
@@ -14,7 +14,7 @@ import {
 import { DietDashboard } from "@/widgets/diet/ui/DietDashboard";
 import { DietTimeline } from "@/widgets/diet/ui/DietTimeline";
 import { DietForm } from "@/features/diet-management/ui/DietForm";
-import { BottomSheet, ConfirmModal, useToast } from "@/shared/ui";
+import { Header, BottomSheet, ConfirmModal, useToast } from "@/shared/ui";
 import { formatDateToLocalISO } from "@/shared/utils";
 
 export default function DietPage() {
@@ -111,6 +111,17 @@ export default function DietPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-[#f8fafc] pb-24">
+      <Header
+        title="식단 관리"
+        showBackButton={false}
+        rightButtonIconUrl={"/diet/calendar"}
+      >
+        <Calendar
+          size={24}
+          className="text-slate-400 hover:text-slate-600 transition-colors"
+        />
+      </Header>
+
       {/* Scrollable Content Container */}
       <div className="flex-1 overflow-y-auto px-5 py-6 space-y-8 max-w-2xl mx-auto w-full">
         {/* Dashboard Widget */}

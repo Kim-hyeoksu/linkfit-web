@@ -55,7 +55,7 @@ export const DietDashboard = ({
           <h3 className="text-lg font-bold text-slate-800">
             {selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월
           </h3>
-          <button 
+          <button
             onClick={() => onDateChange(new Date())}
             className="text-slate-400 text-sm font-medium hover:text-main"
           >
@@ -73,7 +73,7 @@ export const DietDashboard = ({
               <button
                 key={idx}
                 onClick={() => onDateChange(date)}
-                className={`flex flex-col items-center gap-2 px-3 py-4 rounded-2xl transition-all ${
+                className={`flex flex-col items-center gap-1 px-3 pt-2 pb-3 rounded-2xl transition-all ${
                   isSelected
                     ? "bg-main text-white shadow-lg shadow-blue-100 scale-105"
                     : "hover:bg-slate-50 text-slate-500"
@@ -85,9 +85,15 @@ export const DietDashboard = ({
                   {dayNames[idx]}
                 </span>
                 <span className="text-[15px] font-black">{date.getDate()}</span>
-                {isToday && !isSelected && (
-                  <div className="w-1 h-1 rounded-full bg-main"></div>
-                )}
+                <div className="h-1 flex items-center justify-center">
+                  {isToday && (
+                    <div
+                      className={`w-1 h-1 rounded-full transition-colors ${
+                        isSelected ? "bg-white" : "bg-main"
+                      }`}
+                    />
+                  )}
+                </div>
               </button>
             );
           })}
@@ -152,7 +158,7 @@ export const DietDashboard = ({
               </div>
             </div>
 
-            <div className="flex-1 flex flex-col gap-2">
+            <div className="flex-1 flex flex-col">
               <div className="flex items-baseline gap-1">
                 <span className="text-[34px] font-black text-slate-900">
                   {totalCalories.toLocaleString()}
@@ -191,7 +197,7 @@ export const DietDashboard = ({
               },
             ].map((nut, i) => (
               <div key={i} className="flex flex-col gap-3">
-                <div className="flex flex-col gap-0.5">
+                <div className="flex flex-col gap-0.5 text-center">
                   <span className="text-[11px] font-bold text-slate-400 uppercase tracking-tight">
                     {nut.label}
                   </span>
