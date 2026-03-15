@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { DietRequest, DietResponse, MealType } from "@/entities/diet";
 import { Save, X, Utensils, Zap, ShieldCheck, Heart } from "lucide-react";
+import { formatDateToLocalISO } from "@/shared/utils";
 
 interface DietFormProps {
   initialData?: DietResponse;
@@ -14,7 +15,7 @@ interface DietFormProps {
 export const DietForm = ({ initialData, onSubmit, onCancel, selectedDate }: DietFormProps) => {
   const [formData, setFormData] = useState<DietRequest>({
     mealType: "BREAKFAST",
-    mealDate: selectedDate.toISOString().split("T")[0],
+    mealDate: formatDateToLocalISO(selectedDate),
     items: [
       {
         foodName: "",

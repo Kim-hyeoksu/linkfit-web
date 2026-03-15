@@ -15,6 +15,7 @@ import { DietDashboard } from "@/widgets/diet/ui/DietDashboard";
 import { DietTimeline } from "@/widgets/diet/ui/DietTimeline";
 import { DietForm } from "@/features/diet-management/ui/DietForm";
 import { BottomSheet, ConfirmModal, useToast } from "@/shared/ui";
+import { formatDateToLocalISO } from "@/shared/utils";
 
 export default function DietPage() {
   const { showToast } = useToast();
@@ -42,7 +43,7 @@ export default function DietPage() {
 
   const fetchDiets = async () => {
     setIsLoading(true);
-    const dateStr = selectedDate.toISOString().split("T")[0];
+    const dateStr = formatDateToLocalISO(selectedDate);
     try {
       const data = await getDiets(dateStr, dateStr);
       setDiets(data.diets || []);

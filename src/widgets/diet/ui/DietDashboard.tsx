@@ -55,7 +55,10 @@ export const DietDashboard = ({
           <h3 className="text-lg font-bold text-slate-800">
             {selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월
           </h3>
-          <button className="text-slate-400 text-sm font-medium hover:text-main">
+          <button 
+            onClick={() => onDateChange(new Date())}
+            className="text-slate-400 text-sm font-medium hover:text-main"
+          >
             오늘
           </button>
         </div>
