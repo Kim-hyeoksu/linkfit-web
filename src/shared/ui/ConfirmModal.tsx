@@ -15,6 +15,7 @@ interface ConfirmModalProps {
   cancelText?: React.ReactNode;
   isDanger?: boolean;
   isLoading?: boolean; // Added for unified support
+  flexRatio?: [number, number]; // [cancel, confirm] ratio
 }
 
 export const ConfirmModal = ({
@@ -28,6 +29,7 @@ export const ConfirmModal = ({
   cancelText = "취소",
   isDanger = false,
   isLoading = false,
+  flexRatio = [1, 1],
 }: ConfirmModalProps) => {
   return (
     <AnimatePresence>
@@ -47,10 +49,12 @@ export const ConfirmModal = ({
             className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[210] w-[calc(100%-40px)] max-w-sm bg-white rounded-[32px] p-8 shadow-2xl"
           >
             <div className="flex flex-col items-center text-center">
-              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 ${isDanger ? "bg-red-50 text-red-500" : "bg-blue-50 text-main"}`}>
+              <div
+                className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 ${isDanger ? "bg-red-50 text-red-500" : "bg-blue-50 text-main"}`}
+              >
                 <AlertCircle size={32} />
               </div>
-              
+
               <h3 className="text-xl font-black text-slate-800 mb-3 tracking-tight">
                 {title}
               </h3>
@@ -65,7 +69,8 @@ export const ConfirmModal = ({
                     onClose();
                   }}
                   disabled={isLoading}
-                  className="flex-1 py-4 rounded-2xl bg-slate-100 text-slate-500 font-bold hover:bg-slate-200 transition-all active:scale-[0.98] flex items-center justify-center disabled:opacity-50"
+                  style={{ flex: flexRatio[0] }}
+                  className="py-4 rounded-2xl bg-slate-100 text-slate-500 font-bold hover:bg-slate-200 transition-all active:scale-[0.98] flex items-center justify-center disabled:opacity-50"
                 >
                   {cancelText}
                 </button>
@@ -74,9 +79,10 @@ export const ConfirmModal = ({
                     onConfirm();
                   }}
                   disabled={isLoading}
-                  className={`flex-1 py-4 rounded-2xl font-bold text-white shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 ${
-                    isDanger 
-                      ? "bg-red-500 shadow-red-100 hover:bg-red-600" 
+                  style={{ flex: flexRatio[1] }}
+                  className={`py-4 rounded-2xl font-bold text-white shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 ${
+                    isDanger
+                      ? "bg-red-500 shadow-red-100 hover:bg-red-600"
                       : "bg-main shadow-blue-100 hover:bg-blue-600"
                   } disabled:opacity-70`}
                 >

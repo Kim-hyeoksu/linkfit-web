@@ -143,6 +143,7 @@ export default function PlanClient({
   }, []);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [isEndConfirmOpen, setIsEndConfirmOpen] = useState(false);
+  const [isDiscardConfirmOpen, setIsDiscardConfirmOpen] = useState(false);
   const [isEndConfirmLoading, setIsEndConfirmLoading] = useState(false);
 
   const exerciseRefs = useRef<Map<number | string, HTMLDivElement>>(new Map());
@@ -246,7 +247,7 @@ export default function PlanClient({
     try {
       await handleDiscard();
       setIsEndConfirmOpen(false);
-      router.replace("/workout");
+      router.replace("/workout/programs");
     } catch (e) {
       console.error("세션 삭제 실패", e);
       alert("운동 삭제에 실패했습니다.");
@@ -438,8 +439,22 @@ export default function PlanClient({
         confirmText="기록 저장"
         cancelText={<Trash2 size={20} className="mx-auto" />}
         onConfirm={handleConfirmEndWorkout}
-        onCancel={handleDiscardWorkout}
+        onCancel={() => {
+          setIsEndConfirmOpen(false);
+          setIsDiscardConfirmOpen(true);
+        }}
         onClose={() => setIsEndConfirmOpen(false)}
+        flexRatio={[2, 8]}
+      />
+      <ConfirmModal
+        isOpen={isDiscardConfirmOpen}
+        onClose={() => setIsDiscardConfirmOpen(false)}
+        onConfirm={handleDiscardWorkout}
+        title="운동 기록 삭제"
+        description="정말로 이 운동 기록을 삭제하시겠습니까? 데이터가 모두 사라집니다."
+        confirmText="삭제"
+        isDanger={true}
+        isLoading={isEndConfirmLoading}
       />
       <ConfirmModal
         isOpen={isDeleteConfirmOpen}
