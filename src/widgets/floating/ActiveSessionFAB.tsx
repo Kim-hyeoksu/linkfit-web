@@ -56,7 +56,7 @@ export const ActiveSessionFAB = () => {
   return (
     <button
       onClick={handleClick}
-      className="fixed bottom-[80px] right-5 z-[100] w-[64px] h-[64px] rounded-full bg-slate-900 border-2 border-slate-800 text-white shadow-xl shadow-slate-300/50 flex flex-col items-center justify-center transition-all hover:scale-105 active:scale-95 animate-in zoom-in slide-in-from-bottom-5 duration-300"
+      className="fixed bottom-[150px] right-4 z-[100] w-[64px] h-[64px] rounded-full bg-slate-900 border-2 border-slate-800 text-white shadow-xl shadow-slate-300/50 flex flex-col items-center justify-center transition-all hover:scale-105 active:scale-95 animate-in zoom-in slide-in-from-bottom-5 duration-300"
     >
       <div className="absolute inset-0 rounded-full animate-ping opacity-20 bg-main pointer-events-none" />
       <span className="text-[10px] font-bold text-slate-400 mb-0.5 uppercase tracking-wider">

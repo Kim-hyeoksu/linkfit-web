@@ -81,7 +81,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
             <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mt-4 mb-2 opacity-50 shrink-0" />
 
             {!hideHeader && (
-              <div className="flex justify-between items-center px-6 pt-2 pb-4 shrink-0">
+              <div className="flex justify-between items-center px-6 py-4 shrink-0">
                 <h2 className="text-[20px] font-black text-slate-800 leading-tight tracking-tight">
                   {title}
                 </h2>

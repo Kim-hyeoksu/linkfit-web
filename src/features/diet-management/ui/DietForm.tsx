@@ -2,7 +2,16 @@
 
 import React, { useState, useEffect } from "react";
 import { DietRequest, DietResponse, MealType } from "@/entities/diet";
-import { Save, X, Utensils, Zap, ShieldCheck, Heart } from "lucide-react";
+import {
+  Save,
+  X,
+  Utensils,
+  Zap,
+  ShieldCheck,
+  Heart,
+  Trash2,
+  PlusCircle,
+} from "lucide-react";
 import { formatDateToLocalISO } from "@/shared/utils";
 
 interface DietFormProps {
@@ -12,7 +21,12 @@ interface DietFormProps {
   selectedDate: Date;
 }
 
-export const DietForm = ({ initialData, onSubmit, onCancel, selectedDate }: DietFormProps) => {
+export const DietForm = ({
+  initialData,
+  onSubmit,
+  onCancel,
+  selectedDate,
+}: DietFormProps) => {
   const [formData, setFormData] = useState<DietRequest>({
     mealType: "BREAKFAST",
     mealDate: formatDateToLocalISO(selectedDate),
@@ -34,20 +48,46 @@ export const DietForm = ({ initialData, onSubmit, onCancel, selectedDate }: Diet
       setFormData({
         mealType: initialData.mealType,
         mealDate: initialData.mealDate,
-        items: initialData.items.length > 0 
-          ? initialData.items.map(item => ({
-              foodName: item.foodName,
-              calories: item.calories,
-              carbohydrate: item.carbohydrate,
-              protein: item.protein,
-              fat: item.fat,
-            }))
-          : [{ foodName: "", calories: 0, carbohydrate: 0, protein: 0, fat: 0 }],
+        items:
+          initialData.items.length > 0
+            ? initialData.items.map((item) => ({
+                foodName: item.foodName,
+                calories: item.calories,
+                carbohydrate: item.carbohydrate,
+                protein: item.protein,
+                fat: item.fat,
+              }))
+            : [
+                {
+                  foodName: "",
+                  calories: 0,
+                  carbohydrate: 0,
+                  protein: 0,
+                  fat: 0,
+                },
+              ],
         memo: initialData.memo || "",
         imagePath: initialData.imagePath || "",
       });
+    } else {
+      // 신규 작성 모드일 때 초기화 로직 강화
+      setFormData({
+        mealType: "BREAKFAST",
+        mealDate: formatDateToLocalISO(selectedDate),
+        items: [
+          {
+            foodName: "",
+            calories: 0,
+            carbohydrate: 0,
+            protein: 0,
+            fat: 0,
+          },
+        ],
+        memo: "",
+        imagePath: "",
+      });
     }
-  }, [initialData]);
+  }, [initialData, selectedDate]);
 
   const mealOptions: { value: MealType; label: string }[] = [
     { value: "BREAKFAST", label: "아침" },
@@ -56,20 +96,38 @@ export const DietForm = ({ initialData, onSubmit, onCancel, selectedDate }: Diet
     { value: "SNACK", label: "간식" },
   ];
 
-  const handleItemChange = (index: number, field: string, value: string | number) => {
+  const handleItemChange = (
+    index: number,
+    field: string,
+    value: string | number,
+  ) => {
     setFormData((prev) => {
       const newItems = [...prev.items];
-      newItems[index] = {
+      const updatedItem = {
         ...newItems[index],
         [field]: ["calories", "carbohydrate", "protein", "fat"].includes(field)
           ? Number(value)
           : value,
       };
+
+      // 탄수화물, 단백질, 지방 변경 시 칼로리 자동 계산
+      if (["carbohydrate", "protein", "fat"].includes(field)) {
+        updatedItem.calories =
+          updatedItem.carbohydrate * 4 +
+          updatedItem.protein * 4 +
+          updatedItem.fat * 9;
+      }
+
+      newItems[index] = updatedItem;
       return { ...prev, items: newItems };
     });
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -79,6 +137,24 @@ export const DietForm = ({ initialData, onSubmit, onCancel, selectedDate }: Diet
 
   const handleMealTypeChange = (type: MealType) => {
     setFormData((prev) => ({ ...prev, mealType: type }));
+  };
+
+  const addItem = () => {
+    setFormData((prev) => ({
+      ...prev,
+      items: [
+        ...prev.items,
+        { foodName: "", calories: 0, carbohydrate: 0, protein: 0, fat: 0 },
+      ],
+    }));
+  };
+
+  const removeItem = (index: number) => {
+    if (formData.items.length <= 1) return;
+    setFormData((prev) => ({
+      ...prev,
+      items: prev.items.filter((_, i) => i !== index),
+    }));
   };
 
   return (
@@ -100,93 +176,135 @@ export const DietForm = ({ initialData, onSubmit, onCancel, selectedDate }: Diet
         ))}
       </div>
 
-      {/* Main Inputs */}
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest ml-1">식사 메뉴</label>
-          <input
-            name="foodName"
-            value={formData.items[0].foodName}
-            onChange={(e) => handleItemChange(0, "foodName", e.target.value)}
-            placeholder="예: 닭가슴살 샐러드"
-            className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-[17px] font-bold text-slate-800 focus:bg-white focus:border-main focus:ring-4 focus:ring-blue-50 transition-all outline-none"
-          />
-        </div>
-
-        {/* Nutrition Grid */}
-        <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-                <label className="inline-flex items-center gap-1.5 text-[12px] font-black text-slate-400 uppercase tracking-widest ml-1">
-                    <Zap size={12} className="text-amber-500" /> 총 칼로리
+      {/* Food Items List */}
+      <div className="space-y-6">
+        {formData.items.map((item, index) => (
+          <div
+            key={index}
+            className="space-y-4 p-5 bg-white rounded-[28px] border border-slate-100 relative group transition-all hover:border-blue-100/50 hover:shadow-sm"
+          >
+            <div className="space-y-3">
+              <div className="flex items-center justify-between px-1">
+                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-tight">
+                  식사 메뉴 {index + 1}
                 </label>
-                <div className="relative">
-                    <input
-                        name="calories"
-                        type="number"
-                        value={formData.items[0].calories === 0 ? "" : formData.items[0].calories}
-                        onChange={(e) => handleItemChange(0, "calories", e.target.value)}
-                        placeholder="0"
-                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-[17px] font-extrabold text-slate-800 focus:bg-white focus:border-main transition-all outline-none"
-                    />
-                    <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold">kcal</span>
-                </div>
+                {formData.items.length > 1 && (
+                  <button
+                    onClick={() => removeItem(index)}
+                    className="p-1.5 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
+                    title="항목 삭제"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                )}
+              </div>
+              <input
+                value={item.foodName}
+                onChange={(e) =>
+                  handleItemChange(index, "foodName", e.target.value)
+                }
+                placeholder="예: 닭가슴살 샐러드"
+                className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-[16px] font-bold text-slate-800 focus:bg-white focus:border-main transition-all outline-none"
+              />
             </div>
 
-            <div className="space-y-2">
-                <label className="inline-flex items-center gap-1.5 text-[12px] font-black text-slate-400 uppercase tracking-widest ml-1">
-                    <ShieldCheck size={12} className="text-blue-500" /> 탄수화물
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-tight ml-1">
+                  칼로리
                 </label>
                 <div className="relative">
-                    <input
-                        name="carbohydrate"
-                        type="number"
-                        value={formData.items[0].carbohydrate === 0 ? "" : formData.items[0].carbohydrate}
-                        onChange={(e) => handleItemChange(0, "carbohydrate", e.target.value)}
-                        placeholder="0"
-                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-[17px] font-extrabold text-slate-800 focus:bg-white focus:border-main transition-all outline-none"
-                    />
-                    <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold">g</span>
+                  <input
+                    type="number"
+                    value={item.calories === 0 ? "" : item.calories}
+                    onChange={(e) =>
+                      handleItemChange(index, "calories", e.target.value)
+                    }
+                    placeholder="0"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-[15px] font-extrabold text-slate-800 focus:bg-white focus:border-main transition-all outline-none"
+                  />
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">
+                    kcal
+                  </span>
                 </div>
-            </div>
+              </div>
 
-            <div className="space-y-2">
-                <label className="inline-flex items-center gap-1.5 text-[12px] font-black text-slate-400 uppercase tracking-widest ml-1">
-                    <Heart size={12} className="text-rose-500" /> 단백질
+              <div className="space-y-1.5">
+                <label className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-tight ml-1">
+                  탄수화물
                 </label>
                 <div className="relative">
-                    <input
-                        name="protein"
-                        type="number"
-                        value={formData.items[0].protein === 0 ? "" : formData.items[0].protein}
-                        onChange={(e) => handleItemChange(0, "protein", e.target.value)}
-                        placeholder="0"
-                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-[17px] font-extrabold text-slate-800 focus:bg-white focus:border-main transition-all outline-none"
-                    />
-                    <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold">g</span>
+                  <input
+                    type="number"
+                    value={item.carbohydrate === 0 ? "" : item.carbohydrate}
+                    onChange={(e) =>
+                      handleItemChange(index, "carbohydrate", e.target.value)
+                    }
+                    placeholder="0"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-[15px] font-extrabold text-slate-800 focus:bg-white focus:border-main transition-all outline-none"
+                  />
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">
+                    g
+                  </span>
                 </div>
-            </div>
+              </div>
 
-            <div className="space-y-2">
-                <label className="inline-flex items-center gap-1.5 text-[12px] font-black text-slate-400 uppercase tracking-widest ml-1">
-                    <Utensils size={12} className="text-amber-600" /> 지방
+              <div className="space-y-1.5">
+                <label className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-tight ml-1">
+                  단백질
                 </label>
                 <div className="relative">
-                    <input
-                        name="fat"
-                        type="number"
-                        value={formData.items[0].fat === 0 ? "" : formData.items[0].fat}
-                        onChange={(e) => handleItemChange(0, "fat", e.target.value)}
-                        placeholder="0"
-                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-[17px] font-extrabold text-slate-800 focus:bg-white focus:border-main transition-all outline-none"
-                    />
-                    <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold">g</span>
+                  <input
+                    type="number"
+                    value={item.protein === 0 ? "" : item.protein}
+                    onChange={(e) =>
+                      handleItemChange(index, "protein", e.target.value)
+                    }
+                    placeholder="0"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-[15px] font-extrabold text-slate-800 focus:bg-white focus:border-main transition-all outline-none"
+                  />
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">
+                    g
+                  </span>
                 </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-tight ml-1">
+                  지방
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    value={item.fat === 0 ? "" : item.fat}
+                    onChange={(e) =>
+                      handleItemChange(index, "fat", e.target.value)
+                    }
+                    placeholder="0"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-[15px] font-extrabold text-slate-800 focus:bg-white focus:border-main transition-all outline-none"
+                  />
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">
+                    g
+                  </span>
+                </div>
+              </div>
             </div>
-        </div>
+          </div>
+        ))}
+
+        <button
+          onClick={addItem}
+          className="w-full py-4 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 flex items-center justify-center gap-2 hover:border-main hover:text-main hover:bg-blue-50/30 transition-all font-bold text-sm"
+        >
+          <PlusCircle size={18} />
+          음식 추가하기
+        </button>
 
         {/* Memo */}
         <div className="space-y-2">
-          <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest ml-1">메모</label>
+          <label className="text-[11px] font-bold text-slate-400 uppercase tracking-tight ml-1">
+            메모
+          </label>
           <textarea
             name="memo"
             value={formData.memo}
@@ -208,7 +326,7 @@ export const DietForm = ({ initialData, onSubmit, onCancel, selectedDate }: Diet
         </button>
         <button
           onClick={() => onSubmit(formData)}
-          disabled={!formData.items[0].foodName}
+          disabled={formData.items.some((item) => !item.foodName)}
           className="flex-[2] py-4 rounded-2xl bg-main text-white font-bold text-[16px] shadow-lg shadow-blue-200 hover:bg-blue-600 active:scale-[0.98] disabled:opacity-50 disabled:shadow-none transition-all flex items-center justify-center gap-2"
         >
           <Save size={20} />
