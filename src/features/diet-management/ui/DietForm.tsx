@@ -11,6 +11,10 @@ import {
   Heart,
   Trash2,
   PlusCircle,
+  Sunrise,
+  Sun,
+  Moon,
+  CakeSlice,
 } from "lucide-react";
 import { formatDateToLocalISO } from "@/shared/utils";
 
@@ -89,11 +93,41 @@ export const DietForm = ({
     }
   }, [initialData, selectedDate]);
 
-  const mealOptions: { value: MealType; label: string }[] = [
-    { value: "BREAKFAST", label: "아침" },
-    { value: "LUNCH", label: "점심" },
-    { value: "DINNER", label: "저녁" },
-    { value: "SNACK", label: "간식" },
+  const mealOptions: {
+    value: MealType;
+    label: string;
+    icon: React.ReactNode;
+    activeColor: string;
+    bgColor: string;
+  }[] = [
+    {
+      value: "BREAKFAST",
+      label: "아침",
+      icon: <Sunrise size={14} />,
+      activeColor: "text-amber-600",
+      bgColor: "bg-amber-50",
+    },
+    {
+      value: "LUNCH",
+      label: "점심",
+      icon: <Sun size={14} />,
+      activeColor: "text-blue-600",
+      bgColor: "bg-blue-50",
+    },
+    {
+      value: "DINNER",
+      label: "저녁",
+      icon: <Moon size={14} />,
+      activeColor: "text-indigo-600",
+      bgColor: "bg-indigo-50",
+    },
+    {
+      value: "SNACK",
+      label: "간식",
+      icon: <CakeSlice size={14} />,
+      activeColor: "text-emerald-600",
+      bgColor: "bg-emerald-50",
+    },
   ];
 
   const handleItemChange = (
@@ -165,12 +199,17 @@ export const DietForm = ({
           <button
             key={opt.value}
             onClick={() => handleMealTypeChange(opt.value)}
-            className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${
+            className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-bold transition-all ${
               formData.mealType === opt.value
-                ? "bg-white text-main shadow-sm"
+                ? `bg-white shadow-sm ${opt.activeColor}`
                 : "text-slate-400 hover:text-slate-600"
             }`}
           >
+            <span
+              className={formData.mealType === opt.value ? opt.activeColor : ""}
+            >
+              {opt.icon}
+            </span>
             {opt.label}
           </button>
         ))}
