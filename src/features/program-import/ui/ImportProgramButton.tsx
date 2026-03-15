@@ -65,7 +65,7 @@ export const ImportProgramButton = ({ programId }: Props) => {
         title="프로그램 가져오기"
         description="이 운동 프로그램을 나의 루틴으로 가져오시겠습니까?"
         confirmText="가져오기"
-        isConfirmLoading={isLoading}
+        isLoading={isLoading}
       />
     </>
   );

@@ -234,7 +234,7 @@ export default function MyPage() {
         title="로그아웃"
         description="정말 로그아웃 하시겠습니까?"
         confirmText="로그아웃"
-        confirmButtonClassName="bg-red-500 text-white"
+        isDanger={true}
       />
     </div>
   );

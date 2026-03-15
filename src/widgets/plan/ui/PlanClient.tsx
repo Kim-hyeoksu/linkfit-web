@@ -437,13 +437,9 @@ export default function PlanClient({
         }
         confirmText="기록 저장"
         cancelText={<Trash2 size={20} className="mx-auto" />}
-        confirmButtonClassName="bg-main text-white flex-1"
-        cancelButtonClassName="bg-slate-100 text-slate-400 hover:bg-slate-200 border-none w-[60px] flex-none"
-        isConfirmLoading={isEndConfirmLoading}
         onConfirm={handleConfirmEndWorkout}
         onCancel={handleDiscardWorkout}
         onClose={() => setIsEndConfirmOpen(false)}
-        hideCloseButton={false}
       />
       <ConfirmModal
         isOpen={isDeleteConfirmOpen}
@@ -455,7 +451,7 @@ export default function PlanClient({
         title="운동 삭제"
         description="이 운동을 삭제하시겠습니까? 등록된 모든 세트 기록이 사라집니다."
         confirmText="삭제"
-        confirmButtonClassName="bg-red-500 text-white"
+        isDanger={true}
       />
       <Modal
         isOpen={isExerciseSelectorOpen}
