@@ -416,7 +416,7 @@ export default function PlanClient({
           <div className="flex flex-col gap-4">
             <p className="text-slate-600">운동을 종료하고 기록을 저장할까요?</p>
             <div className="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1 text-center">
                 <span className="text-[12px] text-slate-400 font-bold uppercase tracking-wider">
                   총 운동 시간
                 </span>
@@ -424,7 +424,7 @@ export default function PlanClient({
                   {formatTime(totalExerciseMs)}
                 </span>
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1 text-center">
                 <span className="text-[12px] text-slate-400 font-bold uppercase tracking-wider">
                   총 볼륨 (kg)
                 </span>

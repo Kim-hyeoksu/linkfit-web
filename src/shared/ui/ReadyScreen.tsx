@@ -31,7 +31,7 @@ export const ReadyScreen = ({
       />
 
       <div className="space-y-4 mb-14">
-        <h2 className="text-[24px] font-black text-slate-800 tracking-tight leading-tight">
+        <h2 className="text-[22px] font-black text-slate-800 tracking-tight leading-tight">
           {title}
         </h2>
 
