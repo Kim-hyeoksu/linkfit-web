@@ -52,20 +52,20 @@ export const DietDashboard = ({
   return (
     <div className="flex flex-col gap-5">
       {/* Date Selector */}
-      <div className="bg-white rounded-[32px] p-6 shadow-sm">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-[20px] font-black text-[#191F28] tracking-tight">
+      <div className="bg-white rounded-[32px] px-5 py-3.5 shadow-sm">
+        <div className="flex justify-between items-center mb-1">
+          <h3 className="text-[18px] font-black text-[#191F28] tracking-tight">
             {selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월
           </h3>
           <button
             onClick={() => onDateChange(new Date())}
-            className="bg-[#F2F4F6] text-[#4E5968] px-3.5 py-2 rounded-xl text-[13px] font-bold hover:bg-[#E5E8EB] active:scale-95 transition-all"
+            className="bg-[#F2F4F6] text-[#4E5968] px-3 py-1.5 rounded-xl text-[12px] font-bold hover:bg-[#E5E8EB] active:scale-95 transition-all"
           >
             오늘
           </button>
         </div>
 
-        <div className="flex justify-between items-center">
+        <div className="grid grid-cols-7 gap-1">
           {weekDays.map((date, idx) => {
             const isSelected =
               date.toDateString() === selectedDate.toDateString();
@@ -75,26 +75,26 @@ export const DietDashboard = ({
               <button
                 key={idx}
                 onClick={() => onDateChange(date)}
-                className={`flex flex-col items-center gap-1.5 px-3 pt-3 pb-3.5 rounded-[20px] transition-all ${
+                className={`flex flex-col items-center gap-1 py-2 rounded-[18px] transition-all w-full ${
                   isSelected
-                    ? "bg-[#3182F6] text-white shadow-lg shadow-blue-200/50 scale-[1.02]"
+                    ? "bg-[#3182F6] text-white shadow-lg shadow-blue-200/40 scale-[1.02]"
                     : "hover:bg-[#F2F4F6] text-[#8B95A1] active:scale-95"
                 }`}
               >
                 <span
-                  className={`text-[12px] font-bold uppercase ${isSelected ? "text-blue-100" : "text-[#8B95A1]"}`}
+                  className={`text-[11px] font-bold uppercase ${isSelected ? "text-blue-100" : "text-[#8B95A1]"}`}
                 >
                   {dayNames[idx]}
                 </span>
                 <span
-                  className={`text-[17px] ${isSelected ? "font-black" : "font-extrabold text-[#333D4B]"}`}
+                  className={`text-[16px] ${isSelected ? "font-black" : "font-extrabold text-[#333D4B]"}`}
                 >
                   {date.getDate()}
                 </span>
-                <div className="h-1.5 flex items-center justify-center">
+                <div className="h-1 flex items-center justify-center">
                   {isToday && (
                     <div
-                      className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                      className={`w-1 h-1 rounded-full transition-colors ${
                         isSelected ? "bg-white" : "bg-[#3182F6]"
                       }`}
                     />

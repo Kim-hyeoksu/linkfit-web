@@ -18,7 +18,7 @@ const navItems: NavItem[] = [
     icon: (isActive) => (
       <Home
         size={24}
-        color={isActive ? "#111827" : "#9CA3AF"}
+        color={isActive ? "#0ea5e9" : "#9CA3AF"}
         strokeWidth={isActive ? 2.5 : 2}
       />
     ),
@@ -29,7 +29,7 @@ const navItems: NavItem[] = [
     icon: (isActive) => (
       <Dumbbell
         size={24}
-        color={isActive ? "#111827" : "#9CA3AF"}
+        color={isActive ? "#0ea5e9" : "#9CA3AF"}
         strokeWidth={isActive ? 2.5 : 2}
       />
     ),
@@ -40,7 +40,7 @@ const navItems: NavItem[] = [
     icon: (isActive) => (
       <Utensils
         size={24}
-        color={isActive ? "#111827" : "#9CA3AF"}
+        color={isActive ? "#0ea5e9" : "#9CA3AF"}
         strokeWidth={isActive ? 2.5 : 2}
       />
     ),
@@ -51,7 +51,7 @@ const navItems: NavItem[] = [
     icon: (isActive) => (
       <Users
         size={24}
-        color={isActive ? "#111827" : "#9CA3AF"}
+        color={isActive ? "#0ea5e9" : "#9CA3AF"}
         strokeWidth={isActive ? 2.5 : 2}
       />
     ),
@@ -62,7 +62,7 @@ const navItems: NavItem[] = [
     icon: (isActive) => (
       <User
         size={24}
-        color={isActive ? "#111827" : "#9CA3AF"}
+        color={isActive ? "#0ea5e9" : "#9CA3AF"}
         strokeWidth={isActive ? 2.5 : 2}
       />
     ),
@@ -94,8 +94,8 @@ export const BottomNavBar: React.FC = () => {
                 flex flex-col items-center justify-center
                 flex-1 h-full
                 transition-colors duration-200
-                ${isActive ? "text-gray-900" : "text-gray-400"}
               `}
+              style={{ color: isActive ? "#0ea5e9" : "#9CA3AF" }}
             >
               <div className="mb-0.5">{item.icon(isActive)}</div>
               <span className="text-[10px] font-medium">{item.name}</span>
