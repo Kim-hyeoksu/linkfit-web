@@ -110,7 +110,7 @@ export default function DietPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#f8fafc] pb-24">
+    <div className="flex flex-col min-h-screen bg-[#F2F4F6] pb-24">
       <Header
         title="식단 관리"
         showBackButton={false}
@@ -133,10 +133,12 @@ export default function DietPage() {
 
         {/* Timeline Widget */}
         <div className="space-y-4">
-          <div className="flex justify-between items-end px-1">
+          <div className="flex justify-between items-end px-1 mb-5">
             <div>
-              <h3 className="text-xl font-black text-slate-800">식단 기록</h3>
-              <p className="text-slate-400 text-xs font-bold mt-0.5">
+              <h3 className="text-[20px] font-black text-[#191F28] tracking-tight">
+                식단 기록
+              </h3>
+              <p className="text-[#8B95A1] text-[13px] font-bold mt-1">
                 매일매일 꼼꼼하게 기록해요
               </p>
             </div>

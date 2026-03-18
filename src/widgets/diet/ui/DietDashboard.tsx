@@ -47,17 +47,19 @@ export const DietDashboard = ({
     100,
   );
 
+  const remainingCalories = Math.max(targetCalories - totalCalories, 0);
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-5">
       {/* Date Selector */}
-      <div className="bg-white rounded-[24px] p-5 shadow-sm border border-slate-100">
-        <div className="flex justify-between items-center mb-5">
-          <h3 className="text-lg font-bold text-slate-800">
+      <div className="bg-white rounded-[32px] p-6 shadow-sm">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-[20px] font-black text-[#191F28] tracking-tight">
             {selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월
           </h3>
           <button
             onClick={() => onDateChange(new Date())}
-            className="text-slate-400 text-sm font-medium hover:text-main"
+            className="bg-[#F2F4F6] text-[#4E5968] px-3.5 py-2 rounded-xl text-[13px] font-bold hover:bg-[#E5E8EB] active:scale-95 transition-all"
           >
             오늘
           </button>
@@ -73,23 +75,27 @@ export const DietDashboard = ({
               <button
                 key={idx}
                 onClick={() => onDateChange(date)}
-                className={`flex flex-col items-center gap-1 px-3 pt-2 pb-3 rounded-2xl transition-all ${
+                className={`flex flex-col items-center gap-1.5 px-3 pt-3 pb-3.5 rounded-[20px] transition-all ${
                   isSelected
-                    ? "bg-main text-white shadow-lg shadow-blue-100 scale-105"
-                    : "hover:bg-slate-50 text-slate-500"
+                    ? "bg-[#3182F6] text-white shadow-lg shadow-blue-200/50 scale-[1.02]"
+                    : "hover:bg-[#F2F4F6] text-[#8B95A1] active:scale-95"
                 }`}
               >
                 <span
-                  className={`text-[11px] font-bold uppercase ${isSelected ? "text-blue-100" : "text-slate-400"}`}
+                  className={`text-[12px] font-bold uppercase ${isSelected ? "text-blue-100" : "text-[#8B95A1]"}`}
                 >
                   {dayNames[idx]}
                 </span>
-                <span className="text-[15px] font-black">{date.getDate()}</span>
-                <div className="h-1 flex items-center justify-center">
+                <span
+                  className={`text-[17px] ${isSelected ? "font-black" : "font-extrabold text-[#333D4B]"}`}
+                >
+                  {date.getDate()}
+                </span>
+                <div className="h-1.5 flex items-center justify-center">
                   {isToday && (
                     <div
-                      className={`w-1 h-1 rounded-full transition-colors ${
-                        isSelected ? "bg-white" : "bg-main"
+                      className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                        isSelected ? "bg-white" : "bg-[#3182F6]"
                       }`}
                     />
                   )}
@@ -100,123 +106,120 @@ export const DietDashboard = ({
         </div>
       </div>
 
-      {/* Consumption Summary Card - Toss Style Refactor */}
-      <div className="relative overflow-hidden bg-white rounded-[28px] p-5 text-slate-900 shadow-sm border border-slate-100">
-        <div className="relative z-10">
-          <div className="flex justify-between items-start mb-8">
-            <div>
-              <h4 className="text-slate-400 text-[12px] font-bold mb-1 tracking-tight">
-                영양 성분 한눈에 보기
-              </h4>
-              <p className="text-lg font-black text-slate-800">
-                오늘 얼마나 먹었을까요?
-              </p>
-            </div>
-            <div className="bg-slate-50 px-2 py-2 rounded-2xl border border-slate-100">
-              <span className="text-xs font-bold text-slate-500">
-                목표{" "}
-                <span className="text-main">
-                  {targetCalories.toLocaleString()}
-                </span>{" "}
-                kcal
+      {/* YAZIO / Toss Style Consumption Summary Card */}
+      <div className="bg-white rounded-[32px] p-7 shadow-sm">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h4 className="text-[14px] font-bold text-[#8B95A1] mb-1">
+              오늘의 칼로리
+            </h4>
+            <div className="text-[22px] font-black text-[#191F28] tracking-tight flex items-baseline gap-1">
+              {remainingCalories.toLocaleString()}
+              <span className="text-[15px] font-bold text-[#8B95A1]">
+                kcal 남음
               </span>
             </div>
           </div>
-
-          <div className="flex items-center gap-10 mb-10">
-            {/* Circular Progress - Clean & Premium */}
-            <div className="relative w-32 h-32 flex items-center justify-center">
-              <svg className="w-full h-full -rotate-90">
-                <circle
-                  cx="64"
-                  cy="64"
-                  r="58"
-                  fill="none"
-                  stroke="#f8fafc"
-                  strokeWidth="10"
-                />
-                <circle
-                  cx="64"
-                  cy="64"
-                  r="58"
-                  fill="none"
-                  stroke="#3182f6"
-                  strokeWidth="10"
-                  strokeDasharray="364.4"
-                  strokeDashoffset={364.4 - (364.4 * calPercentage) / 100}
-                  strokeLinecap="round"
-                  className="transition-all duration-1000 ease-out"
-                />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-2xl font-black text-slate-900">
-                  {calPercentage}%
-                </span>
-                <span className="text-[11px] text-slate-400 font-bold">
-                  달성중
-                </span>
-              </div>
-            </div>
-
-            <div className="flex-1 flex flex-col">
-              <div className="flex items-baseline gap-1">
-                <span className="text-[34px] font-black text-slate-900">
-                  {totalCalories.toLocaleString()}
-                </span>
-                <span className="text-slate-400 text-sm font-bold">kcal</span>
-              </div>
-              <p className="text-slate-500 text-[15px] font-medium leading-relaxed">
-                오늘 목표의{" "}
-                <span className="text-main font-bold">{calPercentage}%</span>를
-                <br />
-                채워가고 있어요.
-              </p>
-            </div>
+          <div className="bg-[#F2F4F6] px-3.5 py-2 rounded-xl flex items-center gap-1.5">
+            <span className="text-[12px] font-bold text-[#8B95A1] leading-none">
+              목표
+            </span>
+            <span className="text-[14px] font-black text-[#3182F6] leading-none">
+              {targetCalories.toLocaleString()}
+            </span>
           </div>
+        </div>
 
-          {/* Nutrients Progress Bars - Minimal & Clean */}
-          <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-50">
-            {[
-              {
-                label: "탄수화물",
-                current: totalCarbohydrate,
-                target: targetCarbohydrate,
-                color: "bg-blue-500",
-              },
-              {
-                label: "단백질",
-                current: totalProtein,
-                target: targetProtein,
-                color: "bg-green-500",
-              },
-              {
-                label: "지방",
-                current: totalFat,
-                target: targetFat,
-                color: "bg-orange-500",
-              },
-            ].map((nut, i) => (
-              <div key={i} className="flex flex-col gap-3">
-                <div className="flex flex-col gap-0.5 text-center">
-                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-tight">
+        <div className="flex items-center justify-center mb-8">
+          {/* Circular Progress Container - Full Toss/Yazio prominent circle */}
+          <div className="relative w-48 h-48 flex items-center justify-center">
+            <svg className="w-full h-full -rotate-90">
+              <circle
+                cx="96"
+                cy="96"
+                r="86"
+                fill="none"
+                stroke="#F2F4F6"
+                strokeWidth="14"
+              />
+              <circle
+                cx="96"
+                cy="96"
+                r="86"
+                fill="none"
+                stroke={calPercentage > 100 ? "#F04452" : "#3182F6"}
+                strokeWidth="14"
+                strokeDasharray="540.3"
+                strokeDashoffset={
+                  540.3 - (540.3 * Math.min(calPercentage, 100)) / 100
+                }
+                strokeLinecap="round"
+                className="transition-all duration-1000 ease-out"
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center pt-1">
+              <span className="text-[14px] text-[#8B95A1] font-bold mb-0.5">
+                섭취했어요
+              </span>
+              <span className="text-[36px] font-black text-[#191F28] leading-none tracking-tight">
+                {totalCalories.toLocaleString()}
+              </span>
+            </div>
+            {/* Small icon or flare inside circle could go here */}
+          </div>
+        </div>
+
+        {/* Nutrients Progress Bars (YAZIO style prominent chunkier bars) */}
+        <div className="flex flex-col gap-6 pt-6 border-t border-[#F2F4F6]">
+          {[
+            {
+              label: "탄수화물",
+              current: totalCarbohydrate,
+              target: targetCarbohydrate,
+              color: "bg-[#3182F6]", // Toss Blue
+              bg: "bg-blue-50",
+            },
+            {
+              label: "단백질",
+              current: totalProtein,
+              target: targetProtein,
+              color: "bg-[#04C09E]", // Toss Toss Green
+              bg: "bg-green-50",
+            },
+            {
+              label: "지방",
+              current: totalFat,
+              target: targetFat,
+              color: "bg-[#FFB020]", // Toss Yellow/Orange
+              bg: "bg-orange-50",
+            },
+          ].map((nut, i) => {
+            const percentage =
+              Math.min((nut.current / nut.target) * 100, 100) || 0;
+            return (
+              <div key={i} className="flex flex-col gap-2.5">
+                <div className="flex justify-between items-end px-1">
+                  <span className="text-[13px] font-extrabold text-[#4E5968]">
                     {nut.label}
                   </span>
-                  <span className="text-sm font-black text-slate-800">
-                    {nut.current}
-                    <span className="text-[10px] ml-0.5 text-slate-400">g</span>
-                  </span>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-[15px] font-black text-[#191F28]">
+                      {nut.current}
+                    </span>
+                    <span className="text-[12px] font-bold text-[#8B95A1]">
+                      / {nut.target}g
+                    </span>
+                  </div>
                 </div>
-                <div className="h-2 bg-slate-50 rounded-full overflow-hidden border border-slate-100/50">
+                <div className={`h-3.5 ${nut.bg} rounded-full overflow-hidden`}>
                   <div
                     className={`h-full ${nut.color} rounded-full transition-all duration-700`}
-                    style={{
-                      width: `${Math.min((nut.current / nut.target) * 100, 100)}%`,
-                    }}
+                    style={{ width: `${percentage}%` }}
                   ></div>
                 </div>
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
       </div>
     </div>
