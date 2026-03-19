@@ -7,6 +7,8 @@ export interface BodyMetricRequest {
   weight: number;
   skeletalMuscleMass?: number;
   bodyFatPercentage?: number;
+  bmr?: number;
+  amr?: number;
 }
 
 /**

@@ -7,6 +7,7 @@ export interface UpdateUserRequest {
   gender?: "MALE" | "FEMALE";
   exerciseLevel?: "LOW" | "MIDDLE" | "HIGH";
   profileImage?: string;
+  goalCalories?: number;
 }
 
 /**

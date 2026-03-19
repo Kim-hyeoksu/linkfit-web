@@ -17,6 +17,7 @@ export interface User {
   lastLoginIp: string;
   loginAttemptCount: number;
   accountLockedUntil: string;
+  goalCalories: number;
 }
 
 export interface BodyMetric {
@@ -26,4 +27,6 @@ export interface BodyMetric {
   weight: number;
   skeletalMuscleMass: number;
   bodyFatPercentage: number;
+  bmr?: number;
+  amr?: number;
 }
