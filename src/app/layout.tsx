@@ -12,8 +12,8 @@ import { Providers } from "./providers";
 // }
 // 브라우저 탭에 표시되는 제목, 검색 엔진에 노출되는 설명 등을 설정할 수 있어요.
 export const metadata: Metadata = {
-  title: "김혁수님의 멋진 웹 서비스", // 웹사이트의 기본 제목입니다.
-  description: "모바일 친화적인 사용자 경험을 제공하는 혁신적인 서비스입니다!", // 웹사이트 설명입니다.
+  title: "LinkFit", // 웹사이트의 기본 제목입니다.
+  description: "LinkFit입니다!", // 웹사이트 설명입니다.
   // Next.js 13+ App Router에서는 viewport meta tag (width=device-width, initial-scale=1.0)가 기본으로 포함되므로 따로 작성하지 않아도 괜찮아요!
 };
 
