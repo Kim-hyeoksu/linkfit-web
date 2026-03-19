@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { X } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useDragControls } from "framer-motion";
 
 interface BottomSheetProps {
   isOpen: boolean;
@@ -13,6 +13,7 @@ interface BottomSheetProps {
   hideHeader?: boolean;
   showBackdrop?: boolean;
   backdropClassName?: string;
+  maxHeight?: string; // 높이 조절 가능하도록 추가
 }
 
 export const BottomSheet: React.FC<BottomSheetProps> = ({
@@ -24,7 +25,10 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   hideHeader = false,
   showBackdrop = true,
   backdropClassName = "",
+  maxHeight = "h-[94vh]", // 기본값 94%
 }) => {
+  const dragControls = useDragControls();
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -59,42 +63,49 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
-            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            transition={{
+              type: "spring",
+              damping: 30,
+              stiffness: 300,
+              mass: 0.8,
+            }}
             drag="y"
-            dragConstraints={{ top: 0 }}
-            dragElastic={0.2}
+            dragControls={dragControls}
+            dragListener={false} // 핸들로만 드래그 허용
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.5 }}
             onDragEnd={(_, info) => {
-              // 100px 이상 내려가거나, 빠르게 내리면 닫기
-              if (info.offset.y > 100 || info.velocity.y > 500) {
+              if (info.offset.y > 150 || info.velocity.y > 600) {
                 onClose();
               }
             }}
             className={`
               fixed bottom-0 left-0 right-0 z-[160]
               bg-white rounded-t-[40px] shadow-[0_-10px_40px_rgba(0,0,0,0.1)]
-              max-w-2xl mx-auto w-full
-              flex flex-col
+              max-w-2xl mx-auto w-full overflow-hidden
+              flex flex-col ${maxHeight}
               ${className}
             `}
           >
-            {/* Drag Handle Indicator */}
-            <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mt-4 mb-2 opacity-50 shrink-0" />
+            {/* Drag Handle & Header Section (Draggable Area) */}
+            <div
+              onPointerDown={(e) => dragControls.start(e)}
+              className="pt-4 pb-2 cursor-grab active:cursor-grabbing shrink-0 touch-none"
+            >
+              {/* Drag Handle Indicator */}
+              <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-2 opacity-50" />
 
-            {!hideHeader && (
-              <div className="flex justify-between items-center px-6 py-4 shrink-0">
-                <h2 className="text-[20px] font-black text-slate-800 leading-tight tracking-tight">
-                  {title}
-                </h2>
-                {/* <button
-                  onClick={onClose}
-                  className="p-2 -mr-2 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-full transition-all active:scale-95"
-                >
-                  <X size={24} strokeWidth={2.5} />
-                </button> */}
-              </div>
-            )}
+              {!hideHeader && (
+                <div className="px-6 pt-4 pb-2">
+                  <h2 className="text-[20px] font-black text-slate-800 leading-tight tracking-tight">
+                    {title}
+                  </h2>
+                </div>
+              )}
+            </div>
 
-            <div className="flex-grow overflow-y-auto px-5 pb-5">
+            {/* Scrollable Content Area */}
+            <div className="flex-grow overflow-y-auto px-5 pb-5 touch-pan-y">
               {children}
             </div>
           </motion.div>
