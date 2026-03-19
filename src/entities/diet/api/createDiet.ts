@@ -4,7 +4,7 @@ import { DietRequest, DietResponse } from "../model/types";
 /**
  * 식단 기록 생성
  */
-export const postDiet = async (data: DietRequest): Promise<DietResponse> => {
+export const createDiet = async (data: DietRequest): Promise<number> => {
   const response = await api.post("/api/diets", data);
   return response.data;
 };

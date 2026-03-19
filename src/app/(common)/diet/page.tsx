@@ -7,7 +7,7 @@ import {
   DietSummary,
   DietRequest,
   getDiets,
-  postDiet,
+  createDiet,
   updateDiet,
   deleteDiet,
 } from "@/entities/diet";
@@ -53,6 +53,8 @@ export default function DietPage() {
         totalCarbohydrate: data.totalCarbohydrate,
         totalProtein: data.totalProtein,
         totalFat: data.totalFat,
+        targetCalories: data.goalCalories,
+        // API에서 탄단지 목표량도 내려주면 연동 가능 (현재는 swagger 확인 결과 칼로리 관련만 있음)
       }));
     } catch (error) {
       console.error("Failed to fetch diets:", error);
@@ -72,7 +74,7 @@ export default function DietPage() {
         await updateDiet(editingDiet.id, data);
         showToast("식단이 수정되었습니다.", "success");
       } else {
-        await postDiet(data);
+        await createDiet(data);
         showToast("식단이 기록되었습니다.", "success");
       }
       setIsFormOpen(false);

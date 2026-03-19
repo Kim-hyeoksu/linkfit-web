@@ -77,7 +77,7 @@ export const DietDashboard = ({
                 onClick={() => onDateChange(date)}
                 className={`flex flex-col items-center gap-1 py-2 rounded-[18px] transition-all w-full ${
                   isSelected
-                    ? "bg-[#3182F6] text-white shadow-lg shadow-blue-200/40 scale-[1.02]"
+                    ? "bg-main text-white shadow-lg shadow-blue-200/40 scale-[1.02]"
                     : "hover:bg-[#F2F4F6] text-[#8B95A1] active:scale-95"
                 }`}
               >
@@ -125,7 +125,7 @@ export const DietDashboard = ({
               목표
             </span>
             <span className="text-[14px] font-black text-[#3182F6] leading-none">
-              {targetCalories.toLocaleString()}
+              {targetCalories?.toLocaleString() || 0}
             </span>
           </div>
         </div>

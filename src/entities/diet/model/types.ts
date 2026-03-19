@@ -35,6 +35,9 @@ export interface DietsByDateResponse {
   totalCarbohydrate: number;
   totalProtein: number;
   totalFat: number;
+  amr: number;
+  bmr: number;
+  goalCalories: number;
   diets: DietResponse[];
 }
 
