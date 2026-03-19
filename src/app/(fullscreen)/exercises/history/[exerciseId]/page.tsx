@@ -191,7 +191,7 @@ export default function ExerciseHistoryDetailPage() {
               src={
                 exercise.imagePath.startsWith("http")
                   ? exercise.imagePath
-                  : `${process.env.NEXT_PUBLIC_API_URL}${exercise.imagePath}`
+                  : `${process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "")}/${exercise.imagePath.replace(/^\//, "")}`
               }
               alt={exercise.name}
               fill
@@ -204,7 +204,7 @@ export default function ExerciseHistoryDetailPage() {
               src={
                 exercise.imagePath.startsWith("http")
                   ? exercise.imagePath.replace(/\.png$/, "2.png")
-                  : `${process.env.NEXT_PUBLIC_API_URL}${exercise.imagePath.replace(/\.png$/, "2.png")}`
+                  : `${process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "")}/${exercise.imagePath.replace(/^\//, "").replace(/\.png$/, "2.png")}`
               }
               alt={exercise.name}
               fill

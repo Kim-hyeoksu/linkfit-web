@@ -19,6 +19,11 @@ const nextConfig: NextConfig = {
         port: "8080",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "linkfit.duckdns.org",
+        pathname: "/**",
+      },
     ],
   },
 };

@@ -136,7 +136,7 @@ export const ExerciseCard = ({
                   exercise.exerciseImagePath
                     ? exercise.exerciseImagePath.startsWith("http")
                       ? exercise.exerciseImagePath
-                      : `${process.env.NEXT_PUBLIC_API_URL}${exercise.exerciseImagePath}`
+                      : `${process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "")}/${exercise.exerciseImagePath.replace(/^\//, "")}`
                     : "/next.svg"
                 }
                 width={48}

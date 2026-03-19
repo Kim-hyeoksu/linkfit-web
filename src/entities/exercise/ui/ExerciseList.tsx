@@ -14,7 +14,7 @@ const getImageUrl = (ex: Exercise) => {
   const path = ex.imagePath || exRecord.exerciseImagePath || exRecord.imageUrl;
   if (!path) return null;
   if (path.startsWith("http")) return path;
-  return `${process.env.NEXT_PUBLIC_API_URL}${path}`;
+  return `${process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
 };
 
 export function ExerciseList({ exercises, onSelect }: ExerciseListProps) {
