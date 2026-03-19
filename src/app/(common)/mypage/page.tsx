@@ -11,6 +11,7 @@ import { ConfirmModal, Header } from "@/shared";
 import { getLatestBodyMetric } from "@/entities/user/api/getLatestBodyMetric";
 import { getBodyMetrics } from "@/entities/user/api/getBodyMetrics";
 import { BodyMetric } from "@/entities/user/model/types";
+import { GoalManagementWidget } from "@/widgets/user-goal";
 import { getMuscleHeatmap } from "@/entities/exercise";
 import dynamic from "next/dynamic";
 const BodyMetricsChart = dynamic(
@@ -125,6 +126,9 @@ export default function MyPage() {
             </div>
           </div>
         </section>
+
+        {/* 나의 목표 관리 */}
+        <GoalManagementWidget />
 
         {/* 신체 기록 대시보드 */}
         <section className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 flex flex-col gap-4">
