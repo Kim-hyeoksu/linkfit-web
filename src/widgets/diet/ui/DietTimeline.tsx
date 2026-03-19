@@ -17,7 +17,8 @@ export const DietTimeline = ({
   onEdit,
   onDelete,
 }: DietTimelineProps) => {
-  const [selectedDiet, setSelectedDiet] = useState<DietResponse | null>(null);
+  const [selectedDietId, setSelectedDietId] = useState<number | null>(null);
+  const selectedDiet = diets.find((d) => d.id === selectedDietId) || null;
 
   const mealTypes: Record<
     MealType,
@@ -88,7 +89,7 @@ export const DietTimeline = ({
           return (
             <div
               key={diet.id}
-              onClick={() => setSelectedDiet(diet)}
+              onClick={() => setSelectedDietId(diet.id)}
               className="bg-white p-5 rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-[#F2F4F6] cursor-pointer hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] active:scale-[0.98] transition-all"
             >
               {/* Card Header (Summary) */}
@@ -177,7 +178,7 @@ export const DietTimeline = ({
       {/* Bottom Sheet for Detail */}
       <BottomSheet
         isOpen={!!selectedDiet}
-        onClose={() => setSelectedDiet(null)}
+        onClose={() => setSelectedDietId(null)}
         title={
           selectedDiet
             ? `${mealTypes[selectedDiet.mealType]?.label || "식단"} 상세`
