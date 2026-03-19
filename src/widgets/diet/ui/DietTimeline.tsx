@@ -5,7 +5,6 @@ import Image from "next/image";
 import { DietResponse, MealType } from "@/entities/diet";
 import { Utensils, Coffee, Moon, Sun, Edit2, Trash2 } from "lucide-react";
 import { BottomSheet } from "@/shared/ui/BottomSheet";
-import { ConfirmModal } from "@/shared/ui/ConfirmModal";
 
 interface DietTimelineProps {
   diets: DietResponse[];
@@ -19,7 +18,6 @@ export const DietTimeline = ({
   onDelete,
 }: DietTimelineProps) => {
   const [selectedDiet, setSelectedDiet] = useState<DietResponse | null>(null);
-  const [dietToDelete, setDietToDelete] = useState<DietResponse | null>(null);
 
   const mealTypes: Record<
     MealType,
@@ -69,13 +67,7 @@ export const DietTimeline = ({
     );
   }
 
-  const handleDeleteConfirm = () => {
-    if (dietToDelete) {
-      onDelete(dietToDelete.id);
-      setDietToDelete(null);
-      setSelectedDiet(null);
-    }
-  };
+  // 삭제 관련 중복 로직 제거 (부모 컨테이너에서 처리)
 
   return (
     <>
@@ -346,7 +338,9 @@ export const DietTimeline = ({
             <div className="flex gap-3 pt-6">
               <button
                 className="flex-[1] flex items-center justify-center gap-2 py-4 bg-[#F2F4F6] text-[#4E5968] font-bold rounded-[20px] hover:bg-[#E5E8EB] active:scale-95 transition-all"
-                onClick={() => setDietToDelete(selectedDiet)}
+                onClick={() => {
+                  onDelete(selectedDiet.id);
+                }}
               >
                 <Trash2 size={18} />
                 <span>삭제</span>
@@ -354,7 +348,6 @@ export const DietTimeline = ({
               <button
                 className="flex-[2] flex items-center justify-center gap-2 py-4 bg-[#3182F6] text-white font-bold rounded-[20px] hover:bg-blue-600 active:scale-95 transition-all shadow-sm"
                 onClick={() => {
-                  setSelectedDiet(null);
                   onEdit(selectedDiet);
                 }}
               >
@@ -365,17 +358,6 @@ export const DietTimeline = ({
           </div>
         )}
       </BottomSheet>
-
-      <ConfirmModal
-        isOpen={!!dietToDelete}
-        onClose={() => setDietToDelete(null)}
-        onConfirm={handleDeleteConfirm}
-        title="식단을 삭제하시겠어요?"
-        description="식단 기록이 영구적으로 삭제돼요."
-        confirmText="삭제하기"
-        cancelText="취소"
-        isDanger={true}
-      />
     </>
   );
 };
