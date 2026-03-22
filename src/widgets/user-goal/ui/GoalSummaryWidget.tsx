@@ -87,19 +87,25 @@ export const GoalSummaryWidget = () => {
     switch (goal.goalType) {
       case "WEIGHT_LOSS":
         return {
+          primaryLabel: "목표 체중",
           primary: `${goal.primaryValue?.toLocaleString()}kg`,
+          secondaryLabel: "체지방률",
           secondary: goal.secondaryValue ? `${goal.secondaryValue}%` : null,
           showValues: true,
         };
       case "BULK_UP":
         return {
+          primaryLabel: "목표 체중",
           primary: `${goal.primaryValue?.toLocaleString()}kg`,
+          secondaryLabel: "골격근량",
           secondary: goal.secondaryValue ? `${goal.secondaryValue}kg` : null,
           showValues: true,
         };
       case "STRENGTH":
         return {
+          primaryLabel: "목표 중량",
           primary: `${goal.primaryValue?.toLocaleString()}kg`,
+          secondaryLabel: "목표 횟수",
           secondary: goal.secondaryValue ? `${goal.secondaryValue} Reps` : null,
           showValues: true,
         };
@@ -113,7 +119,8 @@ export const GoalSummaryWidget = () => {
   const ddayLabel = calculateDday(activeGoal.endDate);
   const progress = calculateProgress(activeGoal.startDate, activeGoal.endDate);
   const isFinished = ddayLabel.startsWith("D+");
-  const { primary, secondary, showValues } = getGoalInfo(activeGoal);
+  const { primary, secondary, showValues, primaryLabel, secondaryLabel } =
+    getGoalInfo(activeGoal);
 
   return (
     <div
@@ -149,7 +156,7 @@ export const GoalSummaryWidget = () => {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <span className="text-[13px] font-semibold text-slate-400">
-                {activeGoal.goalType === "STRENGTH" ? "목표 중량" : "목표 수치"}
+                {primaryLabel}
               </span>
               <span className="text-[18px] font-bold text-gray-800 tracking-tight">
                 {primary}
@@ -158,7 +165,7 @@ export const GoalSummaryWidget = () => {
             {secondary && (
               <div className="flex items-center gap-2 border-l border-slate-100 pl-4">
                 <span className="text-[13px] font-semibold text-slate-400">
-                  {activeGoal.goalType === "STRENGTH" ? "목표 횟수" : "추가 지표"}
+                  {secondaryLabel}
                 </span>
                 <span className="text-[18px] font-bold text-gray-800 tracking-tight">
                   {secondary}

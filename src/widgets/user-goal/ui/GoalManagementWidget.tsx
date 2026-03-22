@@ -111,7 +111,9 @@ export const GoalManagementWidget = () => {
           label: "체중 감량",
           color: "text-blue-500",
           bg: "bg-blue-50",
+          primaryLabel: "목표 체중",
           primary: `${goal.primaryValue?.toLocaleString()}kg`,
+          secondaryLabel: "목표 체지방률",
           secondary: goal.secondaryValue ? `${goal.secondaryValue}%` : null,
           isMemoOnly: false,
         };
@@ -120,7 +122,9 @@ export const GoalManagementWidget = () => {
           label: "벌크업",
           color: "text-red-500",
           bg: "bg-red-50",
+          primaryLabel: "목표 체중",
           primary: `${goal.primaryValue?.toLocaleString()}kg`,
+          secondaryLabel: "목표 골격근량",
           secondary: goal.secondaryValue ? `${goal.secondaryValue}kg` : null,
           isMemoOnly: false,
         };
@@ -129,7 +133,9 @@ export const GoalManagementWidget = () => {
           label: "근력 향상",
           color: "text-green-500",
           bg: "bg-green-50",
+          primaryLabel: "목표 중량",
           primary: `${goal.primaryValue?.toLocaleString()}kg`,
+          secondaryLabel: "목표 횟수",
           secondary: goal.secondaryValue ? `${goal.secondaryValue} Reps` : null,
           isMemoOnly: false,
         };
@@ -138,6 +144,8 @@ export const GoalManagementWidget = () => {
           label: "체력 증진",
           color: "text-indigo-500",
           bg: "bg-indigo-50",
+          primaryLabel: "",
+          secondaryLabel: "",
           isMemoOnly: true,
         };
       case "REHABILITATION":
@@ -145,6 +153,8 @@ export const GoalManagementWidget = () => {
           label: "재활",
           color: "text-amber-500",
           bg: "bg-amber-50",
+          primaryLabel: "",
+          secondaryLabel: "",
           isMemoOnly: true,
         };
       default:
@@ -152,7 +162,9 @@ export const GoalManagementWidget = () => {
           label: "목표",
           color: "text-slate-500",
           bg: "bg-slate-50",
+          primaryLabel: "주 수치",
           primary: goal.primaryValue?.toString(),
+          secondaryLabel: "부 수치",
           secondary: goal.secondaryValue?.toString(),
           isMemoOnly: false,
         };
@@ -194,8 +206,16 @@ export const GoalManagementWidget = () => {
       ) : (
         <div className="flex flex-col gap-3 z-10 mt-2">
           {goals.map((goal) => {
-            const { label, color, bg, primary, secondary, isMemoOnly } =
-              getGoalInfo(goal);
+            const {
+              label,
+              color,
+              bg,
+              primary,
+              secondary,
+              isMemoOnly,
+              primaryLabel,
+              secondaryLabel,
+            } = getGoalInfo(goal);
             const ddayLabel = calculateDday(goal.endDate);
             const isFinished = ddayLabel.startsWith("D+");
 
@@ -233,7 +253,7 @@ export const GoalManagementWidget = () => {
                     <div className="flex gap-5">
                       <div className="flex flex-col">
                         <span className="text-[11px] font-bold text-slate-400">
-                          {goal.goalType === "STRENGTH" ? "목표 중량" : "목표 수치"}
+                          {primaryLabel}
                         </span>
                         <span
                           className={`text-[18px] font-black ${isFinished ? "text-slate-500" : "text-[#191F28]"}`}
@@ -244,7 +264,7 @@ export const GoalManagementWidget = () => {
                       {secondary && (
                         <div className="flex flex-col">
                           <span className="text-[11px] font-bold text-slate-400">
-                             {goal.goalType === "STRENGTH" ? "목표 횟수" : "추가 지표"}
+                            {secondaryLabel}
                           </span>
                           <span
                             className={`text-[18px] font-black ${isFinished ? "text-slate-500" : "text-[#191F28]"}`}
@@ -255,9 +275,7 @@ export const GoalManagementWidget = () => {
                       )}
                     </div>
                   ) : (
-                    <div className="text-[11px] font-bold text-blue-500 bg-blue-50 px-2 py-1 rounded">
-                      상세 목표 관리 중
-                    </div>
+                    <div></div>
                   )}
                   <div className="text-[11px] font-bold text-slate-300">
                     {goal.startDate} ~ {goal.endDate}
