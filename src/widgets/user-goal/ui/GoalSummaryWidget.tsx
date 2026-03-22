@@ -1,37 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { Target, ChevronLeft, ChevronRight, Plus } from "lucide-react";
-import {
-  UserGoal,
-  getGoals,
-  createGoal,
-  updateGoal,
-  deleteGoal,
-} from "@/entities/user-goal";
-import { useRouter } from "next/navigation";
-import { motion, useMotionValue } from "framer-motion";
-
-import { BottomSheet } from "@/shared/ui/BottomSheet";
-import { GoalForm } from "@/features/user-goal/ui/GoalForm";
-import { ConfirmModal } from "@/shared/ui/ConfirmModal";
+import { ChevronLeft, ChevronRight, Plus, Target } from "lucide-react";
+import { UserGoal, getGoals } from "@/entities/user-goal";
+import { GoalActionSheet } from "@/features/user-goal";
+import { motion } from "framer-motion";
 
 export const GoalSummaryWidget = () => {
-  const router = useRouter();
   const [goals, setGoals] = useState<UserGoal[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<UserGoal | null>(null);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const DRAG_THRESHOLD = 50;
 
   const fetchGoals = async () => {
     try {
       const data = await getGoals();
-      if (data && data.length > 0) {
-        setGoals(data);
-      } else {
-        setGoals([]); // 목표가 없을 때도 빈 배열로 세팅
-      }
+      setGoals(data || []);
     } catch (e) {
       console.error("Failed to load goals for summary", e);
     } finally {
@@ -53,33 +37,10 @@ export const GoalSummaryWidget = () => {
     setIsBottomSheetOpen(true);
   };
 
-  const handleGoalSubmit = async (data: any) => {
-    try {
-      if (selectedGoal) {
-        await updateGoal(selectedGoal.id, data);
-      } else {
-        await createGoal(data);
-      }
-      await fetchGoals();
-      setIsBottomSheetOpen(false);
-      // 목표 추가 시 강제로 마지막 슬라이드로 이동 방지 혹은 인계
-      setCurrentIndex(0);
-    } catch (e) {
-      console.error("Failed to submit goal", e);
-    }
-  };
-
-  const handleDeleteGoal = async () => {
-    if (!selectedGoal) return;
-    try {
-      await deleteGoal(selectedGoal.id);
-      await fetchGoals();
-      setIsDeleteModalOpen(false);
-      setIsBottomSheetOpen(false);
-      setCurrentIndex(0);
-    } catch (e) {
-      console.error("Failed to delete goal", e);
-    }
+  const handleActionSuccess = () => {
+    fetchGoals();
+    setIsBottomSheetOpen(false);
+    setCurrentIndex(0);
   };
 
   const calculateDday = (endDateStr: string) => {
@@ -390,42 +351,12 @@ export const GoalSummaryWidget = () => {
         </div>
       )}
 
-      {/* Detail/Create BottomSheet */}
-      <BottomSheet
+      {/* 공통 GoalActionSheet 사용 */}
+      <GoalActionSheet
         isOpen={isBottomSheetOpen}
         onClose={() => setIsBottomSheetOpen(false)}
-        title={selectedGoal ? "목표 상세 정보" : "새 목표 설정"}
-      >
-        <div className="py-2">
-          {selectedGoal && (
-            <div className="flex justify-end mb-4">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsDeleteModalOpen(true);
-                }}
-                className="text-[13px] font-bold text-red-500 bg-red-50 px-3 py-1.5 rounded-lg active:scale-95 transition-all"
-              >
-                삭제하기
-              </button>
-            </div>
-          )}
-          <GoalForm
-            initialData={selectedGoal || undefined}
-            onSubmit={handleGoalSubmit}
-            onCancel={() => setIsBottomSheetOpen(false)}
-          />
-        </div>
-      </BottomSheet>
-
-      <ConfirmModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={handleDeleteGoal}
-        title="목표 삭제"
-        description="이 목표를 정말 삭제하시겠어요?"
-        confirmText="삭제하기"
-        isDanger={true}
+        selectedGoal={selectedGoal}
+        onSuccess={handleActionSuccess}
       />
     </div>
   );

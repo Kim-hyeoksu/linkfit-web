@@ -13,15 +13,9 @@ import {
 import {
   UserGoal,
   getGoals,
-  createGoal,
-  updateGoal,
-  deleteGoal,
-  UserGoalRequest,
 } from "@/entities/user-goal";
-import { BottomSheet } from "@/shared/ui/BottomSheet";
 import { useToast } from "@/shared/ui";
-import { ConfirmModal } from "@/shared/ui/ConfirmModal";
-import { GoalForm } from "@/features/user-goal/ui/GoalForm";
+import { GoalActionSheet } from "@/features/user-goal";
 
 export const GoalManagementWidget = () => {
   const { showToast } = useToast();
@@ -31,10 +25,6 @@ export const GoalManagementWidget = () => {
   // Form State
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<UserGoal | undefined>();
-
-  // Delete State
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [goalToDelete, setGoalToDelete] = useState<number | null>(null);
 
   const fetchGoals = async () => {
     setIsLoading(true);
@@ -52,48 +42,9 @@ export const GoalManagementWidget = () => {
     fetchGoals();
   }, []);
 
-  const handleCreateOrUpdate = async (data: UserGoalRequest) => {
-    try {
-      if (selectedGoal) {
-        await updateGoal(selectedGoal.id, data);
-        showToast("목표가 수정되었습니다.", "success");
-      } else {
-        await createGoal(data);
-        showToast("새로운 목표가 등록되었습니다.", "success");
-      }
-      setIsFormOpen(false);
-      setSelectedGoal(undefined);
-      fetchGoals();
-    } catch (e) {
-      console.error("Save error", e);
-      showToast("목표 저장에 실패했습니다.", "error");
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!goalToDelete) return;
-    try {
-      await deleteGoal(goalToDelete);
-      showToast("목표가 삭제되었습니다.", "success");
-      setIsDeleteModalOpen(false);
-      setGoalToDelete(null);
-      setIsFormOpen(false);
-      setSelectedGoal(undefined);
-      fetchGoals();
-    } catch (e) {
-      console.error("Delete err", e);
-      showToast("삭제에 실패했습니다.", "error");
-    }
-  };
-
   const openEdit = (goal: UserGoal) => {
     setSelectedGoal(goal);
     setIsFormOpen(true);
-  };
-
-  const openDelete = (id: number) => {
-    setGoalToDelete(id);
-    setIsDeleteModalOpen(true);
   };
 
   // 헬퍼: D-day 계산
@@ -270,7 +221,7 @@ export const GoalManagementWidget = () => {
                     <div className="flex gap-5">
                       <div className="flex flex-col">
                         <span className="text-[11px] font-bold text-slate-400">
-                          {primaryLabel}
+                           {primaryLabel}
                         </span>
                         <span
                           className={`text-[18px] font-black ${isFinished ? "text-slate-500" : "text-[#191F28]"}`}
@@ -281,7 +232,7 @@ export const GoalManagementWidget = () => {
                       {secondary && (
                         <div className="flex flex-col">
                           <span className="text-[11px] font-bold text-slate-400">
-                            {secondaryLabel}
+                             {secondaryLabel}
                           </span>
                           <span
                             className={`text-[18px] font-black ${isFinished ? "text-slate-500" : "text-[#191F28]"}`}
@@ -321,43 +272,12 @@ export const GoalManagementWidget = () => {
         </div>
       )}
 
-      {/* Goal Form BottomSheet */}
-      <BottomSheet
+      {/* 공통 GoalActionSheet 사용 */}
+      <GoalActionSheet
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}
-        title={selectedGoal ? "목표 수정하기" : "새로운 목표 설정"}
-      >
-        <div className="py-2">
-          {selectedGoal && (
-            <div className="flex justify-end mb-4">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  openDelete(selectedGoal.id);
-                }}
-                className="text-[13px] font-bold text-red-500 bg-red-50 px-3 py-1.5 rounded-lg active:scale-95 transition-all"
-              >
-                삭제하기
-              </button>
-            </div>
-          )}
-          <GoalForm
-            initialData={selectedGoal}
-            onSubmit={handleCreateOrUpdate}
-            onCancel={() => setIsFormOpen(false)}
-          />
-        </div>
-      </BottomSheet>
-
-      {/* Delete Confirm */}
-      <ConfirmModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={handleDelete}
-        title="목표 삭제"
-        description="이 목표를 정말 삭제하시겠어요?"
-        confirmText="삭제하기"
-        isDanger={true}
+        selectedGoal={selectedGoal}
+        onSuccess={fetchGoals}
       />
     </section>
   );
