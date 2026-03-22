@@ -44,6 +44,7 @@ export const DietForm = ({
         carbohydrate: 0,
         protein: 0,
         fat: 0,
+        servingSize: 0,
       },
     ],
     memo: "",
@@ -64,6 +65,14 @@ export const DietForm = ({
                 carbohydrate: item.carbohydrate,
                 protein: item.protein,
                 fat: item.fat,
+                servingSize: item.servingSize || 0,
+                baseNutrients: {
+                  calories: item.calories,
+                  carbohydrate: item.carbohydrate,
+                  protein: item.protein,
+                  fat: item.fat,
+                  servingSize: item.servingSize || 0,
+                },
               }))
             : [
                 {
@@ -72,6 +81,7 @@ export const DietForm = ({
                   carbohydrate: 0,
                   protein: 0,
                   fat: 0,
+                  servingSize: 0,
                 },
               ],
         memo: initialData.memo || "",
@@ -89,6 +99,7 @@ export const DietForm = ({
             carbohydrate: 0,
             protein: 0,
             fat: 0,
+            servingSize: 0,
           },
         ],
         memo: "",
@@ -141,14 +152,27 @@ export const DietForm = ({
   ) => {
     setFormData((prev) => {
       const newItems = [...prev.items];
-      const updatedItem = {
-        ...newItems[index],
-        [field]: ["calories", "carbohydrate", "protein", "fat"].includes(field)
+      const item = newItems[index];
+      let updatedItem = {
+        ...item,
+        [field]: ["calories", "carbohydrate", "protein", "fat", "servingSize"].includes(field)
           ? Number(value)
           : value,
       };
 
-      // 탄수화물, 단백질, 지방 변경 시 칼로리 자동 계산
+      // 제공량(servingSize) 변경 시 비율에 맞춰 영양성분 자동 계산
+      if (field === "servingSize" && item.baseNutrients && item.baseNutrients.servingSize > 0) {
+        const ratio = Number(value) / item.baseNutrients.servingSize;
+        updatedItem = {
+          ...updatedItem,
+          calories: Math.round(item.baseNutrients.calories * ratio * 10) / 10,
+          carbohydrate: Math.round(item.baseNutrients.carbohydrate * ratio * 10) / 10,
+          protein: Math.round(item.baseNutrients.protein * ratio * 10) / 10,
+          fat: Math.round(item.baseNutrients.fat * ratio * 10) / 10,
+        };
+      }
+
+      // 탄수화물, 단백질, 지방 직접 변경 시 칼로리 재계산 (제공량 연동과는 별개)
       if (["carbohydrate", "protein", "fat"].includes(field)) {
         updatedItem.calories =
           updatedItem.carbohydrate * 4 +
@@ -172,6 +196,14 @@ export const DietForm = ({
         carbohydrate: food.carbohydrate,
         protein: food.protein,
         fat: food.fat,
+        servingSize: food.servingSize,
+        baseNutrients: {
+          calories: food.calories,
+          carbohydrate: food.carbohydrate,
+          protein: food.protein,
+          fat: food.fat,
+          servingSize: food.servingSize,
+        },
       };
       return { ...prev, items: newItems };
     });
@@ -199,7 +231,14 @@ export const DietForm = ({
       ...prev,
       items: [
         ...prev.items,
-        { foodName: "", calories: 0, carbohydrate: 0, protein: 0, fat: 0 },
+        {
+          foodName: "",
+          calories: 0,
+          carbohydrate: 0,
+          protein: 0,
+          fat: 0,
+          servingSize: 0,
+        },
       ],
     }));
   };
@@ -275,6 +314,26 @@ export const DietForm = ({
                   size={18}
                   className="text-slate-400 group-hover/input:text-main transition-colors"
                 />
+              </div>
+            </div>
+            
+            <div className="space-y-1.5">
+              <label className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-tight ml-1">
+                섭취량
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  value={item.servingSize === 0 ? "" : item.servingSize}
+                  onChange={(e) =>
+                    handleItemChange(index, "servingSize", e.target.value)
+                  }
+                  placeholder="0"
+                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-[16px] font-bold text-slate-800 focus:bg-white focus:border-main transition-all outline-none"
+                />
+                <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold">
+                  g
+                </span>
               </div>
             </div>
 

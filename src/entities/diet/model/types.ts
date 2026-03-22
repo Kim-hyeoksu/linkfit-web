@@ -7,7 +7,14 @@ export interface DietItem {
   carbohydrate: number;
   protein: number;
   fat: number;
-  servingSize?: number;
+  servingSize: number;
+  baseNutrients?: {
+    calories: number;
+    carbohydrate: number;
+    protein: number;
+    fat: number;
+    servingSize: number;
+  };
 }
 
 export interface DietRequest {
