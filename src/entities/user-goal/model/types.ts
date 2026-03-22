@@ -14,7 +14,8 @@ export type GoalType =
 export interface UserGoal {
   id: number;
   goalType: GoalType;
-  targetValue: number;
+  primaryValue: number;
+  secondaryValue: number;
   targetText: string;
   startDate: string; // YYYY-MM-DD
   endDate: string;   // YYYY-MM-DD
@@ -25,7 +26,8 @@ export interface UserGoal {
  */
 export interface UserGoalRequest {
   goalType: GoalType;
-  targetValue: number;
+  primaryValue: number;
+  secondaryValue: number;
   targetText: string;
   startDate: string;
   endDate: string;

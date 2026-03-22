@@ -7,6 +7,7 @@ import {
   WorkoutStatusWidget,
 } from "@/widgets/home";
 import { getDashboardSummary, DashboardSummary } from "@/entities/dashboard";
+import { GoalSummaryWidget } from "@/widgets/user-goal";
 import { useAtomValue } from "jotai";
 import { userState } from "@/entities/user/model/userState";
 import { Header } from "@/shared";
@@ -51,6 +52,10 @@ export default function Home() {
       <main className="px-5 pt-4 flex flex-col gap-10">
         <section>
           <GreetingWidget user={user} summary={summary} />
+        </section>
+
+        <section>
+          <GoalSummaryWidget />
         </section>
 
         <section>

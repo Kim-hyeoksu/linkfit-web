@@ -104,23 +104,58 @@ export const GoalManagementWidget = () => {
   };
 
   // 헬퍼: 라벨 포맷
-  const getLabelAndColor = (type: string) => {
-    switch (type) {
+  const getGoalInfo = (goal: UserGoal) => {
+    switch (goal.goalType) {
       case "WEIGHT_LOSS":
-        return { label: "체중 감량", color: "text-blue-500", bg: "bg-blue-50" };
+        return {
+          label: "체중 감량",
+          color: "text-blue-500",
+          bg: "bg-blue-50",
+          primary: `${goal.primaryValue?.toLocaleString()}kg`,
+          secondary: goal.secondaryValue ? `${goal.secondaryValue}%` : null,
+          isMemoOnly: false,
+        };
       case "BULK_UP":
-        return { label: "벌크업", color: "text-red-500", bg: "bg-red-50" };
-      case "FITNESS_IMPROVEMENT":
+        return {
+          label: "벌크업",
+          color: "text-red-500",
+          bg: "bg-red-50",
+          primary: `${goal.primaryValue?.toLocaleString()}kg`,
+          secondary: goal.secondaryValue ? `${goal.secondaryValue}kg` : null,
+          isMemoOnly: false,
+        };
       case "STRENGTH":
         return {
-          label: "체력 증진",
+          label: "근력 향상",
           color: "text-green-500",
           bg: "bg-green-50",
+          primary: `${goal.primaryValue?.toLocaleString()}kg`,
+          secondary: goal.secondaryValue ? `${goal.secondaryValue} Reps` : null,
+          isMemoOnly: false,
+        };
+      case "FITNESS_IMPROVEMENT":
+        return {
+          label: "체력 증진",
+          color: "text-indigo-500",
+          bg: "bg-indigo-50",
+          isMemoOnly: true,
         };
       case "REHABILITATION":
-        return { label: "재활", color: "text-amber-500", bg: "bg-amber-50" };
+        return {
+          label: "재활",
+          color: "text-amber-500",
+          bg: "bg-amber-50",
+          isMemoOnly: true,
+        };
       default:
-        return { label: "목표", color: "text-slate-500", bg: "bg-slate-50" };
+        return {
+          label: "목표",
+          color: "text-slate-500",
+          bg: "bg-slate-50",
+          primary: goal.primaryValue?.toString(),
+          secondary: goal.secondaryValue?.toString(),
+          isMemoOnly: false,
+        };
     }
   };
 
@@ -159,7 +194,8 @@ export const GoalManagementWidget = () => {
       ) : (
         <div className="flex flex-col gap-3 z-10 mt-2">
           {goals.map((goal) => {
-            const { label, color, bg } = getLabelAndColor(goal.goalType);
+            const { label, color, bg, primary, secondary, isMemoOnly } =
+              getGoalInfo(goal);
             const ddayLabel = calculateDday(goal.endDate);
             const isFinished = ddayLabel.startsWith("D+");
 
@@ -192,18 +228,38 @@ export const GoalManagementWidget = () => {
                   {goal.targetText}
                 </h4>
 
-                <div className="mt-3 flex items-end justify-between">
-                  <div className="flex flex-col">
-                    <span className="text-[11px] font-bold text-slate-400">
-                      목표 수치
-                    </span>
-                    <span
-                      className={`text-[18px] font-black ${isFinished ? "text-slate-500" : "text-[#191F28]"}`}
-                    >
-                      {goal.targetValue}
-                    </span>
-                  </div>
-                  <div className="text-[11px] font-bold text-slate-400">
+                <div className="mt-4 flex items-end justify-between">
+                  {!isMemoOnly ? (
+                    <div className="flex gap-5">
+                      <div className="flex flex-col">
+                        <span className="text-[11px] font-bold text-slate-400">
+                          {goal.goalType === "STRENGTH" ? "목표 중량" : "목표 수치"}
+                        </span>
+                        <span
+                          className={`text-[18px] font-black ${isFinished ? "text-slate-500" : "text-[#191F28]"}`}
+                        >
+                          {primary}
+                        </span>
+                      </div>
+                      {secondary && (
+                        <div className="flex flex-col">
+                          <span className="text-[11px] font-bold text-slate-400">
+                             {goal.goalType === "STRENGTH" ? "목표 횟수" : "추가 지표"}
+                          </span>
+                          <span
+                            className={`text-[18px] font-black ${isFinished ? "text-slate-500" : "text-[#191F28]"}`}
+                          >
+                            {secondary}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-[11px] font-bold text-blue-500 bg-blue-50 px-2 py-1 rounded">
+                      상세 목표 관리 중
+                    </div>
+                  )}
+                  <div className="text-[11px] font-bold text-slate-300">
                     {goal.startDate} ~ {goal.endDate}
                   </div>
                 </div>
