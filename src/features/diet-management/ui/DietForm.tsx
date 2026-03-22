@@ -15,8 +15,11 @@ import {
   Sun,
   Moon,
   CakeSlice,
+  Search,
 } from "lucide-react";
 import { formatDateToLocalISO } from "@/shared/utils";
+import { FoodSearchModal } from "./FoodSearchModal";
+import { Food } from "@/entities/food";
 
 interface DietFormProps {
   initialData?: DietResponse;
@@ -47,6 +50,7 @@ export const DietForm = ({
     imagePath: "",
   });
 
+  const [searchIndex, setSearchIndex] = useState<number | null>(null);
   useEffect(() => {
     if (initialData) {
       setFormData({
@@ -157,6 +161,23 @@ export const DietForm = ({
     });
   };
 
+  const handleFoodSelect = (food: Food) => {
+    if (searchIndex === null) return;
+    setFormData((prev) => {
+      const newItems = [...prev.items];
+      newItems[searchIndex] = {
+        ...newItems[searchIndex],
+        foodName: food.foodName,
+        calories: food.calories,
+        carbohydrate: food.carbohydrate,
+        protein: food.protein,
+        fat: food.fat,
+      };
+      return { ...prev, items: newItems };
+    });
+    setSearchIndex(null);
+  };
+
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -237,14 +258,24 @@ export const DietForm = ({
                   </button>
                 )}
               </div>
-              <input
-                value={item.foodName}
-                onChange={(e) =>
-                  handleItemChange(index, "foodName", e.target.value)
-                }
-                placeholder="예: 닭가슴살 샐러드"
-                className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-[16px] font-bold text-slate-800 focus:bg-white focus:border-main transition-all outline-none"
-              />
+              <div
+                onClick={() => setSearchIndex(index)}
+                className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-[16px] font-bold text-slate-800 cursor-pointer flex items-center justify-between hover:bg-white hover:border-main transition-all group/input"
+              >
+                <span
+                  className={
+                    item.foodName
+                      ? "text-slate-800"
+                      : "text-slate-400 font-medium"
+                  }
+                >
+                  {item.foodName || "어떤 음식을 드셨나요?"}
+                </span>
+                <Search
+                  size={18}
+                  className="text-slate-400 group-hover/input:text-main transition-colors"
+                />
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -370,6 +401,12 @@ export const DietForm = ({
           {initialData ? "수정하기" : "기록 저장하기"}
         </button>
       </div>
+
+      <FoodSearchModal
+        isOpen={searchIndex !== null}
+        onClose={() => setSearchIndex(null)}
+        onSelectFood={handleFoodSelect}
+      />
     </div>
   );
 };

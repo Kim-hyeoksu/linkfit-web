@@ -1,10 +1,10 @@
 import { api } from "@/shared/api";
-import { Food } from "../model/types";
+import { FoodSearchResponse } from "../model/types";
 
-export const searchFoodByName = async (name: string): Promise<Food[]> => {
+export const searchFoodByName = async (keyword: string): Promise<FoodSearchResponse> => {
   try {
-    const response = await api.get<Food[]>(`/api/foods/searchByName`, {
-      params: { name },
+    const response = await api.get<FoodSearchResponse>(`/api/foods/search/name`, {
+      params: { keyword },
     });
     return response.data;
   } catch (error) {

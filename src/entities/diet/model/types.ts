@@ -7,6 +7,7 @@ export interface DietItem {
   carbohydrate: number;
   protein: number;
   fat: number;
+  servingSize?: number;
 }
 
 export interface DietRequest {
