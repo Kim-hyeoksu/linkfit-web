@@ -1,22 +1,22 @@
-"use client";
-
 import React, { useEffect, useState } from "react";
-import { Target, ChevronRight } from "lucide-react";
+import { Target, ChevronLeft, ChevronRight } from "lucide-react";
 import { UserGoal, getGoals } from "@/entities/user-goal";
 import { useRouter } from "next/navigation";
+import { motion, useMotionValue } from "framer-motion";
 
 export const GoalSummaryWidget = () => {
   const router = useRouter();
-  const [activeGoal, setActiveGoal] = useState<UserGoal | null>(null);
+  const [goals, setGoals] = useState<UserGoal[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const DRAG_THRESHOLD = 50;
 
   useEffect(() => {
     const fetchGoals = async () => {
       try {
         const data = await getGoals();
         if (data && data.length > 0) {
-          // 가장 임박하거나 현재 진행 중인 첫 번째 목표 선택 (단순화)
-          setActiveGoal(data[0]);
+          setGoals(data);
         }
       } catch (e) {
         console.error("Failed to load goals for summary", e);
@@ -54,35 +54,6 @@ export const GoalSummaryWidget = () => {
     return Math.round((current / total) * 100);
   };
 
-  if (isLoading) {
-    return (
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-50 flex items-center justify-center h-[140px]">
-        <div className="animate-spin rounded-full h-7 w-7 border-[3px] border-slate-100 border-t-main"></div>
-      </div>
-    );
-  }
-
-  if (!activeGoal) {
-    return (
-      <div
-        onClick={() => router.push("/mypage")}
-        className="bg-white rounded-2xl p-7 shadow-sm border border-slate-50 flex flex-col items-center justify-center gap-3 cursor-pointer hover:shadow-md transition-all active:scale-[0.98] group"
-      >
-        <div className="w-12 h-12 bg-slate-50 text-slate-300 rounded-2xl flex items-center justify-center group-hover:bg-blue-50 group-hover:text-main transition-colors">
-          <Target size={24} />
-        </div>
-        <div className="text-center">
-          <p className="text-slate-900 font-bold text-[16px]">
-            아직 설정된 목표가 없어요
-          </p>
-          <p className="text-slate-400 text-[13px] mt-0.5">
-            클릭해서 첫 목표를 세워보세요!
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   const getGoalInfo = (goal: UserGoal) => {
     switch (goal.goalType) {
       case "WEIGHT_LOSS":
@@ -111,87 +82,191 @@ export const GoalSummaryWidget = () => {
         };
       default:
         return {
+          primaryLabel: "",
+          primary: "",
+          secondaryLabel: "",
+          secondary: null,
           showValues: false,
         };
     }
   };
 
-  const ddayLabel = calculateDday(activeGoal.endDate);
-  const progress = calculateProgress(activeGoal.startDate, activeGoal.endDate);
-  const isFinished = ddayLabel.startsWith("D+");
-  const { primary, secondary, showValues, primaryLabel, secondaryLabel } =
-    getGoalInfo(activeGoal);
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-50 flex items-center justify-center h-[140px]">
+        <div className="animate-spin rounded-full h-7 w-7 border-[3px] border-slate-100 border-t-main"></div>
+      </div>
+    );
+  }
 
-  return (
-    <div
-      onClick={() => router.push("/mypage")}
-      className="bg-white rounded-2xl p-7 shadow-sm border border-white flex flex-col gap-6 cursor-pointer hover:shadow-md transition-all active:scale-[0.98] group"
-    >
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-blue-50 flex items-center justify-center text-main group-hover:scale-110 transition-transform">
-            <Target size={22} strokeWidth={2.5} />
-          </div>
-          <div className="flex flex-col">
-            <h2 className="text-[17px] font-bold text-gray-900 tracking-tight">
-              나의 목표
-            </h2>
-            <span className="text-[12px] font-semibold text-slate-400">
-              DAILY GOAL
-            </span>
-          </div>
+  if (goals.length === 0) {
+    return (
+      <div
+        onClick={() => router.push("/mypage")}
+        className="bg-white rounded-2xl p-7 shadow-sm border border-slate-50 flex flex-col items-center justify-center gap-3 cursor-pointer hover:shadow-md transition-all active:scale-[0.98] group"
+      >
+        <div className="w-12 h-12 bg-slate-50 text-slate-300 rounded-2xl flex items-center justify-center group-hover:bg-blue-50 group-hover:text-main transition-colors">
+          <Target size={24} />
         </div>
-        <div
-          className={`text-[13px] font-bold px-3 py-1.5 rounded-full ${isFinished ? "bg-slate-100 text-slate-500" : "bg-blue-50 text-main"}`}
-        >
-          {ddayLabel}
+        <div className="text-center">
+          <p className="text-slate-900 font-bold text-[16px]">
+            아직 설정된 목표가 없어요
+          </p>
+          <p className="text-slate-400 text-[13px] mt-0.5">
+            클릭해서 첫 목표를 세워보세요!
+          </p>
         </div>
       </div>
+    );
+  }
 
-      <div className="flex flex-col gap-2">
-        <h3 className="text-[20px] font-bold text-gray-900 leading-tight tracking-tight">
-          {activeGoal.targetText}
-        </h3>
-        {showValues && (
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-[13px] font-semibold text-slate-400">
-                {primaryLabel}
-              </span>
-              <span className="text-[18px] font-bold text-gray-800 tracking-tight">
-                {primary}
-              </span>
-            </div>
-            {secondary && (
-              <div className="flex items-center gap-2 border-l border-slate-100 pl-4">
-                <span className="text-[13px] font-semibold text-slate-400">
-                  {secondaryLabel}
-                </span>
-                <span className="text-[18px] font-bold text-gray-800 tracking-tight">
-                  {secondary}
-                </span>
+  const handleNext = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentIndex((prev) => (prev + 1) % goals.length);
+  };
+
+  const handlePrev = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentIndex((prev) => (prev - 1 + goals.length) % goals.length);
+  };
+
+  const onDragEnd = (e: any, info: any) => {
+    const { offset } = info;
+    if (offset.x < -DRAG_THRESHOLD) {
+      setCurrentIndex((prev) => (prev + 1) % goals.length);
+    } else if (offset.x > DRAG_THRESHOLD) {
+      setCurrentIndex((prev) => (prev - 1 + goals.length) % goals.length);
+    }
+  };
+
+  return (
+    <div className="relative group/container select-none">
+      <div className="bg-white rounded-2xl shadow-sm border border-white relative overflow-hidden h-[220px]">
+        <motion.div
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          onDragEnd={onDragEnd}
+          animate={{ x: `-${currentIndex * 100}%` }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          className="flex h-full cursor-grab active:cursor-grabbing"
+        >
+          {goals.map((goal, idx) => {
+            const ddayLabel = calculateDday(goal.endDate);
+            const progress = calculateProgress(goal.startDate, goal.endDate);
+            const isFinished = ddayLabel.startsWith("D+");
+            const {
+              primary,
+              secondary,
+              showValues,
+              primaryLabel,
+              secondaryLabel,
+            } = getGoalInfo(goal);
+
+            return (
+              <div
+                key={goal.id || idx}
+                onClick={() => router.push("/mypage")}
+                className="w-full h-full flex-shrink-0 py-5 px-7 flex flex-col gap-6 cursor-pointer"
+              >
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-3">
+                    <div className="flex flex-col">
+                      <h2 className="text-[17px] font-bold text-gray-900 tracking-tight">
+                        나의 목표
+                      </h2>
+                      <span className="text-[12px] font-semibold text-slate-400">
+                        GOAL #{idx + 1}
+                      </span>
+                    </div>
+                  </div>
+                  <div
+                    className={`text-[13px] font-bold px-3 py-1.5 rounded-full ${isFinished ? "bg-slate-100 text-slate-500" : "bg-blue-50 text-main"}`}
+                  >
+                    {ddayLabel}
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <h3 className="text-[20px] font-bold text-gray-900 leading-tight tracking-tight truncate">
+                    {goal.targetText}
+                  </h3>
+                  {showValues && (
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[13px] font-semibold text-slate-400">
+                          {primaryLabel}
+                        </span>
+                        <span className="text-[18px] font-bold text-gray-800 tracking-tight">
+                          {primary}
+                        </span>
+                      </div>
+                      {secondary && (
+                        <div className="flex items-center gap-2 border-l border-slate-100 pl-4">
+                          <span className="text-[13px] font-semibold text-slate-400">
+                            {secondaryLabel}
+                          </span>
+                          <span className="text-[18px] font-bold text-gray-800 tracking-tight">
+                            {secondary}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-3 mt-auto">
+                  <div className="flex justify-between items-end">
+                    <span className="text-[12px] font-bold text-main">
+                      {progress}% 진행 중
+                    </span>
+                    <span className="text-[11px] font-semibold text-slate-300">
+                      {goal.endDate}까지
+                    </span>
+                  </div>
+                  <div className="w-full h-2 bg-slate-50 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-1000 ease-out ${isFinished ? "bg-slate-300" : "bg-main shadow-sm shadow-blue-100"}`}
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                </div>
               </div>
-            )}
-          </div>
+            );
+          })}
+        </motion.div>
+
+        {/* Minimal Navigation Arrows */}
+        {goals.length > 1 && (
+          <>
+            <button
+              onClick={handlePrev}
+              className="absolute top-1/2 left-0 -translate-y-1/2 p-1 transition-all z-10 text-slate-400 hover:text-main active:scale-90"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <button
+              onClick={handleNext}
+              className="absolute top-1/2 right-0 -translate-y-1/2 p-1 transition-all z-10 text-slate-400 hover:text-main active:scale-90"
+            >
+              <ChevronRight size={24} />
+            </button>
+          </>
         )}
       </div>
 
-      <div className="space-y-3">
-        <div className="flex justify-between items-end">
-          <span className="text-[12px] font-bold text-main">
-            {progress}% 진행 중
-          </span>
-          <span className="text-[11px] font-semibold text-slate-300">
-            {activeGoal.endDate}까지
-          </span>
+      {/* Pagination Dots */}
+      {goals.length > 1 && (
+        <div className="flex justify-center gap-1.5 mt-4">
+          {goals.map((_, idx) => (
+            <div
+              key={idx}
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                currentIndex === idx ? "w-4 bg-main" : "w-1.5 bg-slate-200"
+              }`}
+            />
+          ))}
         </div>
-        <div className="w-full h-2 bg-slate-50 rounded-full overflow-hidden">
-          <div
-            className={`h-full rounded-full transition-all duration-1000 ease-out ${isFinished ? "bg-slate-300" : "bg-main shadow-sm shadow-blue-100"}`}
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      </div>
+      )}
     </div>
   );
 };

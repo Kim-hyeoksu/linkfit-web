@@ -313,7 +313,7 @@ export const GoalManagementWidget = () => {
                 </>
               ) : (
                 <>
-                  {goals.length - 3}개 더 보기 <ChevronDown size={16} />
+                  {goals.length - 2}개 더 보기 <ChevronDown size={16} />
                 </>
               )}
             </button>
