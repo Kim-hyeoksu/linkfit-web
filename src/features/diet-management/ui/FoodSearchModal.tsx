@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { X, Search } from "lucide-react";
 import { Food, searchFoodByName } from "@/entities/food";
-import { useDebounce } from "@/shared/utils/useDebounce";
+import { useDebounce, useIntersectionObserver } from "@/shared/utils";
 
 interface FoodSearchModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSelectFood: (food: Food) => void;
 }
+
+const PAGE_SIZE = 20;
 
 export const FoodSearchModal = ({
   isOpen,
@@ -17,21 +19,29 @@ export const FoodSearchModal = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [results, setResults] = useState<Food[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [page, setPage] = useState(0);
+  const [isLastPage, setIsLastPage] = useState(false);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
 
   // debounced text
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
+  // 검색어 변경 시 초기화 및 첫 페이지 조회
   useEffect(() => {
-    const fetchResults = async () => {
+    const fetchFirstResults = async () => {
       if (!debouncedSearchTerm.trim()) {
         setResults([]);
+        setPage(0);
+        setIsLastPage(false);
         return;
       }
 
       setIsSearching(true);
+      setPage(0);
       try {
-        const foods = await searchFoodByName(debouncedSearchTerm);
-        setResults(foods.content || []);
+        const response = await searchFoodByName(debouncedSearchTerm, 0, PAGE_SIZE);
+        setResults(response.content || []);
+        setIsLastPage(response.last ?? true);
       } catch (error) {
         console.error("Failed to search food:", error);
       } finally {
@@ -39,8 +49,29 @@ export const FoodSearchModal = ({
       }
     };
 
-    fetchResults();
+    fetchFirstResults();
   }, [debouncedSearchTerm]);
+
+  // 스크롤 시 다음 페이지 로드
+  const loadMore = useCallback(async () => {
+    if (isSearching || isFetchingMore || isLastPage || !debouncedSearchTerm.trim()) return;
+
+    setIsFetchingMore(true);
+    const nextPage = page + 1;
+    try {
+      const response = await searchFoodByName(debouncedSearchTerm, nextPage, PAGE_SIZE);
+      setResults((prev) => [...prev, ...(response.content || [])]);
+      setPage(nextPage);
+      setIsLastPage(response.last ?? true);
+    } catch (error) {
+      console.error("Failed to fetch more foods:", error);
+    } finally {
+      setIsFetchingMore(false);
+    }
+  }, [debouncedSearchTerm, isSearching, isFetchingMore, isLastPage, page]);
+
+  // Observer 타겟
+  const observerTarget = useIntersectionObserver(loadMore, { threshold: 0.1 });
 
   if (!isOpen) return null;
 
@@ -72,15 +103,15 @@ export const FoodSearchModal = ({
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto bg-slate-50/50">
-        {isSearching ? (
+        {isSearching && page === 0 ? (
           <div className="p-8 text-center text-[14px] font-bold text-slate-400">
             검색 중...
           </div>
         ) : results.length > 0 ? (
           <div className="flex flex-col">
-            {results.map((food) => (
+            {results.map((food, idx) => (
               <button
-                key={food.id}
+                key={`${food.id}-${idx}`}
                 onClick={() => onSelectFood(food)}
                 className="flex flex-col gap-1.5 px-6 py-4 bg-white border-b border-slate-100 text-left active:bg-slate-50 transition-colors"
               >
@@ -101,6 +132,13 @@ export const FoodSearchModal = ({
                 </span>
               </button>
             ))}
+            
+            {/* Infinite Scroll Trigger */}
+            {!isLastPage && (
+              <div ref={observerTarget} className="p-8 text-center text-[14px] font-bold text-slate-400">
+                {isFetchingMore ? "더 불러오는 중..." : "목록을 불러오는 중..."}
+              </div>
+            )}
           </div>
         ) : debouncedSearchTerm ? (
           <div className="p-8 text-center flex flex-col items-center gap-3">
