@@ -1,7 +1,15 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Plus, Target, Flame, Activity, X } from "lucide-react";
+import {
+  Plus,
+  Target,
+  Flame,
+  Activity,
+  X,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import {
   UserGoal,
   getGoals,
@@ -171,6 +179,11 @@ export const GoalManagementWidget = () => {
     }
   };
 
+  // List State
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const displayedGoals = isExpanded ? goals : goals.slice(0, 2);
+
   return (
     <section className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 flex flex-col gap-4 relative overflow-hidden">
       <div className="flex items-center justify-between z-10">
@@ -205,7 +218,7 @@ export const GoalManagementWidget = () => {
         </div>
       ) : (
         <div className="flex flex-col gap-3 z-10 mt-2">
-          {goals.map((goal) => {
+          {displayedGoals.map((goal) => {
             const {
               label,
               color,
@@ -284,6 +297,23 @@ export const GoalManagementWidget = () => {
               </div>
             );
           })}
+
+          {goals.length > 2 && (
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="w-full py-3 flex items-center justify-center gap-1.5 text-[13px] font-bold text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-xl transition-all mt-1"
+            >
+              {isExpanded ? (
+                <>
+                  접기 <ChevronUp size={16} />
+                </>
+              ) : (
+                <>
+                  {goals.length - 3}개 더 보기 <ChevronDown size={16} />
+                </>
+              )}
+            </button>
+          )}
         </div>
       )}
 
