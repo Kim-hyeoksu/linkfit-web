@@ -8,6 +8,7 @@ import { WelcomeStep } from "./steps/WelcomeStep";
 import { ProfileStep } from "./steps/ProfileStep";
 import { BodyStep } from "./steps/BodyStep";
 import { ExerciseLevelStep } from "./steps/ExerciseLevelStep";
+import { GoalStep } from "./steps/GoalStep";
 import { CompleteStep } from "./steps/CompleteStep";
 import { Header } from "@/shared/ui";
 import { useRouter } from "next/navigation";
@@ -27,8 +28,8 @@ export const OnboardingFunnel = ({ initialData, mode = "signup" }: Props) => {
   const router = useRouter();
   const { showToast } = useToast();
 
-  // 전체 스텝: Welcome(0) -> Profile(1) -> Body(2) -> ExerciseLevel(3) -> Complete(4)
-  // Edit 모드일 땐 Welcome(0)이랑 Complete(4) 스킵하고 바로 Profile(1)부터 시작해도 좋습니다.
+  // 전체 스텝: Welcome(0) -> Profile(1) -> Body(2) -> ExerciseLevel(3) -> Goal(4) -> Complete(5)
+  // Edit 모드일 땐 Welcome(0)이랑 Complete(5) 스킵하고 바로 Profile(1)부터 시작해도 좋습니다.
   const [step, setStep] = useState(mode === "edit" ? 1 : 0);
 
   const [data, setData] = useState<OnboardingData>({
@@ -91,10 +92,10 @@ export const OnboardingFunnel = ({ initialData, mode = "signup" }: Props) => {
         const [userInfoResult, bodyMetricResult] = results;
 
         if (userInfoResult && (mode === "edit" || bodyMetricResult)) {
-          // 성공 시 4단계로 전환
-          setStep(4);
-        } else {
-          // 실패 시 Toast 띄우기
+          // 수정 모드면 목표(4) 건너뛰고 바로 완료(5), 신규면 목표(4)
+          setStep(mode === "edit" ? 5 : 4);
+        }
+ else {
           showToast("정보 저장에 실패했습니다. 다시 시도해 주세요.", "error");
         }
       } catch {
@@ -103,8 +104,8 @@ export const OnboardingFunnel = ({ initialData, mode = "signup" }: Props) => {
       return;
     }
 
-    // 마지막 완료 단계 (어떤 모드든 4단계까지 도달하도록 수정)
-    if (step === 4) {
+    // 완료 단계 처리
+    if (step === 5) {
       submitData();
       return;
     }
@@ -128,37 +129,31 @@ export const OnboardingFunnel = ({ initialData, mode = "signup" }: Props) => {
   };
 
   const submitData = () => {
-    // 이미 step 3에서 데이터를 저장했으므로 화면 전환만 수행
     if (mode === "edit") {
-      router.push("/mypage"); // 수정 모드면 마이페이지로
+      router.push("/mypage");
     } else {
-      router.replace("/workout/programs"); // 가입 직후면 메인 피드로
+      router.replace("/workout/programs");
     }
   };
 
-  // 진행률 (Welcome과 Complete는 제외하고 중간 1,2,3 단계에서만 프로그레스바 증가)
-
   return (
     <div className="flex flex-col min-h-screen bg-white overflow-hidden relative">
-      {/* 헤더 부분 */}
       <Header
         title={mode === "edit" ? "내 정보 수정" : "기본 정보 입력"}
-        showBackButton={step > 0 && step < 4} // 첫 화면과 완료 화면에선 뒤로가기 숨김
+        showBackButton={step > 0 && step < 5}
         onBackClick={prevStep}
         className="bg-transparent border-none shadow-none"
       />
 
-      {/* 진행 상태 바 (Welcome과 Complete 스텝에서는 숨김) */}
-      {step > 0 && step < 4 && (
+      {step > 0 && step < 5 && (
         <div className="absolute top-[64px] left-0 right-0 z-10 px-5">
           <ProgressBar
             currentStep={mode === "edit" ? (step === 3 ? 2 : 1) : step}
-            totalSteps={mode === "edit" ? 2 : 3}
+            totalSteps={mode === "edit" ? 2 : 4}
           />
         </div>
       )}
 
-      {/* 페이징 컨테이너 */}
       <div className="flex-1 relative w-full h-full overflow-hidden">
         <AnimatePresence mode="wait">
           {step === 0 && <WelcomeStep key="welcome" onNext={nextStep} />}
@@ -186,7 +181,8 @@ export const OnboardingFunnel = ({ initialData, mode = "signup" }: Props) => {
               onNext={nextStep}
             />
           )}
-          {step === 4 && (
+          {step === 4 && <GoalStep key="goal" onNext={nextStep} />}
+          {step === 5 && (
             <CompleteStep key="complete" onNext={nextStep} mode={mode} />
           )}
         </AnimatePresence>

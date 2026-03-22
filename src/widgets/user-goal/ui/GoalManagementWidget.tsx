@@ -305,7 +305,7 @@ export const GoalManagementWidget = () => {
           {goals.length > 2 && (
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="w-full py-3 flex items-center justify-center gap-1.5 text-[13px] font-bold text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-xl transition-all mt-1"
+              className="w-full pt-3 flex items-center justify-center gap-1.5 text-[13px] font-bold text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-xl transition-all mt-1"
             >
               {isExpanded ? (
                 <>

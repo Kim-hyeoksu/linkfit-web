@@ -121,7 +121,7 @@ export const GoalForm = ({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       <div className="space-y-3">
-        <label className="text-[15px] font-black text-slate-800">
+        <label className="block mb-1.5 text-[15px] font-black text-slate-800">
           목표 유형
         </label>
         <div className="grid grid-cols-2 gap-2">
@@ -154,7 +154,7 @@ export const GoalForm = ({
       {config.showValues && (
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-3">
-            <label className="text-[15px] font-black text-slate-800">
+            <label className="block mb-1.5 text-[15px] font-black text-slate-800">
               {config.primaryLabel}
             </label>
             <input
@@ -166,7 +166,7 @@ export const GoalForm = ({
             />
           </div>
           <div className="space-y-3">
-            <label className="text-[15px] font-black text-slate-800">
+            <label className="block mb-1.5 text-[15px] font-black text-slate-800">
               {config.secondaryLabel}
             </label>
             <input
@@ -181,7 +181,7 @@ export const GoalForm = ({
       )}
 
       <div className="space-y-3">
-        <label className="text-[15px] font-black text-slate-800">
+        <label className="block mb-1.5 text-[15px] font-black text-slate-800">
           {config.textLabel}
         </label>
         <input
@@ -195,7 +195,7 @@ export const GoalForm = ({
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-3">
-          <label className="text-[15px] font-black text-slate-800">
+          <label className="block mb-1.5 text-[15px] font-black text-slate-800">
             시작일
           </label>
           <input
@@ -206,7 +206,7 @@ export const GoalForm = ({
           />
         </div>
         <div className="space-y-3">
-          <label className="text-[15px] font-black text-slate-800">
+          <label className="block mb-1.5 text-[15px] font-black text-slate-800">
             종료일
           </label>
           <input
