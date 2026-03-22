@@ -63,7 +63,7 @@ export const WorkoutStatusWidget = ({ summary }: WorkoutStatusProps) => {
           </div>
           <Link
             href="/workout/calendar"
-            className="text-[12px] font-bold text-slate-400 hover:text-main flex items-center transition-all"
+            className="whitespace-nowrap text-[12px] font-bold text-slate-400 hover:text-main flex items-center transition-all"
           >
             전체 기록 <ChevronRight size={14} className="ml-0.5" />
           </Link>
