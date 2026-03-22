@@ -197,6 +197,10 @@ export const GoalManagementWidget = () => {
         </div>
         <button
           onClick={() => {
+            if (goals.length >= 5) {
+              showToast("목표는 최대 5개까지 생성 가능합니다.", "info");
+              return;
+            }
             setSelectedGoal(undefined);
             setIsFormOpen(true);
           }}
