@@ -1,31 +1,86 @@
 import React, { useEffect, useState } from "react";
-import { Target, ChevronLeft, ChevronRight } from "lucide-react";
-import { UserGoal, getGoals } from "@/entities/user-goal";
+import { Target, ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import {
+  UserGoal,
+  getGoals,
+  createGoal,
+  updateGoal,
+  deleteGoal,
+} from "@/entities/user-goal";
 import { useRouter } from "next/navigation";
 import { motion, useMotionValue } from "framer-motion";
+
+import { BottomSheet } from "@/shared/ui/BottomSheet";
+import { GoalForm } from "@/features/user-goal/ui/GoalForm";
+import { ConfirmModal } from "@/shared/ui/ConfirmModal";
 
 export const GoalSummaryWidget = () => {
   const router = useRouter();
   const [goals, setGoals] = useState<UserGoal[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+  const [selectedGoal, setSelectedGoal] = useState<UserGoal | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const DRAG_THRESHOLD = 50;
 
-  useEffect(() => {
-    const fetchGoals = async () => {
-      try {
-        const data = await getGoals();
-        if (data && data.length > 0) {
-          setGoals(data);
-        }
-      } catch (e) {
-        console.error("Failed to load goals for summary", e);
-      } finally {
-        setIsLoading(false);
+  const fetchGoals = async () => {
+    try {
+      const data = await getGoals();
+      if (data && data.length > 0) {
+        setGoals(data);
+      } else {
+        setGoals([]); // 목표가 없을 때도 빈 배열로 세팅
       }
-    };
+    } catch (e) {
+      console.error("Failed to load goals for summary", e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchGoals();
   }, []);
+
+  const openDetailSheet = (goal: UserGoal) => {
+    setSelectedGoal(goal);
+    setIsBottomSheetOpen(true);
+  };
+
+  const openCreateSheet = () => {
+    setSelectedGoal(null);
+    setIsBottomSheetOpen(true);
+  };
+
+  const handleGoalSubmit = async (data: any) => {
+    try {
+      if (selectedGoal) {
+        await updateGoal(selectedGoal.id, data);
+      } else {
+        await createGoal(data);
+      }
+      await fetchGoals();
+      setIsBottomSheetOpen(false);
+      // 목표 추가 시 강제로 마지막 슬라이드로 이동 방지 혹은 인계
+      setCurrentIndex(0);
+    } catch (e) {
+      console.error("Failed to submit goal", e);
+    }
+  };
+
+  const handleDeleteGoal = async () => {
+    if (!selectedGoal) return;
+    try {
+      await deleteGoal(selectedGoal.id);
+      await fetchGoals();
+      setIsDeleteModalOpen(false);
+      setIsBottomSheetOpen(false);
+      setCurrentIndex(0);
+    } catch (e) {
+      console.error("Failed to delete goal", e);
+    }
+  };
 
   const calculateDday = (endDateStr: string) => {
     const end = new Date(endDateStr);
@@ -58,6 +113,9 @@ export const GoalSummaryWidget = () => {
     switch (goal.goalType) {
       case "WEIGHT_LOSS":
         return {
+          label: "체중 감량",
+          color: "text-blue-500",
+          bg: "bg-blue-50",
           primaryLabel: "목표 체중",
           primary: `${goal.primaryValue?.toLocaleString()}kg`,
           secondaryLabel: "체지방률",
@@ -66,6 +124,9 @@ export const GoalSummaryWidget = () => {
         };
       case "BULK_UP":
         return {
+          label: "벌크업",
+          color: "text-red-500",
+          bg: "bg-red-50",
           primaryLabel: "목표 체중",
           primary: `${goal.primaryValue?.toLocaleString()}kg`,
           secondaryLabel: "골격근량",
@@ -74,14 +135,38 @@ export const GoalSummaryWidget = () => {
         };
       case "STRENGTH":
         return {
+          label: "근력 향상",
+          color: "text-green-500",
+          bg: "bg-green-50",
           primaryLabel: "목표 중량",
           primary: `${goal.primaryValue?.toLocaleString()}kg`,
           secondaryLabel: "목표 횟수",
           secondary: goal.secondaryValue ? `${goal.secondaryValue} Reps` : null,
           showValues: true,
         };
+      case "FITNESS_IMPROVEMENT":
+        return {
+          label: "체력 증진",
+          color: "text-indigo-500",
+          bg: "bg-indigo-50",
+          primaryLabel: "",
+          secondaryLabel: "",
+          showValues: false,
+        };
+      case "REHABILITATION":
+        return {
+          label: "재활",
+          color: "text-amber-500",
+          bg: "bg-amber-50",
+          primaryLabel: "",
+          secondaryLabel: "",
+          showValues: false,
+        };
       default:
         return {
+          label: "목표",
+          color: "text-slate-500",
+          bg: "bg-slate-50",
           primaryLabel: "",
           primary: "",
           secondaryLabel: "",
@@ -91,6 +176,10 @@ export const GoalSummaryWidget = () => {
     }
   };
 
+  // 실제 렌더링할 카드 리스트 (목표가 5개 미만이면 추가 슬라이드 생성)
+  const showAddCard = goals.length < 5;
+  const totalSlides = goals.length + (showAddCard ? 1 : 0);
+
   if (isLoading) {
     return (
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-50 flex items-center justify-center h-[140px]">
@@ -99,10 +188,11 @@ export const GoalSummaryWidget = () => {
     );
   }
 
-  if (goals.length === 0) {
+  // 목표가 전혀 없고, 추가 카드도 안 보여줄 상황은 없지만 방어코드
+  if (goals.length === 0 && !showAddCard) {
     return (
       <div
-        onClick={() => router.push("/mypage")}
+        onClick={openCreateSheet}
         className="bg-white rounded-2xl p-7 shadow-sm border border-slate-50 flex flex-col items-center justify-center gap-3 cursor-pointer hover:shadow-md transition-all active:scale-[0.98] group"
       >
         <div className="w-12 h-12 bg-slate-50 text-slate-300 rounded-2xl flex items-center justify-center group-hover:bg-blue-50 group-hover:text-main transition-colors">
@@ -122,26 +212,32 @@ export const GoalSummaryWidget = () => {
 
   const handleNext = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setCurrentIndex((prev) => (prev + 1) % goals.length);
+    setCurrentIndex((prev) => (prev + 1) % totalSlides);
   };
 
   const handlePrev = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setCurrentIndex((prev) => (prev - 1 + goals.length) % goals.length);
+    setCurrentIndex((prev) => (prev - 1 + totalSlides) % totalSlides);
   };
 
   const onDragEnd = (e: any, info: any) => {
     const { offset } = info;
     if (offset.x < -DRAG_THRESHOLD) {
-      setCurrentIndex((prev) => (prev + 1) % goals.length);
+      setCurrentIndex((prev) => (prev + 1) % totalSlides);
     } else if (offset.x > DRAG_THRESHOLD) {
-      setCurrentIndex((prev) => (prev - 1 + goals.length) % goals.length);
+      setCurrentIndex((prev) => (prev - 1 + totalSlides) % totalSlides);
     }
   };
 
   return (
-    <div className="relative group/container select-none">
-      <div className="bg-white rounded-2xl shadow-sm border border-white relative overflow-hidden h-[220px]">
+    <div className="relative group/container select-none flex flex-col gap-4">
+      <div className="flex items-center justify-between px-1">
+        <h2 className="text-[19px] font-black text-slate-800 tracking-tight">
+          나의 목표
+        </h2>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-sm border border-white relative overflow-hidden h-[180px]">
         <motion.div
           drag="x"
           dragConstraints={{ left: 0, right: 0 }}
@@ -155,6 +251,9 @@ export const GoalSummaryWidget = () => {
             const progress = calculateProgress(goal.startDate, goal.endDate);
             const isFinished = ddayLabel.startsWith("D+");
             const {
+              label,
+              color,
+              bg,
               primary,
               secondary,
               showValues,
@@ -165,78 +264,101 @@ export const GoalSummaryWidget = () => {
             return (
               <div
                 key={goal.id || idx}
-                onClick={() => router.push("/mypage")}
-                className="w-full h-full flex-shrink-0 py-5 px-7 flex flex-col gap-6 cursor-pointer"
+                onClick={() => openDetailSheet(goal)}
+                className={`w-full h-full flex-shrink-0 py-5 px-7 flex flex-col gap-4 cursor-pointer transition-all ${isFinished ? "opacity-70" : ""}`}
               >
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-start">
                   <div className="flex items-center gap-3">
-                    <div className="flex flex-col">
-                      <h2 className="text-[17px] font-bold text-gray-900 tracking-tight">
-                        나의 목표
-                      </h2>
-                      <span className="text-[12px] font-semibold text-slate-400">
-                        GOAL #{idx + 1}
-                      </span>
+                    <div
+                      className={`px-2.5 py-1 rounded-md text-[11px] font-black ${bg} ${color}`}
+                    >
+                      {label}
                     </div>
                   </div>
                   <div
-                    className={`text-[13px] font-bold px-3 py-1.5 rounded-full ${isFinished ? "bg-slate-100 text-slate-500" : "bg-blue-50 text-main"}`}
+                    className={`text-[12px] font-black px-2 py-0.5 rounded-full ${isFinished ? "bg-slate-200 text-slate-500" : "bg-red-50 text-red-500"}`}
                   >
                     {ddayLabel}
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-2">
-                  <h3 className="text-[20px] font-bold text-gray-900 leading-tight tracking-tight truncate">
+                <div className="flex flex-col gap-1">
+                  <h3
+                    className={`text-[19px] font-black tracking-tight leading-tight truncate ${isFinished ? "text-slate-500" : "text-slate-800"}`}
+                  >
                     {goal.targetText}
                   </h3>
-                  {showValues && (
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[13px] font-semibold text-slate-400">
+                </div>
+
+                <div className="flex items-center justify-between mt-auto">
+                  {showValues ? (
+                    <div className="flex gap-5">
+                      <div className="flex flex-col">
+                        <span className="text-[11px] font-bold text-slate-400">
                           {primaryLabel}
                         </span>
-                        <span className="text-[18px] font-bold text-gray-800 tracking-tight">
+                        <span
+                          className={`text-[18px] font-black tracking-tight ${isFinished ? "text-slate-500" : "text-[#191F28]"}`}
+                        >
                           {primary}
                         </span>
                       </div>
                       {secondary && (
-                        <div className="flex items-center gap-2 border-l border-slate-100 pl-4">
-                          <span className="text-[13px] font-semibold text-slate-400">
+                        <div className="flex flex-col border-l border-slate-100 pl-5">
+                          <span className="text-[11px] font-bold text-slate-400">
                             {secondaryLabel}
                           </span>
-                          <span className="text-[18px] font-bold text-gray-800 tracking-tight">
+                          <span
+                            className={`text-[18px] font-black tracking-tight ${isFinished ? "text-slate-500" : "text-[#191F28]"}`}
+                          >
                             {secondary}
                           </span>
                         </div>
                       )}
                     </div>
+                  ) : (
+                    <div />
                   )}
-                </div>
 
-                <div className="space-y-3 mt-auto">
-                  <div className="flex justify-between items-end">
-                    <span className="text-[12px] font-bold text-main">
+                  <div className="flex flex-col items-end gap-1.5">
+                    <span className="text-[11px] font-bold text-main">
                       {progress}% 진행 중
                     </span>
-                    <span className="text-[11px] font-semibold text-slate-300">
-                      {goal.endDate}까지
-                    </span>
-                  </div>
-                  <div className="w-full h-2 bg-slate-50 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all duration-1000 ease-out ${isFinished ? "bg-slate-300" : "bg-main shadow-sm shadow-blue-100"}`}
-                      style={{ width: `${progress}%` }}
-                    />
+                    <div className="w-24 h-1.5 bg-slate-50 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-1000 ease-out ${isFinished ? "bg-slate-300" : "bg-main shadow-sm shadow-blue-100"}`}
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
             );
           })}
+
+          {/* Add Goal Slide */}
+          {showAddCard && (
+            <div
+              onClick={openCreateSheet}
+              className="w-full h-full flex-shrink-0 p-7 flex flex-col items-center justify-center gap-4 cursor-pointer hover:bg-slate-50 transition-colors"
+            >
+              <div className="w-16 h-16 bg-slate-50 text-slate-300 rounded-3xl flex items-center justify-center border-2 border-dashed border-slate-200 group-hover:border-main group-hover:text-main transition-all">
+                <Plus size={32} />
+              </div>
+              <div className="text-center">
+                <p className="text-slate-900 font-bold text-[17px]">
+                  새로운 목표 추가하기
+                </p>
+                <p className="text-slate-400 text-[13px] mt-1">
+                  최대 5개까지 설정할 수 있어요
+                </p>
+              </div>
+            </div>
+          )}
         </motion.div>
 
         {/* Minimal Navigation Arrows */}
-        {goals.length > 1 && (
+        {totalSlides > 1 && (
           <>
             <button
               onClick={handlePrev}
@@ -255,9 +377,9 @@ export const GoalSummaryWidget = () => {
       </div>
 
       {/* Pagination Dots */}
-      {goals.length > 1 && (
-        <div className="flex justify-center gap-1.5 mt-4">
-          {goals.map((_, idx) => (
+      {totalSlides > 1 && (
+        <div className="flex justify-center gap-1.5 ">
+          {Array.from({ length: totalSlides }).map((_, idx) => (
             <div
               key={idx}
               className={`h-1.5 rounded-full transition-all duration-300 ${
@@ -267,6 +389,44 @@ export const GoalSummaryWidget = () => {
           ))}
         </div>
       )}
+
+      {/* Detail/Create BottomSheet */}
+      <BottomSheet
+        isOpen={isBottomSheetOpen}
+        onClose={() => setIsBottomSheetOpen(false)}
+        title={selectedGoal ? "목표 상세 정보" : "새 목표 설정"}
+      >
+        <div className="py-2">
+          {selectedGoal && (
+            <div className="flex justify-end mb-4">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsDeleteModalOpen(true);
+                }}
+                className="text-[13px] font-bold text-red-500 bg-red-50 px-3 py-1.5 rounded-lg active:scale-95 transition-all"
+              >
+                삭제하기
+              </button>
+            </div>
+          )}
+          <GoalForm
+            initialData={selectedGoal || undefined}
+            onSubmit={handleGoalSubmit}
+            onCancel={() => setIsBottomSheetOpen(false)}
+          />
+        </div>
+      </BottomSheet>
+
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteGoal}
+        title="목표 삭제"
+        description="이 목표를 정말 삭제하시겠어요?"
+        confirmText="삭제하기"
+        isDanger={true}
+      />
     </div>
   );
 };
